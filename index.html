@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Portfolio — Stage 01: Base Scroll Scene</title>
+
+  <!--
+  ============================================================
+    STAGE 01 — Base Setup & Scroll Scene
+    git commit: "init: base scaffold, scroll scene skeleton"
+  ============================================================
+    What this stage covers:
+      • CSS custom properties (design tokens)
+      • Full-page scroll scene with sticky viewport
+      • Animated night sky + procedurally placed stars
+      • City silhouette background (distant buildings)
+      • Ground plane with road + dashed centre line
+      • Scroll progress HUD (top-right)
+      • Scroll hint arrow animation
+      • JS: onScroll handler wiring scroll → scene state
+
+    What is intentionally NOT here yet:
+      • Building parts       → Stage 02
+      • Character / walking  → Stage 03
+      • Door transition      → Stage 04
+      • Interior / reception → Stage 05+
+  ============================================================
+  -->
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500&display=swap"
+    rel="stylesheet"
+  />
+
+  <style>
+    /* =====================================================
+       DESIGN TOKENS
+       All colours, spacing and type scales live here.
+       Later stages import this same file so tokens stay
+       consistent throughout the project.
+    ===================================================== */
+    :root {
+      /* Palette */
+      --bg:           #07060e;
+      --accent:       #7c3aed;   /* purple */
+      --gold:         #f59e0b;   /* amber  */
+      --cyan:         #06b6d4;
+      --text:         #e8e4f0;
+      --muted:        rgba(232, 228, 240, 0.42);
+      --glass:        rgba(124, 58, 237, 0.06);
+      --border:       rgba(124, 58, 237, 0.22);
+
+      /* Typography */
+      --font-display: 'Bebas Neue', sans-serif;
+      --font-mono:    'Space Mono', monospace;
+      --font-body:    'DM Sans', sans-serif;
+    }
+
+    /* =====================================================
+       RESET + BASE
+    ===================================================== */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-body);
+      overflow-x: hidden;
+    }
+
+    /* =====================================================
+       SCROLL SCENE WRAPPER
+       #scene has a tall height so the browser gives us
+       lots of scroll distance.  .sticky pins the visual
+       canvas to the viewport while the page scrolls.
+    ===================================================== */
+    #scene {
+      /* 600vh = plenty of scroll runway for all animations.
+         Later stages will use the full range; for now only
+         the first portion matters. */
+      height: 600vh;
+      position: relative;
+    }
+
+    .sticky {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow: hidden;
+
+      /* Centre everything horizontally, pin content to
+         the bottom so the ground sits at the viewport edge */
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+    }
+
+    /* =====================================================
+       SKY
+       Deep space gradient.  A subtle radial bloom at the
+       top centre suggests a distant light source or moon.
+    ===================================================== */
+    .sky {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+
+      background:
+        radial-gradient(
+          ellipse 70% 55% at 50% 0%,
+          rgba(44, 16, 82, 0.85) 0%,
+          transparent 70%
+        ),
+        linear-gradient(
+          180deg,
+          #0d0720 0%,
+          #09061a 40%,
+          #07060e 75%,
+          #07060e 100%
+        );
+    }
+
+    /* =====================================================
+       STARS
+       Generated procedurally by JS (see below).
+       Each .star is a tiny circle; CSS variables carry
+       per-star duration + delay for natural twinkling.
+    ===================================================== */
+    .stars-wrap {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      overflow: hidden;
+      /* Stars occupy the top 70% — they shouldn't appear
+         below the horizon / ground plane */
+      height: 70%;
+      pointer-events: none;
+    }
+
+    .star {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.82);
+      animation: twinkle var(--d, 3s) ease-in-out infinite;
+      animation-delay: var(--dl, 0s);
+    }
+
+    @keyframes twinkle {
+      0%, 100% { opacity: 0.12; transform: scale(0.85); }
+      50%       { opacity: 0.95; transform: scale(1.1);  }
+    }
+
+    /* =====================================================
+       CITY SILHOUETTE  (distant background buildings)
+       A row of flat dark rectangles that hint at a city
+       skyline behind the main building.
+       Fades out as the user scrolls closer — handled in JS.
+    ===================================================== */
+    .city-bg {
+      position: absolute;
+      bottom: 108px;          /* sit on top of the ground */
+      left: 0;
+      right: 0;
+      z-index: 2;
+
+      height: 170px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      gap: 3px;
+
+      opacity: 0.24;
+      transition: opacity 0.5s ease;
+
+      /* Prevent interaction so scroll events pass through */
+      pointer-events: none;
+    }
+
+    /* Individual silhouette block — widths/heights are
+       set inline by the JS generator for variety */
+    .cb {
+      flex-shrink: 0;
+      background: linear-gradient(180deg, #1a183a 0%, #0d0b1a 100%);
+      border-top: 1px solid rgba(124, 58, 237, 0.18);
+    }
+
+    /* Random windows on silhouette buildings */
+    .cb-win {
+      display: block;
+      position: absolute;
+      background: rgba(245, 158, 11, 0.25);
+    }
+
+    /* =====================================================
+       GROUND PLANE
+       A dark trapezoid that sells the "street" feeling.
+       The road strip runs up the centre.
+    ===================================================== */
+    .ground {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 108px;
+      z-index: 12;
+
+      background: linear-gradient(180deg, #141228 0%, #0a0916 100%);
+
+      /* Top edge gets a very subtle purple rim light */
+      border-top: 1px solid rgba(124, 58, 237, 0.12);
+    }
+
+    /* Asphalt road centre strip */
+    .road {
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 160px;
+      height: 108px;
+
+      background: #0f0e1c;
+
+      /* Subtle kerb lines either side */
+      border-left:  1px solid rgba(124, 58, 237, 0.10);
+      border-right: 1px solid rgba(124, 58, 237, 0.10);
+    }
+
+    /* Dashed centre line — perspective makes it feel 3-D */
+    .road-dashes {
+      position: absolute;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+    }
+
+    .rd {
+      width: 5px;
+      height: 16px;
+      background: rgba(245, 158, 11, 0.32);
+      border-radius: 1px;
+    }
+
+    /* Pavement / kerb strips either side of the road */
+    .pavement {
+      position: absolute;
+      bottom: 0;
+      height: 108px;
+      width: calc(50% - 80px);
+      background: linear-gradient(180deg, #111028 0%, #09080f 100%);
+    }
+    .pavement.left  { left: 0; }
+    .pavement.right { right: 0; }
+
+    /* =====================================================
+       SCROLL HUD  (top-right corner)
+       Shows scroll progress 0 → 100% for dev visibility.
+       Can be removed or repurposed in a later stage.
+    ===================================================== */
+    .scroll-hud {
+      position: absolute;
+      top: 28px;
+      right: 32px;
+      z-index: 50;
+
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 4px;
+
+      opacity: 0;
+      transition: opacity 0.4s;
+      pointer-events: none;
+    }
+    .scroll-hud.visible { opacity: 1; }
+
+    .hud-label {
+      font-family: var(--font-mono);
+      font-size: 0.58rem;
+      letter-spacing: 3px;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+    .hud-value {
+      font-family: var(--font-display);
+      font-size: 2rem;
+      letter-spacing: 3px;
+      color: var(--gold);
+      line-height: 1;
+    }
+    .hud-bar {
+      width: 80px;
+      height: 2px;
+      background: rgba(245, 158, 11, 0.15);
+      position: relative;
+      overflow: hidden;
+    }
+    .hud-bar-fill {
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 0%;
+      background: var(--gold);
+      transition: width 0.1s linear;
+    }
+
+    /* =====================================================
+       SCROLL HINT
+       Pulsing arrow at the bottom — fades out as soon as
+       the user begins scrolling.
+    ===================================================== */
+    .scroll-hint {
+      position: absolute;
+      bottom: 130px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 30;
+
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+
+      opacity: 1;
+      transition: opacity 0.6s ease;
+      pointer-events: none;
+    }
+    .scroll-hint.hide { opacity: 0; }
+
+    .sh-label {
+      font-family: var(--font-mono);
+      font-size: 0.58rem;
+      letter-spacing: 4px;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+
+    /* The animated downward line */
+    .sh-arrow {
+      width: 1px;
+      height: 36px;
+      background: linear-gradient(180deg, transparent 0%, var(--accent) 100%);
+      animation: pulse-line 1.6s ease-in-out infinite;
+    }
+
+    @keyframes pulse-line {
+      0%, 100% { opacity: 0.25; transform: scaleY(0.75); }
+      50%       { opacity: 1;    transform: scaleY(1);    }
+    }
+
+    /* Small chevron below the line */
+    .sh-chevron {
+      width: 10px;
+      height: 10px;
+      border-right: 1.5px solid var(--accent);
+      border-bottom: 1.5px solid var(--accent);
+      transform: rotate(45deg) translateY(-4px);
+      animation: bounce-chevron 1.6s ease-in-out infinite;
+    }
+
+    @keyframes bounce-chevron {
+      0%, 100% { transform: rotate(45deg) translateY(-4px); opacity: 0.4; }
+      50%       { transform: rotate(45deg) translateY(2px);  opacity: 1;   }
+    }
+
+    /* =====================================================
+       PLACEHOLDER — future stages will go here
+       A ghost outline in the centre of the road indicates
+       where the building and character will appear.
+    ===================================================== */
+    .placeholder-hint {
+      position: absolute;
+      bottom: 108px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 6;
+
+      width: 220px;
+      height: 300px;
+
+      border: 1px dashed rgba(124, 58, 237, 0.18);
+      border-bottom: none;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+    }
+
+    .placeholder-hint span {
+      font-family: var(--font-mono);
+      font-size: 0.52rem;
+      letter-spacing: 3px;
+      color: rgba(124, 58, 237, 0.35);
+      text-transform: uppercase;
+      text-align: center;
+      line-height: 1.8;
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- =====================================================
+       SCROLL SCENE ROOT
+       600vh tall — the sticky child pins to the viewport.
+  ====================================================== -->
+  <div id="scene">
+    <div class="sticky" id="sticky">
+
+      <!-- ── SKY ── -->
+      <div class="sky" id="sky"></div>
+
+      <!-- ── STARS (populated by JS) ── -->
+      <div class="stars-wrap" id="starsWrap"></div>
+
+      <!-- ── CITY SILHOUETTE (populated by JS) ── -->
+      <div class="city-bg" id="cityBg"></div>
+
+      <!-- ── GROUND ── -->
+      <div class="ground">
+        <div class="pavement left"></div>
+        <div class="road">
+          <div class="road-dashes" id="roadDashes"></div>
+        </div>
+        <div class="pavement right"></div>
+      </div>
+
+      <!-- ── PLACEHOLDER (removed in Stage 02) ── -->
+      <div class="placeholder-hint">
+        <span>Stage 02<br>Building<br>goes here</span>
+      </div>
+
+      <!-- ── SCROLL HUD ── -->
+      <div class="scroll-hud" id="scrollHud">
+        <span class="hud-label">Scroll</span>
+        <span class="hud-value" id="hudValue">0%</span>
+        <div class="hud-bar">
+          <div class="hud-bar-fill" id="hudFill"></div>
+        </div>
+      </div>
+
+      <!-- ── SCROLL HINT ── -->
+      <div class="scroll-hint" id="scrollHint">
+        <span class="sh-label">Scroll to enter</span>
+        <div class="sh-arrow"></div>
+        <div class="sh-chevron"></div>
+      </div>
+
+    </div><!-- /.sticky -->
+  </div><!-- /#scene -->
+
+
+  <script>
+    /* ==================================================
+       STAGE 01 — JavaScript
+       Responsibilities:
+         1. Generate stars procedurally
+         2. Generate city silhouette blocks
+         3. Generate road dashes
+         4. Wire up the scroll handler
+         5. Update HUD + fade scroll hint
+
+       Each function is clearly labelled so Stage 02+
+       can extend the onScroll() handler without
+       touching the setup functions.
+    ================================================== */
+
+    /* --------------------------------------------------
+       1. STAR GENERATOR
+       Creates N star elements with randomised:
+         • size (1–3 px)
+         • position within the stars-wrap container
+         • twinkle duration (2–5 s)
+         • twinkle delay   (0–4 s)
+    -------------------------------------------------- */
+    function generateStars(count = 180) {
+      const wrap = document.getElementById('starsWrap');
+      const frag = document.createDocumentFragment();
+
+      for (let i = 0; i < count; i++) {
+        const star = document.createElement('div');
+        star.className = 'star';
+
+        const size     = Math.random() * 2 + 0.8;          // 0.8–2.8 px
+        const x        = Math.random() * 100;               // 0–100 %
+        const y        = Math.random() * 100;               // 0–100 %
+        const duration = (Math.random() * 3 + 2).toFixed(1); // 2–5 s
+        const delay    = (Math.random() * 4).toFixed(1);    // 0–4 s
+
+        star.style.cssText = `
+          width:  ${size}px;
+          height: ${size}px;
+          left:   ${x}%;
+          top:    ${y}%;
+          --d:    ${duration}s;
+          --dl:   ${delay}s;
+        `;
+        frag.appendChild(star);
+      }
+      wrap.appendChild(frag);
+    }
+
+    /* --------------------------------------------------
+       2. CITY SILHOUETTE GENERATOR
+       Creates a row of flat dark rectangles that look
+       like distant buildings.  Heights are varied so
+       the skyline feels organic.
+    -------------------------------------------------- */
+    function generateCityBg() {
+      const container = document.getElementById('cityBg');
+      const frag      = document.createDocumentFragment();
+
+      // Each building config: [width, height]
+      const buildings = [
+        [18, 60],  [28, 95],  [22, 75],  [35, 130], [20, 55],
+        [30, 110], [18, 65],  [42, 155], [25, 80],  [30, 100],
+        [20, 70],  [36, 125], [24, 85],  [28, 95],  [18, 50],
+        [40, 140], [22, 70],  [26, 90],  [32, 115], [20, 60],
+        [28, 95],  [18, 55],  [34, 120], [22, 75],
+      ];
+
+      buildings.forEach(([w, h]) => {
+        const el = document.createElement('div');
+        el.className = 'cb';
+        el.style.width  = `${w}px`;
+        el.style.height = `${h}px`;
+        el.style.position = 'relative';
+        frag.appendChild(el);
+      });
+
+      container.appendChild(frag);
+    }
+
+    /* --------------------------------------------------
+       3. ROAD DASH GENERATOR
+       Fills the road-dashes container with a number of
+       short dash marks.
+    -------------------------------------------------- */
+    function generateRoadDashes(count = 5) {
+      const container = document.getElementById('roadDashes');
+      for (let i = 0; i < count; i++) {
+        const dash = document.createElement('div');
+        dash.className = 'rd';
+        container.appendChild(dash);
+      }
+    }
+
+    /* --------------------------------------------------
+       4. SCROLL HANDLER
+       Called on every scroll event.  Computes progress
+       (0 → 1) across the full scene height.
+
+       Stages 02–04 will extend this function by adding
+       more cases inside the same handler — no refactor
+       needed, just append.
+    -------------------------------------------------- */
+    const scene     = document.getElementById('scene');
+    const cityBg    = document.getElementById('cityBg');
+    const scrollHud = document.getElementById('scrollHud');
+    const hudValue  = document.getElementById('hudValue');
+    const hudFill   = document.getElementById('hudFill');
+    const scrollHint = document.getElementById('scrollHint');
+
+    function onScroll() {
+      const sceneTop    = scene.offsetTop;
+      const sceneHeight = scene.offsetHeight;
+      const viewH       = window.innerHeight;
+
+      // progress: 0 at scene top, 1 at scene bottom
+      const rawProgress = (window.scrollY - sceneTop) / (sceneHeight - viewH);
+      const progress    = Math.max(0, Math.min(1, rawProgress));
+
+      // ── HUD ──
+      if (progress > 0.005) {
+        scrollHud.classList.add('visible');
+      } else {
+        scrollHud.classList.remove('visible');
+      }
+      const pct = Math.round(progress * 100);
+      hudValue.textContent = `${pct}%`;
+      hudFill.style.width  = `${pct}%`;
+
+      // ── SCROLL HINT ──
+      // Hide once user has scrolled even slightly
+      if (progress > 0.03) {
+        scrollHint.classList.add('hide');
+      } else {
+        scrollHint.classList.remove('hide');
+      }
+
+      // ── CITY SILHOUETTE ──
+      // Fade city out as we approach the building
+      // (full fade by progress 0.35)
+      cityBg.style.opacity = Math.max(0, 0.24 - progress * 0.7).toFixed(3);
+
+      // ── SKY SHIFT ──
+      // Subtle purple bloom grows as user scrolls in
+      const bloom = Math.min(progress * 1.4, 1);
+      document.getElementById('sky').style.background = `
+        radial-gradient(
+          ellipse 70% ${55 + bloom * 20}% at 50% 0%,
+          rgba(44, 16, 82, ${0.85 + bloom * 0.15}) 0%,
+          transparent 70%
+        ),
+        linear-gradient(
+          180deg,
+          #0d0720 0%,
+          #09061a 40%,
+          #07060e 75%,
+          #07060e 100%
+        )
+      `;
+
+      /* ------------------------------------------------
+         Stage 02 additions go here:
+           • Reveal building parts based on progress
+           • Scale building up as character approaches
+         Stage 03 additions go here:
+           • Move character horizontally
+           • Toggle walking leg animation
+         Stage 04 additions go here:
+           • Trigger entry flash + transition overlay
+      ------------------------------------------------ */
+    }
+
+    /* --------------------------------------------------
+       5. INIT + EVENT BINDING
+    -------------------------------------------------- */
+    function init() {
+      generateStars(180);
+      generateCityBg();
+      generateRoadDashes(5);
+
+      window.addEventListener('scroll', onScroll, { passive: true });
+      // Run once on load to set initial state
+      onScroll();
+    }
+
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
+
+</body>
+</html>
