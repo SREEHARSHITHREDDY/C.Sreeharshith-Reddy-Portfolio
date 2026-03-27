@@ -7,30 +7,25 @@
 
   <!--
   ============================================================
-    STAGE 02 — 3D Building Assembly Animation
-    git commit: "feat: 3D building blocks assemble on scroll with sliding doors"
+    STAGE 03 — Character Walk & Perspective Zoom
+    git commit: "feat: character walks toward building on scroll"
   ============================================================
-    CHANGES FROM STAGE 01:
-      + CSS 3D perspective scene wrapper (.scene-3d)
-      + 10 building blocks (.blk) each with a unique
-        random entry direction via CSS custom properties:
-          --tx  translateX  (side entries)
-          --ty  translateY  (top/bottom entries)
-          --tz  translateZ  (front/back entries)
-          --rx  rotateX     (perspective tilt)
-          --ry  rotateY     (side spin)
-      + Each .blk transitions to identity when .vis added by JS
-      + Window grids (.win) with l1/l2/l3 lit states
-      + Window flicker setInterval
-      + Wings row with individual left/right slide-in
-      + Sliding doors (.door-panel.left / .right) split at progress 0.82
-      + "WELCOME" text glows in the door gap
-      + Ground glow pool beneath entrance
-      + Penthouse name: "C. SREE HARSHITH REDDY'S EMPIRE"
-      + Antenna blink tip light
-      - placeholder-hint div REMOVED
+    CHANGES FROM STAGE 02:
+      + #character  — pixel person sitting on road
+      + .char-head, .char-body, .char-legs, .char-shadow
+      + @keyframes walk-left / walk-right  leg swing
+      + @keyframes char-bob               body bounce while walking
+      + JS: character moves from left edge → door centre
+            as scroll progress goes 0.04 → 0.82
+      + JS: walking animation toggles based on scroll movement
+      + JS: character scales up as it approaches building
+            (parallels building zoom for depth illusion)
+      + JS: character fades + shrinks into doors at progress > 0.82
+      + JS: character shadow stretches proportionally
+      + JS: footstep dust puffs appear while walking (canvas)
+      + Briefcase accessory on character body
 
-    Everything from Stage 01 is unchanged.
+    Everything from Stage 01 and Stage 02 is unchanged.
   ============================================================
   -->
 
@@ -42,7 +37,7 @@
 
   <style>
     /* =====================================================
-       DESIGN TOKENS — unchanged from Stage 01
+       DESIGN TOKENS — unchanged
     ===================================================== */
     :root {
       --bg:           #07060e;
@@ -162,241 +157,224 @@
     @keyframes bounce-chevron { 0%,100%{transform:rotate(45deg) translateY(-4px);opacity:.4;} 50%{transform:rotate(45deg) translateY(2px);opacity:1;} }
 
     /* =====================================================
-       ★ NEW — STAGE 02: CSS 3D SCENE
+       3D SCENE — unchanged from Stage 02
     ===================================================== */
-
-    /*
-      The outer wrapper holds the CSS perspective so that
-      all child 3D transforms are rendered correctly.
-      perspective-origin 50% 120% puts the vanishing point
-      slightly below the viewport bottom, which makes the
-      building appear to recede naturally.
-    */
     .scene-3d {
-      position: absolute;
-      bottom: 108px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 380px;
-      height: 540px;
-      perspective: 900px;
-      perspective-origin: 50% 120%;
+      position: absolute; bottom: 108px; left: 50%; transform: translateX(-50%);
+      width: 380px; height: 540px;
+      perspective: 900px; perspective-origin: 50% 120%;
       z-index: 8;
     }
-
-    /*
-      .building is what JS scales on every scroll frame.
-      transform-style: preserve-3d passes the perspective
-      through to all .blk children.
-    */
     .building {
-      position: absolute;
-      bottom: 0; left: 50%;
+      position: absolute; bottom: 0; left: 50%;
       transform: translateX(-50%) scale(0.28);
       transform-origin: bottom center;
       transform-style: preserve-3d;
       width: 340px;
     }
+    .blk {
+      position: relative; width: 100%; opacity: 0;
+      transform:
+        translateX(var(--tx,0px)) translateY(var(--ty,0px))
+        translateZ(var(--tz,0px)) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));
+      transition: opacity .95s cubic-bezier(0.22,1,0.36,1), transform .95s cubic-bezier(0.22,1,0.36,1);
+    }
+    .blk.vis { opacity:1; transform:translateX(0) translateY(0) translateZ(0) rotateX(0deg) rotateY(0deg); }
+    .b-antenna { width:3px;height:32px;margin:0 auto;background:linear-gradient(180deg,rgba(245,158,11,.9),rgba(124,58,237,.3));position:relative; }
+    .b-antenna::after { content:'';position:absolute;top:-5px;left:50%;transform:translateX(-50%);width:8px;height:8px;border-radius:50%;background:var(--gold);box-shadow:0 0 18px 6px rgba(245,158,11,.8);animation:blink-tip 1.5s ease-in-out infinite; }
+    @keyframes blink-tip { 0%,100%{opacity:1;box-shadow:0 0 18px 6px rgba(245,158,11,.8);}50%{opacity:.1;box-shadow:0 0 4px 1px rgba(245,158,11,.2);} }
+    .b-roof-tri { height:0;width:0;margin:0 auto;border-left:90px solid transparent;border-right:90px solid transparent;border-bottom:38px solid #1e1c42;position:relative; }
+    .b-roof-tri::after { content:'';position:absolute;bottom:-38px;left:-90px;right:-90px;height:2px;background:linear-gradient(90deg,transparent,var(--accent),var(--gold),var(--accent),transparent);opacity:.75; }
+    .b-penthouse { height:50px;width:216px;margin:0 auto;background:linear-gradient(180deg,#1c1a3e,#141230);border-top:2px solid var(--accent);border-left:1px solid rgba(124,58,237,.3);border-right:1px solid rgba(124,58,237,.3);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden; }
+    .b-penthouse::before { content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(124,58,237,.05) 3px,rgba(124,58,237,.05) 4px); }
+    .b-penthouse-name { font-family:var(--font-display);font-size:.68rem;letter-spacing:2.5px;line-height:1.3;color:var(--gold);text-shadow:0 0 14px rgba(245,158,11,.6);text-align:center;z-index:1;position:relative; }
+    .b-floor { height:60px;width:100%;background:linear-gradient(180deg,#111028,#0d0c22);border:1px solid rgba(124,58,237,.14);border-bottom:none;display:grid;grid-template-columns:repeat(8,1fr);gap:4px;padding:8px 10px;position:relative; }
+    .b-floor::before { content:attr(data-label);position:absolute;left:-38px;top:50%;transform:translateY(-50%);font-family:var(--font-mono);font-size:.36rem;letter-spacing:2px;color:rgba(124,58,237,.32);writing-mode:vertical-rl;rotate:180deg; }
+    .b-wings { display:flex;gap:4px;width:100%; }
+    .b-wing { flex:1;height:54px;background:linear-gradient(180deg,#0f0e24,#0b0a1a);border:1px solid rgba(124,58,237,.12);border-bottom:none;display:grid;grid-template-columns:repeat(4,1fr);gap:3px;padding:6px; }
+    .b-wing-center { width:216px;height:54px;background:linear-gradient(180deg,#111028,#0d0c22);border:1px solid rgba(124,58,237,.18);border-bottom:none;display:grid;grid-template-columns:repeat(5,1fr);gap:3px;padding:6px; }
+    .win { background:rgba(124,58,237,.06);border:1px solid rgba(124,58,237,.16);border-radius:1px;transition:background .4s,border-color .4s,opacity .15s; }
+    .win.l1 { background:rgba(245,158,11,.30);border-color:rgba(245,158,11,.55);box-shadow:0 0 5px 1px rgba(245,158,11,.15) inset; }
+    .win.l2 { background:rgba(124,58,237,.38);border-color:var(--accent);box-shadow:0 0 5px 1px rgba(124,58,237,.22) inset; }
+    .win.l3 { background:rgba(6,182,212,.28);border-color:var(--cyan);box-shadow:0 0 5px 1px rgba(6,182,212,.18) inset; }
+    .b-lobby { height:78px;width:100%;background:linear-gradient(180deg,#0d0c22,#07060e);border:1px solid rgba(124,58,237,.28);border-top:none;display:flex;align-items:flex-end;justify-content:center;position:relative;overflow:hidden; }
+    .b-lobby::before { content:'';position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:130px;height:30px;background:radial-gradient(ellipse at 50% 100%,rgba(124,58,237,.4),transparent 70%); }
+    .door-wrap { position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:124px;height:74px;display:flex;overflow:hidden; }
+    .door-panel { flex:1;height:100%;background:linear-gradient(180deg,rgba(124,58,237,.22),rgba(124,58,237,.06));border-top:1px solid rgba(124,58,237,.5);position:relative;transition:transform .85s cubic-bezier(0.22,1,0.36,1); }
+    .door-panel.left  { border-right:1px solid rgba(124,58,237,.3); }
+    .door-panel.right { border-left:1px solid rgba(124,58,237,.3); }
+    .door-panel.left::after,.door-panel.right::after { content:'';position:absolute;top:50%;width:5px;height:5px;border-radius:50%;background:var(--gold);box-shadow:0 0 8px 2px rgba(245,158,11,.6);transform:translateY(-50%); }
+    .door-panel.left::after  { right:5px; }
+    .door-panel.right::after { left:5px; }
+    .door-panel.left.open  { transform:translateX(-100%); }
+    .door-panel.right.open { transform:translateX(100%); }
+    .welcome-text { position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:124px;height:74px;display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:.85rem;letter-spacing:5px;color:var(--gold);text-shadow:0 0 22px rgba(245,158,11,.9),0 0 8px rgba(245,158,11,.5);opacity:0;transition:opacity .7s ease .35s;pointer-events:none; }
+    .welcome-text.show { opacity:1; }
+    .ground-glow { position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:140px;height:20px;background:radial-gradient(ellipse at 50% 100%,rgba(124,58,237,.5),transparent 70%);opacity:0;transition:opacity .8s ease;pointer-events:none; }
+    .ground-glow.show { opacity:1; }
+    .entrance-glow { position:absolute;bottom:108px;left:50%;transform:translateX(-50%);z-index:13;width:110px;height:18px;background:radial-gradient(ellipse at 50% 0%,rgba(124,58,237,.55),transparent 70%);opacity:0;transition:opacity .5s ease;pointer-events:none; }
+    .b-sill { height:8px;width:148px;margin:0 auto;background:linear-gradient(90deg,rgba(124,58,237,0),rgba(124,58,237,.45),rgba(245,158,11,.45),rgba(124,58,237,.45),rgba(124,58,237,0));box-shadow:0 0 14px 3px rgba(124,58,237,.3); }
+
+    /* =====================================================
+       ★ NEW — STAGE 03: CHARACTER
+    ===================================================== */
 
     /*
-      Each .blk starts at its "launch" position defined
-      by inline CSS custom properties (--tx, --ty, etc.).
-      When JS adds .vis the block eases back to identity.
+      #character sits on the road surface (z-index 15 = above ground z:12).
+      JS drives its left position and transform: scale().
+      The entire element is a flex column: shadow → legs → body → head.
+      We render bottom-up so the shadow is at the bottom naturally.
     */
-    .blk {
+    #character {
+      position: absolute;
+      bottom: 108px;          /* sits exactly on the ground surface */
+      left: 0;                /* JS sets this each frame */
+      z-index: 15;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transform-origin: bottom center;
+      pointer-events: none;
+      transition: opacity .5s ease;
+    }
+
+    /* ── Head ── */
+    .char-head {
+      width: 18px;
+      height: 19px;
+      background: #e8c49a;            /* skin tone */
+      border-radius: 50% 50% 42% 42%;
       position: relative;
-      width: 100%;
-      opacity: 0;
-      transform:
-        translateX(var(--tx,0px))
-        translateY(var(--ty,0px))
-        translateZ(var(--tz,0px))
-        rotateX(var(--rx,0deg))
-        rotateY(var(--ry,0deg));
-      transition:
-        opacity   0.95s cubic-bezier(0.22,1,0.36,1),
-        transform 0.95s cubic-bezier(0.22,1,0.36,1);
+      z-index: 2;
+      flex-shrink: 0;
     }
-    .blk.vis {
-      opacity: 1;
-      transform: translateX(0) translateY(0) translateZ(0) rotateX(0deg) rotateY(0deg);
+    /* hair */
+    .char-head::before {
+      content: '';
+      position: absolute;
+      top: -8px; left: -3px;
+      width: 24px; height: 13px;
+      background: #1a0f06;
+      border-radius: 50% 50% 0 0;
+    }
+    /* ear dot */
+    .char-head::after {
+      content: '';
+      position: absolute;
+      top: 6px; right: -3px;
+      width: 4px; height: 5px;
+      background: #d4aa82;
+      border-radius: 50%;
     }
 
-    /* ── Antenna ── */
-    .b-antenna {
-      width: 3px; height: 32px; margin: 0 auto;
-      background: linear-gradient(180deg, rgba(245,158,11,.9), rgba(124,58,237,.3));
+    /* ── Body / suit ── */
+    .char-body {
+      width: 20px; height: 26px;
+      background: linear-gradient(180deg, #1e2a4a, #162038);
+      border-radius: 3px 3px 0 0;
+      margin-top: -1px;
       position: relative;
+      flex-shrink: 0;
+      animation: char-bob 0s linear infinite paused;
     }
-    .b-antenna::after {
-      content: ''; position: absolute; top: -5px; left: 50%; transform: translateX(-50%);
-      width: 8px; height: 8px; border-radius: 50%;
-      background: var(--gold); box-shadow: 0 0 18px 6px rgba(245,158,11,.8);
-      animation: blink-tip 1.5s ease-in-out infinite;
+    /* shirt collar/tie detail */
+    .char-body::before {
+      content: '';
+      position: absolute;
+      top: 2px; left: 50%; transform: translateX(-50%);
+      width: 6px; height: 10px;
+      background: #ffffff22;
+      clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
     }
-    @keyframes blink-tip {
-      0%,100% { opacity:1;  box-shadow:0 0 18px 6px rgba(245,158,11,.8); }
-      50%      { opacity:.1; box-shadow:0 0 4px  1px rgba(245,158,11,.2); }
-    }
-
-    /* ── Roof triangle ── */
-    .b-roof-tri {
-      height: 0; width: 0; margin: 0 auto;
-      border-left: 90px solid transparent;
-      border-right: 90px solid transparent;
-      border-bottom: 38px solid #1e1c42;
-      position: relative;
-    }
-    .b-roof-tri::after {
-      content: ''; position: absolute; bottom: -38px; left: -90px; right: -90px;
-      height: 2px;
-      background: linear-gradient(90deg, transparent, var(--accent), var(--gold), var(--accent), transparent);
-      opacity: .75;
-    }
-
-    /* ── Penthouse band ── */
-    .b-penthouse {
-      height: 50px; width: 216px; margin: 0 auto;
-      background: linear-gradient(180deg, #1c1a3e, #141230);
-      border-top: 2px solid var(--accent);
-      border-left: 1px solid rgba(124,58,237,.3);
-      border-right: 1px solid rgba(124,58,237,.3);
-      display: flex; align-items: center; justify-content: center;
-      position: relative; overflow: hidden;
-    }
-    .b-penthouse::before {
-      content: ''; position: absolute; inset: 0;
-      background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(124,58,237,.05) 3px, rgba(124,58,237,.05) 4px);
-    }
-    .b-penthouse-name {
-      font-family: var(--font-display);
-      font-size: .68rem; letter-spacing: 2.5px; line-height: 1.3;
-      color: var(--gold); text-shadow: 0 0 14px rgba(245,158,11,.6);
-      text-align: center; z-index: 1; position: relative;
-    }
-
-    /* ── Floor slab ── */
-    .b-floor {
-      height: 60px; width: 100%;
-      background: linear-gradient(180deg, #111028, #0d0c22);
-      border: 1px solid rgba(124,58,237,.14);
-      border-bottom: none;
-      display: grid; grid-template-columns: repeat(8,1fr); gap: 4px; padding: 8px 10px;
-      position: relative;
-    }
-    .b-floor::before {
-      content: attr(data-label);
-      position: absolute; left: -38px; top: 50%; transform: translateY(-50%);
-      font-family: var(--font-mono); font-size: .36rem; letter-spacing: 2px;
-      color: rgba(124,58,237,.32);
-      writing-mode: vertical-rl; rotate: 180deg;
-    }
-
-    /* ── Wings row ── */
-    .b-wings { display: flex; gap: 4px; width: 100%; }
-    .b-wing {
-      flex: 1; height: 54px;
-      background: linear-gradient(180deg, #0f0e24, #0b0a1a);
-      border: 1px solid rgba(124,58,237,.12); border-bottom: none;
-      display: grid; grid-template-columns: repeat(4,1fr); gap: 3px; padding: 6px;
-    }
-    .b-wing-center {
-      width: 216px; height: 54px;
-      background: linear-gradient(180deg, #111028, #0d0c22);
-      border: 1px solid rgba(124,58,237,.18); border-bottom: none;
-      display: grid; grid-template-columns: repeat(5,1fr); gap: 3px; padding: 6px;
-    }
-
-    /* ── Window cells ── */
-    .win {
-      background: rgba(124,58,237,.06);
-      border: 1px solid rgba(124,58,237,.16);
+    /* briefcase */
+    .char-body::after {
+      content: '';
+      position: absolute;
+      bottom: 2px; right: -9px;
+      width: 8px; height: 7px;
+      background: #2a1a08;
+      border: 1px solid rgba(245,158,11,.45);
       border-radius: 1px;
-      transition: background .4s, border-color .4s, opacity .15s;
-    }
-    .win.l1 { background:rgba(245,158,11,.30); border-color:rgba(245,158,11,.55); box-shadow:0 0 5px 1px rgba(245,158,11,.15) inset; }
-    .win.l2 { background:rgba(124,58,237,.38); border-color:var(--accent);         box-shadow:0 0 5px 1px rgba(124,58,237,.22) inset; }
-    .win.l3 { background:rgba(6,182,212,.28);  border-color:var(--cyan);           box-shadow:0 0 5px 1px rgba(6,182,212,.18)   inset; }
-
-    /* ── Lobby ── */
-    .b-lobby {
-      height: 78px; width: 100%;
-      background: linear-gradient(180deg, #0d0c22, #07060e);
-      border: 1px solid rgba(124,58,237,.28); border-top: none;
-      display: flex; align-items: flex-end; justify-content: center;
-      position: relative; overflow: hidden;
-    }
-    .b-lobby::before {
-      content: ''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
-      width: 130px; height: 30px;
-      background: radial-gradient(ellipse at 50% 100%, rgba(124,58,237,.4), transparent 70%);
     }
 
-    /* ── Door panels ── */
-    .door-wrap {
-      position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
-      width: 124px; height: 74px; display: flex; overflow: hidden;
+    @keyframes char-bob {
+      0%,100% { transform: translateY(0px);   }
+      50%      { transform: translateY(-1.5px); }
     }
-    .door-panel {
-      flex: 1; height: 100%;
-      background: linear-gradient(180deg, rgba(124,58,237,.22), rgba(124,58,237,.06));
-      border-top: 1px solid rgba(124,58,237,.5);
+
+    /* ── Legs ── */
+    .char-legs {
+      display: flex;
+      gap: 3px;
+      flex-shrink: 0;
+    }
+
+    .char-leg {
+      width: 8px; height: 16px;
+      background: #111830;
+      border-radius: 0 0 3px 3px;
+      transform-origin: top center;
       position: relative;
-      transition: transform .85s cubic-bezier(0.22,1,0.36,1);
     }
-    .door-panel.left  { border-right: 1px solid rgba(124,58,237,.3); }
-    .door-panel.right { border-left:  1px solid rgba(124,58,237,.3); }
-    .door-panel.left::after,
-    .door-panel.right::after {
-      content: ''; position: absolute; top: 50%;
-      width: 5px; height: 5px; border-radius: 50%;
-      background: var(--gold); box-shadow: 0 0 8px 2px rgba(245,158,11,.6);
-      transform: translateY(-50%);
-    }
-    .door-panel.left::after  { right: 5px; }
-    .door-panel.right::after { left: 5px;  }
-    .door-panel.left.open    { transform: translateX(-100%); }
-    .door-panel.right.open   { transform: translateX(100%);  }
-
-    /* ── Welcome text ── */
-    .welcome-text {
-      position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
-      width: 124px; height: 74px;
-      display: flex; align-items: center; justify-content: center;
-      font-family: var(--font-display); font-size: .85rem; letter-spacing: 5px;
-      color: var(--gold);
-      text-shadow: 0 0 22px rgba(245,158,11,.9), 0 0 8px rgba(245,158,11,.5);
-      opacity: 0; transition: opacity .7s ease .35s; pointer-events: none;
-    }
-    .welcome-text.show { opacity: 1; }
-
-    /* Ground glow inside lobby */
-    .ground-glow {
-      position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
-      width: 140px; height: 20px;
-      background: radial-gradient(ellipse at 50% 100%, rgba(124,58,237,.5), transparent 70%);
-      opacity: 0; transition: opacity .8s ease; pointer-events: none;
-    }
-    .ground-glow.show { opacity: 1; }
-
-    /* Street-level glow below entrance */
-    .entrance-glow {
-      position: absolute; bottom: 108px; left: 50%; transform: translateX(-50%);
-      z-index: 13; width: 110px; height: 18px;
-      background: radial-gradient(ellipse at 50% 0%, rgba(124,58,237,.55), transparent 70%);
-      opacity: 0; transition: opacity .5s ease; pointer-events: none;
+    /* shoe at bottom of each leg */
+    .char-leg::after {
+      content: '';
+      position: absolute;
+      bottom: -3px; left: -1px;
+      width: 10px; height: 4px;
+      background: #0a0a12;
+      border-radius: 0 2px 2px 0;
     }
 
-    /* ── Entrance sill (block 9) ── */
-    .b-sill {
-      height: 8px; width: 148px; margin: 0 auto;
-      background: linear-gradient(90deg,
-        rgba(124,58,237,0),
-        rgba(124,58,237,.45),
-        rgba(245,158,11,.45),
-        rgba(124,58,237,.45),
-        rgba(124,58,237,0));
-      box-shadow: 0 0 14px 3px rgba(124,58,237,.3);
+    /*
+      Walking animations — left and right legs swing in opposite phase.
+      Applied when JS adds class .walking to #character.
+    */
+    .walking .char-leg.left  { animation: swing-left  .38s ease-in-out infinite; }
+    .walking .char-leg.right { animation: swing-right .38s ease-in-out infinite; }
+    .walking .char-body      { animation: char-bob    .38s ease-in-out infinite; }
+
+    @keyframes swing-left {
+      0%   { transform: rotate(-18deg); }
+      50%  { transform: rotate( 18deg); }
+      100% { transform: rotate(-18deg); }
+    }
+    @keyframes swing-right {
+      0%   { transform: rotate( 18deg); }
+      50%  { transform: rotate(-18deg); }
+      100% { transform: rotate( 18deg); }
+    }
+
+    /* ── Shadow ── */
+    .char-shadow {
+      width: 22px; height: 6px;
+      background: rgba(0,0,0,.55);
+      border-radius: 50%;
+      margin-top: 2px;
+      /* JS scales width to fake shadow stretching when far away */
+      transform-origin: center;
+      flex-shrink: 0;
+    }
+
+    /* ── Footstep canvas (dust puffs) ── */
+    #footCanvas {
+      position: absolute;
+      bottom: 108px;
+      left: 0; right: 0;
+      height: 40px;
+      z-index: 14;
+      pointer-events: none;
+    }
+
+    /* ── Distance tag above character ── */
+    .char-dist-tag {
+      position: absolute;
+      top: -22px; left: 50%; transform: translateX(-50%);
+      font-family: var(--font-mono);
+      font-size: .44rem; letter-spacing: 2px;
+      color: rgba(200,180,255,.5);
+      white-space: nowrap;
+      pointer-events: none;
     }
 
   </style>
@@ -410,61 +388,32 @@
       <div class="stars-wrap" id="starsWrap"></div>
       <div class="city-bg" id="cityBg"></div>
 
-      <!-- ============================================================
-           ★ NEW — 3D BUILDING
-           10 blocks ordered top → bottom in DOM.
-           Each starts displaced from a different direction
-           and eases to identity when JS adds .vis.
-
-             blk0 antenna       from FRONT   tz:-500
-             blk1 roof          from TOP     ty:-320
-             blk2 penthouse     from BACK    tz:+500
-             blk3 floor 4       from LEFT    tx:-420 ry:-28deg
-             blk4 floor 3       from RIGHT   tx:+420 ry:+28deg
-             blk5 floor 2       from FRONT   tz:-440 rx:22deg
-             blk6 wings         combined     (children split separately)
-             blk7 floor 1       from BACK    tz:+460 rx:-20deg
-             blk8 lobby         from BELOW   ty:+220
-             blk9 entrance sill from FRONT   tz:-300
-      ============================================================ -->
+      <!-- 3D Building — unchanged from Stage 02 -->
       <div class="scene-3d" id="scene3d">
         <div class="building" id="building">
-
-          <div class="blk" id="blk0" style="--tx:0px;--ty:0px;--tz:-500px;--rx:0deg;--ry:0deg;">
-            <div class="b-antenna"></div>
-          </div>
-
-          <div class="blk" id="blk1" style="--tx:0px;--ty:-320px;--tz:0px;--rx:0deg;--ry:0deg;">
-            <div class="b-roof-tri"></div>
-          </div>
-
+          <div class="blk" id="blk0" style="--tx:0px;--ty:0px;--tz:-500px;--rx:0deg;--ry:0deg;"><div class="b-antenna"></div></div>
+          <div class="blk" id="blk1" style="--tx:0px;--ty:-320px;--tz:0px;--rx:0deg;--ry:0deg;"><div class="b-roof-tri"></div></div>
           <div class="blk" id="blk2" style="--tx:0px;--ty:0px;--tz:500px;--rx:0deg;--ry:0deg;">
-            <div class="b-penthouse">
-              <div class="b-penthouse-name">C. SREE HARSHITH REDDY'S<br>EMPIRE</div>
-            </div>
+            <div class="b-penthouse"><div class="b-penthouse-name">C. SREE HARSHITH REDDY'S<br>EMPIRE</div></div>
           </div>
-
           <div class="blk" id="blk3" style="--tx:-420px;--ty:0px;--tz:0px;--rx:0deg;--ry:-28deg;">
             <div class="b-floor" data-label="FLOOR 04">
               <div class="win l2"></div><div class="win"></div><div class="win l1"></div><div class="win l2"></div>
               <div class="win"></div><div class="win l1"></div><div class="win"></div><div class="win l2"></div>
             </div>
           </div>
-
           <div class="blk" id="blk4" style="--tx:420px;--ty:0px;--tz:0px;--rx:0deg;--ry:28deg;">
             <div class="b-floor" data-label="FLOOR 03">
               <div class="win"></div><div class="win l1"></div><div class="win l3"></div><div class="win l1"></div>
               <div class="win l2"></div><div class="win"></div><div class="win l1"></div><div class="win"></div>
             </div>
           </div>
-
           <div class="blk" id="blk5" style="--tx:0px;--ty:0px;--tz:-440px;--rx:22deg;--ry:0deg;">
             <div class="b-floor" data-label="FLOOR 02">
               <div class="win l1"></div><div class="win l2"></div><div class="win"></div><div class="win l1"></div>
               <div class="win"></div><div class="win l3"></div><div class="win l2"></div><div class="win l1"></div>
             </div>
           </div>
-
           <div class="blk" id="blk6" style="--tx:0px;--ty:0px;--tz:0px;--rx:0deg;--ry:0deg;">
             <div class="b-wings">
               <div class="b-wing" id="wingL">
@@ -481,14 +430,12 @@
               </div>
             </div>
           </div>
-
           <div class="blk" id="blk7" style="--tx:0px;--ty:0px;--tz:460px;--rx:-20deg;--ry:0deg;">
             <div class="b-floor" data-label="FLOOR 01">
               <div class="win l1"></div><div class="win"></div><div class="win l2"></div><div class="win l1"></div>
               <div class="win l3"></div><div class="win l1"></div><div class="win"></div><div class="win l2"></div>
             </div>
           </div>
-
           <div class="blk" id="blk8" style="--tx:0px;--ty:220px;--tz:0px;--rx:0deg;--ry:0deg;">
             <div class="b-lobby">
               <div class="ground-glow" id="groundGlow"></div>
@@ -499,16 +446,33 @@
               </div>
             </div>
           </div>
-
           <div class="blk" id="blk9" style="--tx:0px;--ty:0px;--tz:-300px;--rx:0deg;--ry:0deg;">
             <div class="b-sill"></div>
           </div>
+        </div>
+      </div>
 
-        </div><!-- /.building -->
-      </div><!-- /.scene-3d -->
-
-      <!-- Street glow below entrance -->
       <div class="entrance-glow" id="entranceGlow"></div>
+
+      <!-- ============================================================
+           ★ NEW — STAGE 03: CHARACTER
+           Sits above the ground, walks along the road toward the door.
+           JS controls: left offset, scale, opacity, .walking class.
+      ============================================================ -->
+      <div id="character">
+        <!-- Distance indicator floating above head -->
+        <div class="char-dist-tag" id="distTag">far away</div>
+        <div class="char-head"></div>
+        <div class="char-body"></div>
+        <div class="char-legs">
+          <div class="char-leg left"></div>
+          <div class="char-leg right"></div>
+        </div>
+        <div class="char-shadow" id="charShadow"></div>
+      </div>
+
+      <!-- ★ NEW — footstep dust canvas -->
+      <canvas id="footCanvas"></canvas>
 
       <div class="ground">
         <div class="pavement left"></div>
@@ -536,90 +500,76 @@
 
   <script>
     /* ==============================================================
-       STAGE 02 JavaScript
-       Stage 01 functions unchanged. New code marked ★ NEW.
+       STAGE 03 JavaScript
+       Stages 01 + 02 functions unchanged.
+       New code clearly marked ★ NEW.
     ============================================================== */
 
+    /* ── Stage 01–02: generators (unchanged) ── */
     function generateStars(count = 180) {
-      const wrap = document.getElementById('starsWrap');
-      const frag = document.createDocumentFragment();
+      const wrap = document.getElementById('starsWrap'), frag = document.createDocumentFragment();
       for (let i = 0; i < count; i++) {
-        const s = document.createElement('div');
-        s.className = 'star';
-        const size = Math.random() * 2 + 0.8;
-        const x    = Math.random() * 100;
-        const y    = Math.random() * 100;
-        const dur  = (Math.random() * 3 + 2).toFixed(1);
-        const del  = (Math.random() * 4).toFixed(1);
-        s.style.cssText = `width:${size}px;height:${size}px;left:${x}%;top:${y}%;--d:${dur}s;--dl:${del}s;`;
+        const s = document.createElement('div'); s.className = 'star';
+        const sz = Math.random()*2+0.8, x = Math.random()*100, y = Math.random()*100;
+        const d  = (Math.random()*3+2).toFixed(1), dl = (Math.random()*4).toFixed(1);
+        s.style.cssText = `width:${sz}px;height:${sz}px;left:${x}%;top:${y}%;--d:${d}s;--dl:${dl}s;`;
         frag.appendChild(s);
       }
       wrap.appendChild(frag);
     }
-
     function generateCityBg() {
-      const c = document.getElementById('cityBg');
-      const f = document.createDocumentFragment();
+      const c = document.getElementById('cityBg'), f = document.createDocumentFragment();
       [[18,60],[28,95],[22,75],[35,130],[20,55],[30,110],[18,65],[42,155],
        [25,80],[30,100],[20,70],[36,125],[24,85],[28,95],[18,50],[40,140],
        [22,70],[26,90],[32,115],[20,60],[28,95],[18,55],[34,120],[22,75]]
-      .forEach(([w,h]) => {
-        const el = document.createElement('div');
-        el.className = 'cb';
-        el.style.cssText = `width:${w}px;height:${h}px;`;
-        f.appendChild(el);
-      });
+      .forEach(([w,h]) => { const el=document.createElement('div'); el.className='cb'; el.style.cssText=`width:${w}px;height:${h}px;`; f.appendChild(el); });
       c.appendChild(f);
     }
-
-    function generateRoadDashes(n = 5) {
-      const c = document.getElementById('roadDashes');
-      for (let i = 0; i < n; i++) {
-        const d = document.createElement('div'); d.className = 'rd'; c.appendChild(d);
-      }
+    function generateRoadDashes(n=5) {
+      const c=document.getElementById('roadDashes');
+      for(let i=0;i<n;i++){const d=document.createElement('div');d.className='rd';c.appendChild(d);}
     }
 
     /* ── DOM refs ── */
-    const scene      = document.getElementById('scene');
-    const cityBg     = document.getElementById('cityBg');
-    const scrollHud  = document.getElementById('scrollHud');
-    const hudValue   = document.getElementById('hudValue');
-    const hudFill    = document.getElementById('hudFill');
-    const scrollHint = document.getElementById('scrollHint');
+    const scene       = document.getElementById('scene');
+    const cityBg      = document.getElementById('cityBg');
+    const scrollHud   = document.getElementById('scrollHud');
+    const hudValue    = document.getElementById('hudValue');
+    const hudFill     = document.getElementById('hudFill');
+    const scrollHint  = document.getElementById('scrollHint');
+    const building    = document.getElementById('building');
+    const doorL       = document.getElementById('doorL');
+    const doorR       = document.getElementById('doorR');
+    const welcomeText = document.getElementById('welcomeText');
+    const groundGlow  = document.getElementById('groundGlow');
+    const entranceGlow= document.getElementById('entranceGlow');
+    const blocks      = Array.from({length:10},(_,i)=>document.getElementById(`blk${i}`));
 
-    /* ★ NEW refs */
-    const building     = document.getElementById('building');
-    const doorL        = document.getElementById('doorL');
-    const doorR        = document.getElementById('doorR');
-    const welcomeText  = document.getElementById('welcomeText');
-    const groundGlow   = document.getElementById('groundGlow');
-    const entranceGlow = document.getElementById('entranceGlow');
-    const blocks       = Array.from({length:10},(_,i) => document.getElementById(`blk${i}`));
+    /* ★ NEW — Stage 03 DOM refs */
+    const character   = document.getElementById('character');
+    const charShadow  = document.getElementById('charShadow');
+    const distTag     = document.getElementById('distTag');
+    const footCanvas  = document.getElementById('footCanvas');
+    const footCtx     = footCanvas.getContext('2d');
 
-    /*
-      ★ NEW — scroll thresholds per block (progress fraction 0–1).
-      Building assembles bottom-up: lobby first, antenna last.
-      All blocks visible by ~0.40, leaving 0.40–0.82 for the
-      character zoom (Stage 03), then 0.82+ triggers doors.
-    */
-    const THRESHOLDS = [
-      0.38, // blk0 antenna
-      0.34, // blk1 roof
-      0.30, // blk2 penthouse
-      0.25, // blk3 floor 4
-      0.22, // blk4 floor 3
-      0.18, // blk5 floor 2
-      0.15, // blk6 wings
-      0.12, // blk7 floor 1
-      0.07, // blk8 lobby
-      0.04, // blk9 entrance sill
-    ];
+    /* Stage 02 constants — unchanged */
+    const THRESHOLDS = [0.38,0.34,0.30,0.25,0.22,0.18,0.15,0.12,0.07,0.04];
+    const DELAYS     = [0,40,70,55,55,70,35,70,15,0];
+    let doorsOpen    = false;
 
-    /* stagger delay in ms per block */
-    const DELAYS = [0, 40, 70, 55, 55, 70, 35, 70, 15, 0];
+    /* ★ NEW — character state */
+    let prevProgress     = 0;
+    let isWalking        = false;
+    let walkStopTimer    = null;
+    let lastFootX        = -999;
+    let footStep         = 0;    // alternates 0/1 for left/right foot
 
-    let doorsOpen = false;
+    /* ★ NEW — dust particles array */
+    const dustParticles  = [];
 
+    /* ============================================================
+       SCROLL HANDLER — extended from Stage 02
+    ============================================================ */
     function onScroll() {
       const sceneTop = scene.offsetTop;
       const progress = Math.max(0, Math.min(1,
@@ -639,84 +589,222 @@
       cityBg.style.opacity = Math.max(0, 0.24 - progress * 0.55).toFixed(3);
 
       /* sky bloom */
-      const b = Math.min(progress * 1.4, 1);
+      const bl = Math.min(progress * 1.4, 1);
       document.getElementById('sky').style.background = `
-        radial-gradient(ellipse 70% ${55+b*20}% at 50% 0%,rgba(44,16,82,${(.85+b*.15).toFixed(2)}) 0%,transparent 70%),
+        radial-gradient(ellipse 70% ${55+bl*20}% at 50% 0%,rgba(44,16,82,${(.85+bl*.15).toFixed(2)}) 0%,transparent 70%),
         linear-gradient(180deg,#0d0720 0%,#09061a 40%,#07060e 100%)`;
 
-      /* ★ NEW — reveal blocks */
-      blocks.forEach((blk, i) => {
+      /* Stage 02: reveal blocks */
+      blocks.forEach((blk,i) => {
         if (progress >= THRESHOLDS[i]) {
-          if (!blk.classList.contains('vis')) {
-            setTimeout(() => blk.classList.add('vis'), DELAYS[i]);
-          }
-        } else {
-          blk.classList.remove('vis');
-        }
+          if (!blk.classList.contains('vis')) setTimeout(()=>blk.classList.add('vis'),DELAYS[i]);
+        } else { blk.classList.remove('vis'); }
       });
 
-      /* ★ NEW — building scale zoom (smoothstep 0.28 → 1.25) */
-      const zp    = Math.min(progress / 0.82, 1);
-      const eased = zp * zp * (3 - 2 * zp);
-      building.style.transform = `translateX(-50%) scale(${(0.28 + eased * 0.97).toFixed(4)})`;
+      /* Stage 02: building zoom */
+      const zp = Math.min(progress/0.82,1);
+      const ez = zp*zp*(3-2*zp);
+      building.style.transform = `translateX(-50%) scale(${(0.28+ez*0.97).toFixed(4)})`;
 
-      /* ★ NEW — entrance glow fades in from progress 0.38 */
-      const ga = Math.max(0, Math.min(1, (progress - 0.38) / 0.3));
+      /* Stage 02: entrance glow */
+      const ga = Math.max(0,Math.min(1,(progress-0.38)/0.3));
       entranceGlow.style.opacity = ga.toFixed(3);
 
-      /* ★ NEW — sliding doors */
+      /* Stage 02: sliding doors */
       if (progress >= 0.82 && !doorsOpen) {
         doorsOpen = true;
-        doorL.classList.add('open');
-        doorR.classList.add('open');
-        groundGlow.classList.add('show');
-        welcomeText.classList.add('show');
+        doorL.classList.add('open'); doorR.classList.add('open');
+        groundGlow.classList.add('show'); welcomeText.classList.add('show');
       } else if (progress < 0.78 && doorsOpen) {
         doorsOpen = false;
-        doorL.classList.remove('open');
-        doorR.classList.remove('open');
-        groundGlow.classList.remove('show');
-        welcomeText.classList.remove('show');
+        doorL.classList.remove('open'); doorR.classList.remove('open');
+        groundGlow.classList.remove('show'); welcomeText.classList.remove('show');
       }
 
-      /* Stage 03 slot → character walk */
-      /* Stage 04 slot → entry flash  */
+      /* ★ NEW Stage 03: character movement ─────────────────────
+         Journey:
+           progress 0.00 → 0.04  character not yet visible
+           progress 0.04 → 0.82  character walks from left to centre
+           progress 0.82 → 0.92  character shrinks + fades into door
+           progress 0.92+        character hidden
+      ────────────────────────────────────────────────────────── */
+      updateCharacter(progress);
+
+      /* detect scrolling direction for walk animation */
+      const scrolling = Math.abs(progress - prevProgress) > 0.0003;
+      if (scrolling && progress > 0.04 && progress < 0.90) {
+        startWalking();
+      } else if (!scrolling) {
+        scheduleStopWalking();
+      }
+      prevProgress = progress;
     }
 
-    /* ★ NEW — window flicker */
-    function startWindowFlicker() {
-      setInterval(() => {
-        document.querySelectorAll('.win.l1,.win.l2,.win.l3').forEach(w => {
-          if (Math.random() > 0.91) {
-            w.style.opacity = '0.22';
-            setTimeout(() => { w.style.opacity = ''; }, 100 + Math.random() * 200);
-          }
+    /* ★ NEW — position, scale, opacity of character per frame */
+    function updateCharacter(progress) {
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+
+      /* character journey: progress 0.04 (far left) → 0.82 (door centre)
+         map that range to screen x: vw*0.05 → vw*0.50
+         The character walks along the pavement/road toward the door. */
+      const walkStart = 0.04;
+      const walkEnd   = 0.82;
+      const walkRange = walkEnd - walkStart;
+      const walkT     = Math.max(0, Math.min(1, (progress - walkStart) / walkRange));
+
+      /* smoothstep so it starts and ends gently */
+      const walkEased = walkT * walkT * (3 - 2 * walkT);
+
+      /* x position: starts at 5% of viewport, ends at 50% (door) */
+      const startX = vw * 0.05;
+      const endX   = vw * 0.50;
+      const charX  = startX + walkEased * (endX - startX);
+
+      /* scale: character starts tiny (far) and grows as it approaches
+         maps 0.5 (tiny) → 1.0 (full size near door)
+         This parallels the building zoom to reinforce depth. */
+      const minScale  = 0.45;
+      const maxScale  = 1.05;
+      const charScale = minScale + walkEased * (maxScale - minScale);
+
+      /* shadow width stretches when character is far (shallow angle sun),
+         gets rounder as it gets close */
+      const shadowW = 22 + (1 - walkEased) * 28;  /* 50px far → 22px near */
+      charShadow.style.width  = `${shadowW}px`;
+
+      /* opacity: invisible before walkStart, fade in quickly,
+         then fade out as character enters door (progress 0.82–0.92) */
+      let charOpacity = 1;
+      if (progress < walkStart) charOpacity = 0;
+      else if (progress < walkStart + 0.04) charOpacity = (progress - walkStart) / 0.04;
+      else if (progress > 0.85) charOpacity = Math.max(0, 1 - (progress - 0.85) / 0.07);
+
+      character.style.opacity   = charOpacity.toFixed(3);
+      character.style.left      = `${charX}px`;
+      character.style.transform = `translateX(-50%) scale(${charScale.toFixed(3)})`;
+
+      /* distance tag */
+      const distPct = Math.round(walkEased * 100);
+      if (distPct < 95) {
+        distTag.textContent = distPct < 10  ? 'far away'
+                            : distPct < 40  ? 'approaching'
+                            : distPct < 75  ? 'almost there'
+                            : 'entering...';
+      } else {
+        distTag.textContent = '';
+      }
+
+      /* spawn dust particle every ~30px of horizontal movement */
+      if (isWalking && charOpacity > 0.2) {
+        if (Math.abs(charX - lastFootX) > 28) {
+          spawnDust(charX, vh - 108);
+          lastFootX = charX;
+        }
+      }
+    }
+
+    /* ★ NEW — toggle walking leg animation */
+    function startWalking() {
+      if (!isWalking) {
+        isWalking = true;
+        character.classList.add('walking');
+      }
+      if (walkStopTimer) { clearTimeout(walkStopTimer); walkStopTimer = null; }
+    }
+
+    function scheduleStopWalking() {
+      if (walkStopTimer) return;
+      walkStopTimer = setTimeout(() => {
+        isWalking = false;
+        character.classList.remove('walking');
+        walkStopTimer = null;
+      }, 180);
+    }
+
+    /* ★ NEW — dust particle system ─────────────────────────────
+       Each puff is a small circle that floats upward and fades.
+       Drawn on the #footCanvas every animation frame.
+    ────────────────────────────────────────────────────────────*/
+    function spawnDust(x, groundY) {
+      const count = 3 + Math.floor(Math.random() * 3);
+      for (let i = 0; i < count; i++) {
+        dustParticles.push({
+          x:    x + (Math.random() - 0.5) * 14,
+          y:    groundY - 4,
+          vx:   (Math.random() - 0.5) * 0.8,
+          vy:   -(Math.random() * 0.8 + 0.2),
+          r:    Math.random() * 3 + 1,
+          life: 1.0,
+          decay: 0.04 + Math.random() * 0.03,
         });
-      }, 850);
+      }
     }
 
-    /* ★ NEW — wing split: wings slide in from sides independently */
+    function animateDust() {
+      /* resize canvas to match viewport */
+      if (footCanvas.width !== window.innerWidth) {
+        footCanvas.width  = window.innerWidth;
+        footCanvas.height = 40;
+      }
+      footCtx.clearRect(0, 0, footCanvas.width, footCanvas.height);
+
+      for (let i = dustParticles.length - 1; i >= 0; i--) {
+        const p = dustParticles[i];
+        p.x    += p.vx;
+        p.y    += p.vy;
+        p.life -= p.decay;
+        if (p.life <= 0) { dustParticles.splice(i, 1); continue; }
+
+        footCtx.beginPath();
+        footCtx.arc(p.x, p.y, p.r * p.life, 0, Math.PI * 2);
+        footCtx.fillStyle = `rgba(124,58,237,${(p.life * 0.3).toFixed(2)})`;
+        footCtx.fill();
+      }
+      requestAnimationFrame(animateDust);
+    }
+
+    /* ★ NEW — wing split observer (unchanged from Stage 02) */
     function initWingSplit() {
       const wL = document.getElementById('wingL');
       const wR = document.getElementById('wingR');
       wL.style.cssText += 'transform:translateX(-55px);transition:transform 1.1s cubic-bezier(0.22,1,0.36,1);';
-      wR.style.cssText += 'transform:translateX(55px); transition:transform 1.1s cubic-bezier(0.22,1,0.36,1);';
-
+      wR.style.cssText += 'transform:translateX(55px);transition:transform 1.1s cubic-bezier(0.22,1,0.36,1);';
       new MutationObserver(() => {
         const on = document.getElementById('blk6').classList.contains('vis');
         wL.style.transform = on ? 'translateX(0)' : 'translateX(-55px)';
         wR.style.transform = on ? 'translateX(0)' : 'translateX(55px)';
-      }).observe(document.getElementById('blk6'), { attributes:true, attributeFilter:['class'] });
+      }).observe(document.getElementById('blk6'),{attributes:true,attributeFilter:['class']});
     }
 
+    /* ★ NEW — window flicker (unchanged from Stage 02) */
+    function startWindowFlicker() {
+      setInterval(() => {
+        document.querySelectorAll('.win.l1,.win.l2,.win.l3').forEach(w => {
+          if (Math.random()>0.91){w.style.opacity='0.22';setTimeout(()=>{w.style.opacity='';},100+Math.random()*200);}
+        });
+      }, 850);
+    }
+
+    /* ── INIT ── */
     function init() {
       generateStars(180);
       generateCityBg();
       generateRoadDashes(5);
       initWingSplit();
-      window.addEventListener('scroll', onScroll, { passive:true });
+
+      /* size canvas */
+      footCanvas.width  = window.innerWidth;
+      footCanvas.height = 40;
+      window.addEventListener('resize', () => {
+        footCanvas.width  = window.innerWidth;
+        footCanvas.height = 40;
+      });
+
+      window.addEventListener('scroll', onScroll, { passive: true });
       onScroll();
       startWindowFlicker();
+      animateDust(); /* start dust animation loop */
     }
 
     document.addEventListener('DOMContentLoaded', init);
