@@ -7,27 +7,28 @@
 
   <!--
   ============================================================
-    STAGE 04 — Door Entry Flash & Transition to Interior
-    git commit: "feat: door entry flash transition to interior"
+    STAGE 05 — Reception Lobby Interior
+    git commit: "feat: reception scene with animated receptionist"
   ============================================================
-    CHANGES FROM STAGE 03:
-      + #flash-overlay   — full-screen white flash div
-      + #transition-overlay — full-screen black cinematic fade
-      + #interior        — portfolio container (hidden until entry)
-      + .interior-nav    — fixed top nav (shows after entry)
-      + #lobby-section   — placeholder interior scaffold
-      + JS: triggerEntry() fires once at progress >= 0.92
-            → white flash (200ms)
-            → black fade in (400ms)
-            → interior section mounts + fades in
-            → scroll scene hidden
-      + JS: one-way flag (entryTriggered) so it only fires once
-      + JS: window.scrollY reset to 0 after entry mounts
-      + CSS: interior hidden behind opacity:0 / display:none
-      + Interior scaffold: 5 section placeholders with
-        floor labels, ready for Stages 05–11 to fill in
+    CHANGES FROM STAGE 04:
+      + #reception-section rebuilt from placeholder into full
+        cinematic lobby scene:
+          • Back wall with ghosted name watermark
+          • Ceiling strip lights with glow pools
+          • Perspective marble tile floor (CSS 3D)
+          • Two architectural pillars with base caps
+          • Corner plants (pixel art style)
+          • Reception desk (monitor, nameplate, phone)
+          • Receptionist pixel character with headset
+          • Speech bubble with typewriter dialogue
+          • "Step on escalator ↓" prompt after dialogue ends
+      + JS: initReception() runs after interior mounts
+            - animates desk/receptionist fade-in (stagger)
+            - typewriter sequence: 3 lines with pauses
+            - escalator prompt appears after dialogue
+      + CSS: all reception styles scoped to #reception-section
 
-    Everything from Stages 01–03 unchanged.
+    Everything from Stages 01–04 is unchanged.
   ============================================================
   -->
 
@@ -55,111 +56,43 @@
       --font-body:    'DM Sans', sans-serif;
     }
 
-    /* =====================================================
-       RESET + BASE — unchanged
-    ===================================================== */
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
     html { scroll-behavior: smooth; }
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: var(--font-body);
-      overflow-x: hidden;
-    }
+    body { background: var(--bg); color: var(--text); font-family: var(--font-body); overflow-x: hidden; }
 
     /* =====================================================
        SCROLL SCENE — unchanged
     ===================================================== */
     #scene { height: 600vh; position: relative; }
-    .sticky {
-      position: sticky; top: 0; height: 100vh;
-      overflow: hidden;
-      display: flex; align-items: flex-end; justify-content: center;
-    }
-
-    /* =====================================================
-       SKY — unchanged
-    ===================================================== */
-    .sky {
-      position: absolute; inset: 0; z-index: 0;
-      background:
-        radial-gradient(ellipse 70% 55% at 50% 0%, rgba(44,16,82,.85) 0%, transparent 70%),
-        linear-gradient(180deg, #0d0720 0%, #09061a 40%, #07060e 75%, #07060e 100%);
-    }
-
-    /* =====================================================
-       STARS — unchanged
-    ===================================================== */
+    .sticky { position: sticky; top: 0; height: 100vh; overflow: hidden; display: flex; align-items: flex-end; justify-content: center; }
+    .sky { position: absolute; inset: 0; z-index: 0; background: radial-gradient(ellipse 70% 55% at 50% 0%, rgba(44,16,82,.85) 0%, transparent 70%), linear-gradient(180deg, #0d0720 0%, #09061a 40%, #07060e 75%, #07060e 100%); }
     .stars-wrap { position: absolute; inset: 0; z-index: 1; overflow: hidden; height: 70%; pointer-events: none; }
-    .star {
-      position: absolute; border-radius: 50%; background: rgba(255,255,255,.82);
-      animation: twinkle var(--d,3s) ease-in-out infinite; animation-delay: var(--dl,0s);
-    }
-    @keyframes twinkle {
-      0%,100% { opacity:.12; transform:scale(.85); }
-      50%      { opacity:.95; transform:scale(1.1); }
-    }
-
-    /* =====================================================
-       CITY SILHOUETTE — unchanged
-    ===================================================== */
-    .city-bg {
-      position: absolute; bottom: 108px; left: 0; right: 0; z-index: 2; height: 170px;
-      display: flex; align-items: flex-end; justify-content: center; gap: 3px;
-      opacity: .24; pointer-events: none;
-    }
+    .star { position: absolute; border-radius: 50%; background: rgba(255,255,255,.82); animation: twinkle var(--d,3s) ease-in-out infinite; animation-delay: var(--dl,0s); }
+    @keyframes twinkle { 0%,100%{opacity:.12;transform:scale(.85);}50%{opacity:.95;transform:scale(1.1);} }
+    .city-bg { position: absolute; bottom: 108px; left: 0; right: 0; z-index: 2; height: 170px; display: flex; align-items: flex-end; justify-content: center; gap: 3px; opacity: .24; pointer-events: none; }
     .cb { flex-shrink: 0; background: linear-gradient(180deg, #1a183a, #0d0b1a); border-top: 1px solid rgba(124,58,237,.18); }
-
-    /* =====================================================
-       GROUND — unchanged
-    ===================================================== */
-    .ground {
-      position: absolute; bottom: 0; left: 0; right: 0; height: 108px; z-index: 12;
-      background: linear-gradient(180deg, #141228, #0a0916);
-      border-top: 1px solid rgba(124,58,237,.12);
-    }
-    .road {
-      position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
-      width: 160px; height: 108px; background: #0f0e1c;
-      border-left: 1px solid rgba(124,58,237,.10); border-right: 1px solid rgba(124,58,237,.10);
-    }
+    .ground { position: absolute; bottom: 0; left: 0; right: 0; height: 108px; z-index: 12; background: linear-gradient(180deg, #141228, #0a0916); border-top: 1px solid rgba(124,58,237,.12); }
+    .road { position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 160px; height: 108px; background: #0f0e1c; border-left: 1px solid rgba(124,58,237,.10); border-right: 1px solid rgba(124,58,237,.10); }
     .road-dashes { position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; gap: 9px; }
     .rd { width: 5px; height: 16px; background: rgba(245,158,11,.32); border-radius: 1px; }
     .pavement { position: absolute; bottom: 0; height: 108px; width: calc(50% - 80px); background: linear-gradient(180deg, #111028, #09080f); }
-    .pavement.left  { left: 0; }
-    .pavement.right { right: 0; }
-
-    /* =====================================================
-       SCROLL HUD — unchanged
-    ===================================================== */
-    .scroll-hud {
-      position: absolute; top: 28px; right: 32px; z-index: 50;
-      display: flex; flex-direction: column; align-items: flex-end; gap: 4px;
-      opacity: 0; transition: opacity .4s; pointer-events: none;
-    }
+    .pavement.left { left: 0; } .pavement.right { right: 0; }
+    .scroll-hud { position: absolute; top: 28px; right: 32px; z-index: 50; display: flex; flex-direction: column; align-items: flex-end; gap: 4px; opacity: 0; transition: opacity .4s; pointer-events: none; }
     .scroll-hud.visible { opacity: 1; }
     .hud-label { font-family: var(--font-mono); font-size: .58rem; letter-spacing: 3px; color: var(--muted); text-transform: uppercase; }
     .hud-value { font-family: var(--font-display); font-size: 2rem; letter-spacing: 3px; color: var(--gold); line-height: 1; }
-    .hud-bar   { width: 80px; height: 2px; background: rgba(245,158,11,.15); position: relative; overflow: hidden; }
+    .hud-bar { width: 80px; height: 2px; background: rgba(245,158,11,.15); position: relative; overflow: hidden; }
     .hud-bar-fill { position: absolute; left: 0; top: 0; bottom: 0; width: 0%; background: var(--gold); transition: width .1s linear; }
-
-    /* =====================================================
-       SCROLL HINT — unchanged
-    ===================================================== */
-    .scroll-hint {
-      position: absolute; bottom: 130px; left: 50%; transform: translateX(-50%);
-      z-index: 30; display: flex; flex-direction: column; align-items: center; gap: 8px;
-      opacity: 1; transition: opacity .6s ease; pointer-events: none;
-    }
+    .scroll-hint { position: absolute; bottom: 130px; left: 50%; transform: translateX(-50%); z-index: 30; display: flex; flex-direction: column; align-items: center; gap: 8px; opacity: 1; transition: opacity .6s ease; pointer-events: none; }
     .scroll-hint.hide { opacity: 0; }
-    .sh-label  { font-family: var(--font-mono); font-size: .58rem; letter-spacing: 4px; color: var(--muted); text-transform: uppercase; }
-    .sh-arrow  { width: 1px; height: 36px; background: linear-gradient(180deg, transparent, var(--accent)); animation: pulse-line 1.6s ease-in-out infinite; }
-    @keyframes pulse-line { 0%,100%{opacity:.25;transform:scaleY(.75);} 50%{opacity:1;transform:scaleY(1);} }
+    .sh-label { font-family: var(--font-mono); font-size: .58rem; letter-spacing: 4px; color: var(--muted); text-transform: uppercase; }
+    .sh-arrow { width: 1px; height: 36px; background: linear-gradient(180deg, transparent, var(--accent)); animation: pulse-line 1.6s ease-in-out infinite; }
+    @keyframes pulse-line { 0%,100%{opacity:.25;transform:scaleY(.75);}50%{opacity:1;transform:scaleY(1);} }
     .sh-chevron { width:10px;height:10px;border-right:1.5px solid var(--accent);border-bottom:1.5px solid var(--accent);transform:rotate(45deg) translateY(-4px);animation:bounce-chevron 1.6s ease-in-out infinite; }
-    @keyframes bounce-chevron { 0%,100%{transform:rotate(45deg) translateY(-4px);opacity:.4;} 50%{transform:rotate(45deg) translateY(2px);opacity:1;} }
+    @keyframes bounce-chevron { 0%,100%{transform:rotate(45deg) translateY(-4px);opacity:.4;}50%{transform:rotate(45deg) translateY(2px);opacity:1;} }
 
     /* =====================================================
-       3D SCENE + BUILDING — unchanged from Stage 02
+       3D BUILDING — unchanged (condensed)
     ===================================================== */
     .scene-3d { position:absolute;bottom:108px;left:50%;transform:translateX(-50%);width:380px;height:540px;perspective:900px;perspective-origin:50% 120%;z-index:8; }
     .building { position:absolute;bottom:0;left:50%;transform:translateX(-50%) scale(0.28);transform-origin:bottom center;transform-style:preserve-3d;width:340px; }
@@ -179,9 +112,9 @@
     .b-wing { flex:1;height:54px;background:linear-gradient(180deg,#0f0e24,#0b0a1a);border:1px solid rgba(124,58,237,.12);border-bottom:none;display:grid;grid-template-columns:repeat(4,1fr);gap:3px;padding:6px; }
     .b-wing-center { width:216px;height:54px;background:linear-gradient(180deg,#111028,#0d0c22);border:1px solid rgba(124,58,237,.18);border-bottom:none;display:grid;grid-template-columns:repeat(5,1fr);gap:3px;padding:6px; }
     .win { background:rgba(124,58,237,.06);border:1px solid rgba(124,58,237,.16);border-radius:1px;transition:background .4s,border-color .4s,opacity .15s; }
-    .win.l1 { background:rgba(245,158,11,.30);border-color:rgba(245,158,11,.55);box-shadow:0 0 5px 1px rgba(245,158,11,.15) inset; }
-    .win.l2 { background:rgba(124,58,237,.38);border-color:var(--accent);box-shadow:0 0 5px 1px rgba(124,58,237,.22) inset; }
-    .win.l3 { background:rgba(6,182,212,.28);border-color:var(--cyan);box-shadow:0 0 5px 1px rgba(6,182,212,.18) inset; }
+    .win.l1 { background:rgba(245,158,11,.30);border-color:rgba(245,158,11,.55); }
+    .win.l2 { background:rgba(124,58,237,.38);border-color:var(--accent); }
+    .win.l3 { background:rgba(6,182,212,.28);border-color:var(--cyan); }
     .b-lobby { height:78px;width:100%;background:linear-gradient(180deg,#0d0c22,#07060e);border:1px solid rgba(124,58,237,.28);border-top:none;display:flex;align-items:flex-end;justify-content:center;position:relative;overflow:hidden; }
     .b-lobby::before { content:'';position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:130px;height:30px;background:radial-gradient(ellipse at 50% 100%,rgba(124,58,237,.4),transparent 70%); }
     .door-wrap { position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:124px;height:74px;display:flex;overflow:hidden; }
@@ -189,11 +122,9 @@
     .door-panel.left { border-right:1px solid rgba(124,58,237,.3); }
     .door-panel.right { border-left:1px solid rgba(124,58,237,.3); }
     .door-panel.left::after,.door-panel.right::after { content:'';position:absolute;top:50%;width:5px;height:5px;border-radius:50%;background:var(--gold);box-shadow:0 0 8px 2px rgba(245,158,11,.6);transform:translateY(-50%); }
-    .door-panel.left::after { right:5px; }
-    .door-panel.right::after { left:5px; }
-    .door-panel.left.open { transform:translateX(-100%); }
-    .door-panel.right.open { transform:translateX(100%); }
-    .welcome-text { position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:124px;height:74px;display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:.85rem;letter-spacing:5px;color:var(--gold);text-shadow:0 0 22px rgba(245,158,11,.9),0 0 8px rgba(245,158,11,.5);opacity:0;transition:opacity .7s ease .35s;pointer-events:none; }
+    .door-panel.left::after { right:5px; } .door-panel.right::after { left:5px; }
+    .door-panel.left.open { transform:translateX(-100%); } .door-panel.right.open { transform:translateX(100%); }
+    .welcome-text { position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:124px;height:74px;display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:.85rem;letter-spacing:5px;color:var(--gold);text-shadow:0 0 22px rgba(245,158,11,.9);opacity:0;transition:opacity .7s ease .35s;pointer-events:none; }
     .welcome-text.show { opacity:1; }
     .ground-glow { position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:140px;height:20px;background:radial-gradient(ellipse at 50% 100%,rgba(124,58,237,.5),transparent 70%);opacity:0;transition:opacity .8s ease;pointer-events:none; }
     .ground-glow.show { opacity:1; }
@@ -201,318 +132,557 @@
     .b-sill { height:8px;width:148px;margin:0 auto;background:linear-gradient(90deg,rgba(124,58,237,0),rgba(124,58,237,.45),rgba(245,158,11,.45),rgba(124,58,237,.45),rgba(124,58,237,0));box-shadow:0 0 14px 3px rgba(124,58,237,.3); }
 
     /* =====================================================
-       CHARACTER — unchanged from Stage 03
+       CHARACTER — unchanged (condensed)
     ===================================================== */
     #character { position:absolute;bottom:108px;left:0;z-index:15;display:flex;flex-direction:column;align-items:center;transform-origin:bottom center;pointer-events:none;transition:opacity .5s ease; }
     .char-head { width:18px;height:19px;background:#e8c49a;border-radius:50% 50% 42% 42%;position:relative;z-index:2;flex-shrink:0; }
     .char-head::before { content:'';position:absolute;top:-8px;left:-3px;width:24px;height:13px;background:#1a0f06;border-radius:50% 50% 0 0; }
     .char-head::after { content:'';position:absolute;top:6px;right:-3px;width:4px;height:5px;background:#d4aa82;border-radius:50%; }
-    .char-body { width:20px;height:26px;background:linear-gradient(180deg,#1e2a4a,#162038);border-radius:3px 3px 0 0;margin-top:-1px;position:relative;flex-shrink:0;animation:char-bob 0s linear infinite paused; }
+    .char-body { width:20px;height:26px;background:linear-gradient(180deg,#1e2a4a,#162038);border-radius:3px 3px 0 0;margin-top:-1px;position:relative;flex-shrink:0; }
     .char-body::before { content:'';position:absolute;top:2px;left:50%;transform:translateX(-50%);width:6px;height:10px;background:#ffffff22;clip-path:polygon(50% 0%,0% 100%,100% 100%); }
     .char-body::after { content:'';position:absolute;bottom:2px;right:-9px;width:8px;height:7px;background:#2a1a08;border:1px solid rgba(245,158,11,.45);border-radius:1px; }
-    @keyframes char-bob { 0%,100%{transform:translateY(0px);}50%{transform:translateY(-1.5px);} }
+    @keyframes char-bob { 0%,100%{transform:translateY(0);}50%{transform:translateY(-1.5px);} }
     .char-legs { display:flex;gap:3px;flex-shrink:0; }
     .char-leg { width:8px;height:16px;background:#111830;border-radius:0 0 3px 3px;transform-origin:top center;position:relative; }
     .char-leg::after { content:'';position:absolute;bottom:-3px;left:-1px;width:10px;height:4px;background:#0a0a12;border-radius:0 2px 2px 0; }
-    .walking .char-leg.left  { animation:swing-left  .38s ease-in-out infinite; }
+    .walking .char-leg.left { animation:swing-left .38s ease-in-out infinite; }
     .walking .char-leg.right { animation:swing-right .38s ease-in-out infinite; }
-    .walking .char-body      { animation:char-bob    .38s ease-in-out infinite; }
-    @keyframes swing-left  { 0%{transform:rotate(-18deg);}50%{transform:rotate(18deg);}100%{transform:rotate(-18deg);} }
+    .walking .char-body { animation:char-bob .38s ease-in-out infinite; }
+    @keyframes swing-left { 0%{transform:rotate(-18deg);}50%{transform:rotate(18deg);}100%{transform:rotate(-18deg);} }
     @keyframes swing-right { 0%{transform:rotate(18deg);}50%{transform:rotate(-18deg);}100%{transform:rotate(18deg);} }
-    .char-shadow { width:22px;height:6px;background:rgba(0,0,0,.55);border-radius:50%;margin-top:2px;transform-origin:center;flex-shrink:0; }
+    .char-shadow { width:22px;height:6px;background:rgba(0,0,0,.55);border-radius:50%;margin-top:2px;flex-shrink:0; }
     #footCanvas { position:absolute;bottom:108px;left:0;right:0;height:40px;z-index:14;pointer-events:none; }
     .char-dist-tag { position:absolute;top:-22px;left:50%;transform:translateX(-50%);font-family:var(--font-mono);font-size:.44rem;letter-spacing:2px;color:rgba(200,180,255,.5);white-space:nowrap;pointer-events:none; }
 
     /* =====================================================
-       ★ NEW — STAGE 04: TRANSITION OVERLAYS
+       TRANSITION OVERLAYS + INTERIOR FRAME — unchanged
+    ===================================================== */
+    #flash-overlay { position:fixed;inset:0;z-index:200;background:#ffffff;opacity:0;pointer-events:none;transition:opacity .18s ease; }
+    #flash-overlay.flash { opacity:.92; }
+    #transition-overlay { position:fixed;inset:0;z-index:199;background:#07060e;opacity:0;pointer-events:none;transition:opacity .45s ease; }
+    #transition-overlay.dark { opacity:1;pointer-events:all; }
+    #transition-overlay.clear { opacity:0;pointer-events:none; }
+    .transition-label { position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:var(--font-mono);font-size:.65rem;letter-spacing:5px;color:rgba(124,58,237,.7);text-transform:uppercase;opacity:0;transition:opacity .3s ease; }
+    #transition-overlay.dark .transition-label { opacity:1; }
+    #interior { display:none;opacity:0;transition:opacity .6s ease;min-height:100vh;background:var(--bg); }
+    #interior.mounted { display:block; } #interior.visible { opacity:1; }
+    #interior-nav { position:fixed;top:0;left:0;right:0;z-index:100;height:60px;display:none;align-items:center;justify-content:space-between;padding:0 40px;background:rgba(7,6,14,.88);backdrop-filter:blur(18px);border-bottom:1px solid var(--border);opacity:0;transition:opacity .5s ease .4s; }
+    #interior-nav.show { display:flex;opacity:1; }
+    .nav-logo { font-family:var(--font-display);font-size:1.1rem;letter-spacing:4px;color:var(--gold); }
+    .nav-links { display:flex;gap:32px;list-style:none; }
+    .nav-links a { font-family:var(--font-mono);font-size:.6rem;letter-spacing:2px;color:var(--muted);text-decoration:none;text-transform:uppercase;transition:color .2s; }
+    .nav-links a:hover { color:var(--text); }
+    .nav-cta { font-family:var(--font-mono);font-size:.6rem;letter-spacing:2px;color:var(--accent);text-transform:uppercase;text-decoration:none;border:1px solid var(--accent);padding:6px 16px;transition:background .2s,color .2s; }
+    .nav-cta:hover { background:var(--accent);color:#fff; }
+    .floor-section { min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:100px 60px 60px;position:relative;border-top:1px solid var(--border); }
+    .floor-section::before { content:'';position:absolute;top:0;left:0;right:0;height:3px; }
+    #reception-section::before  { background:linear-gradient(90deg,var(--accent),var(--gold)); }
+    #about-section::before      { background:linear-gradient(90deg,var(--cyan),var(--accent)); }
+    #projects-section::before   { background:linear-gradient(90deg,var(--gold),var(--cyan)); }
+    #experience-section::before { background:linear-gradient(90deg,var(--accent),var(--cyan)); }
+    #achievements-section::before { background:linear-gradient(90deg,var(--gold),var(--accent)); }
+    #contact-section::before    { background:linear-gradient(90deg,var(--cyan),var(--gold)); }
+    .floor-tag { position:absolute;top:24px;left:40px;font-family:var(--font-mono);font-size:.52rem;letter-spacing:4px;color:var(--muted);text-transform:uppercase; }
+    .floor-placeholder { display:flex;flex-direction:column;align-items:center;gap:20px;text-align:center;max-width:480px; }
+    .floor-placeholder h2 { font-family:var(--font-display);font-size:clamp(2.5rem,6vw,5rem);letter-spacing:4px;color:var(--text);line-height:1; }
+    .floor-placeholder h2 span { color:var(--gold); }
+    .floor-placeholder p { font-family:var(--font-mono);font-size:.6rem;letter-spacing:3px;color:var(--muted);text-transform:uppercase;line-height:1.8; }
+    .floor-badge { display:inline-block;font-family:var(--font-mono);font-size:.5rem;letter-spacing:3px;padding:6px 18px;border:1px solid var(--border);color:var(--accent);text-transform:uppercase; }
+    #escalator-nav { position:fixed;left:0;top:50%;transform:translateY(-50%);z-index:101;display:none;flex-direction:column;align-items:flex-start;gap:0;padding:8px 0;background:rgba(7,6,14,.75);backdrop-filter:blur(12px);border-right:1px solid var(--border); }
+    #escalator-nav.show { display:flex; }
+    .esc-floor-btn { display:flex;align-items:center;gap:10px;padding:12px 16px;cursor:pointer;text-decoration:none;border-left:2px solid transparent;transition:border-color .2s,background .2s;min-width:44px;position:relative; }
+    .esc-floor-btn:hover,.esc-floor-btn.active { background:rgba(124,58,237,.08);border-left-color:var(--accent); }
+    .esc-floor-btn.active .esc-dot { background:var(--gold);box-shadow:0 0 8px rgba(245,158,11,.6); }
+    .esc-dot { width:6px;height:6px;border-radius:50%;background:rgba(124,58,237,.4);flex-shrink:0;transition:background .3s,box-shadow .3s; }
+    .esc-label { font-family:var(--font-mono);font-size:.48rem;letter-spacing:2px;color:var(--muted);text-transform:uppercase;white-space:nowrap;opacity:0;transform:translateX(-4px);transition:opacity .2s,transform .2s; }
+    .esc-floor-btn:hover .esc-label,.esc-floor-btn.active .esc-label { opacity:1;transform:translateX(0); }
+
+    /* =====================================================
+       ★ NEW — STAGE 05: RECEPTION LOBBY
     ===================================================== */
 
-    /*
-      #flash-overlay: pure white, appears for 200ms on entry trigger.
-      Simulates the blinding light of entering bright lobby from dark street.
-    */
-    #flash-overlay {
-      position: fixed;
-      inset: 0;
-      z-index: 200;
-      background: #ffffff;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.18s ease;
+    /* Reception section overrides the base floor-section centering
+       because we build a full cinematic scene, not centred content */
+    #reception-section {
+      padding: 0;
+      min-height: 100vh;
+      position: relative;
+      overflow: hidden;
+      display: block;          /* override flex so children stack naturally */
+      background: #08060f;
     }
-    #flash-overlay.flash { opacity: 0.92; }
 
-    /*
-      #transition-overlay: full black cover that fades in after the flash.
-      The interior mounts while this is opaque, then it fades out to reveal
-      the lobby interior — creating a seamless blind transition.
-    */
-    #transition-overlay {
-      position: fixed;
-      inset: 0;
-      z-index: 199;
-      background: #07060e;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.45s ease;
+    /* ── Back wall ── */
+    .rec-back-wall {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 58%;
+      background: linear-gradient(180deg, #0c0a22 0%, #090718 100%);
+      border-bottom: 1px solid rgba(124,58,237,.14);
     }
-    #transition-overlay.dark  { opacity: 1; pointer-events: all; }
-    #transition-overlay.clear { opacity: 0; pointer-events: none; }
 
-    /*
-      Loading text shown during the black transition while interior mounts.
-    */
-    .transition-label {
+    /* Ghost watermark name on the back wall */
+    .rec-wall-name {
       position: absolute;
       top: 50%; left: 50%;
       transform: translate(-50%, -50%);
-      font-family: var(--font-mono);
-      font-size: .65rem; letter-spacing: 5px;
-      color: rgba(124,58,237,.7);
-      text-transform: uppercase;
-      opacity: 0;
-      transition: opacity 0.3s ease;
-    }
-    #transition-overlay.dark .transition-label { opacity: 1; }
-
-    /* =====================================================
-       ★ NEW — STAGE 04: INTERIOR WRAPPER
-    ===================================================== */
-
-    /*
-      #interior is hidden until entry is triggered.
-      After triggerEntry() it becomes display:block and fades in.
-    */
-    #interior {
-      display: none;
-      opacity: 0;
-      transition: opacity 0.6s ease;
-      min-height: 100vh;
-      background: var(--bg);
-    }
-    #interior.mounted  { display: block; }
-    #interior.visible  { opacity: 1; }
-
-    /* =====================================================
-       ★ NEW — INTERIOR NAV BAR
-       Fixed top bar shown inside the portfolio.
-       Hidden during scroll scene, shown after entry.
-    ===================================================== */
-    #interior-nav {
-      position: fixed;
-      top: 0; left: 0; right: 0;
-      z-index: 100;
-      height: 60px;
-      display: none;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 40px;
-      background: rgba(7,6,14,0.88);
-      backdrop-filter: blur(18px);
-      border-bottom: 1px solid var(--border);
-      opacity: 0;
-      transition: opacity 0.5s ease 0.4s;
-    }
-    #interior-nav.show {
-      display: flex;
-      opacity: 1;
-    }
-    .nav-logo {
       font-family: var(--font-display);
-      font-size: 1.1rem;
-      letter-spacing: 4px;
-      color: var(--gold);
-    }
-    .nav-links {
-      display: flex;
-      gap: 32px;
-      list-style: none;
-    }
-    .nav-links a {
-      font-family: var(--font-mono);
-      font-size: .6rem;
-      letter-spacing: 2px;
-      color: var(--muted);
-      text-decoration: none;
-      text-transform: uppercase;
-      transition: color .2s;
-    }
-    .nav-links a:hover { color: var(--text); }
-    .nav-cta {
-      font-family: var(--font-mono);
-      font-size: .6rem;
-      letter-spacing: 2px;
-      color: var(--accent);
-      text-transform: uppercase;
-      text-decoration: none;
-      border: 1px solid var(--accent);
-      padding: 6px 16px;
-      transition: background .2s, color .2s;
-    }
-    .nav-cta:hover { background: var(--accent); color: #fff; }
-
-    /* =====================================================
-       ★ NEW — INTERIOR SECTION SCAFFOLDS
-       Each floor section is a placeholder for Stages 05–11.
-       Minimum 100vh so the escalator navigation can scroll
-       between them. Each has a distinctive accent colour
-       strip at the top and a floor tag label.
-    ===================================================== */
-    .floor-section {
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 100px 60px 60px;
-      position: relative;
-      border-top: 1px solid var(--border);
+      font-size: clamp(3rem, 9vw, 8rem);
+      letter-spacing: 16px;
+      color: rgba(124,58,237,.07);
+      white-space: nowrap;
+      user-select: none;
+      pointer-events: none;
+      text-shadow: 0 0 60px rgba(124,58,237,.04);
     }
 
-    /* colour strip at top of each floor */
-    .floor-section::before {
+    /* ── Ceiling strip lights ── */
+    .rec-ceiling {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 5px;
+      background: repeating-linear-gradient(
+        90deg,
+        transparent 0px, transparent 50px,
+        rgba(200,190,255,.15) 50px, rgba(200,190,255,.15) 180px
+      );
+      z-index: 2;
+    }
+    .rec-ceiling-glow {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 100px;
+      background: repeating-linear-gradient(
+        90deg,
+        transparent 0px, transparent 50px,
+        rgba(124,58,237,.055) 50px, rgba(124,58,237,.055) 180px
+      );
+      filter: blur(28px);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* ── Perspective marble tile floor ── */
+    .rec-floor {
+      position: absolute;
+      bottom: 0; left: -20%; right: -20%;
+      height: 46%;
+      background:
+        repeating-linear-gradient(90deg, rgba(124,58,237,.065) 0 1px, transparent 1px 90px),
+        repeating-linear-gradient(0deg, rgba(124,58,237,.05) 0 1px, transparent 1px 90px),
+        #08060f;
+      transform: perspective(500px) rotateX(58deg);
+      transform-origin: bottom;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── Pillars ── */
+    .rec-pillar {
+      position: absolute;
+      top: 0;
+      width: 32px;
+      height: 58%;
+      background: linear-gradient(90deg, #110e28, #0e0c22, #110e28);
+      border: 1px solid rgba(124,58,237,.12);
+      z-index: 3;
+    }
+    .rec-pillar.left  { left: 13%; }
+    .rec-pillar.right { right: 13%; }
+    /* pillar base cap */
+    .rec-pillar::after {
       content: '';
       position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 3px;
+      bottom: -10px; left: -8px; right: -8px;
+      height: 10px;
+      background: rgba(124,58,237,.14);
+      border-radius: 0 0 2px 2px;
     }
-    #reception-section::before  { background: linear-gradient(90deg, var(--accent), var(--gold)); }
-    #about-section::before      { background: linear-gradient(90deg, var(--cyan), var(--accent)); }
-    #projects-section::before   { background: linear-gradient(90deg, var(--gold), var(--cyan)); }
-    #experience-section::before { background: linear-gradient(90deg, var(--accent), var(--cyan)); }
-    #achievements-section::before { background: linear-gradient(90deg, var(--gold), var(--accent)); }
-    #contact-section::before    { background: linear-gradient(90deg, var(--cyan), var(--gold)); }
-
-    /* floor tag label top-left */
-    .floor-tag {
+    /* pillar top cap */
+    .rec-pillar::before {
+      content: '';
       position: absolute;
-      top: 24px; left: 40px;
-      font-family: var(--font-mono);
-      font-size: .52rem; letter-spacing: 4px;
-      color: var(--muted);
-      text-transform: uppercase;
+      top: 0; left: -6px; right: -6px;
+      height: 8px;
+      background: rgba(124,58,237,.18);
     }
 
-    /* placeholder content inside each section */
-    .floor-placeholder {
+    /* ── Corner plants ── */
+    .rec-plant {
+      position: absolute;
+      bottom: 42%;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 20px;
-      text-align: center;
-      max-width: 480px;
-    }
-    .floor-placeholder h2 {
-      font-family: var(--font-display);
-      font-size: clamp(2.5rem, 6vw, 5rem);
-      letter-spacing: 4px;
-      color: var(--text);
-      line-height: 1;
-    }
-    .floor-placeholder h2 span { color: var(--gold); }
-    .floor-placeholder p {
-      font-family: var(--font-mono);
-      font-size: .6rem; letter-spacing: 3px;
-      color: var(--muted);
-      text-transform: uppercase;
-      line-height: 1.8;
-    }
-    .floor-badge {
-      display: inline-block;
-      font-family: var(--font-mono);
-      font-size: .5rem; letter-spacing: 3px;
-      padding: 6px 18px;
-      border: 1px solid var(--border);
-      color: var(--accent);
-      text-transform: uppercase;
-    }
-
-    /* ── Reception section specific styles ── */
-    #reception-section {
-      background: radial-gradient(ellipse at 50% 0%, rgba(124,58,237,.06), transparent 60%),
-                  var(--bg);
-      min-height: 100vh;
-    }
-
-    /* =====================================================
-       ★ NEW — ESCALATOR NAV (fixed left side, inside interior)
-       Visible once interior is mounted.
-       Each floor button lights up as you scroll to that section.
-       Stage 06 will add the character riding animation.
-    ===================================================== */
-    #escalator-nav {
-      position: fixed;
-      left: 0; top: 50%;
-      transform: translateY(-50%);
-      z-index: 101;
-      display: none;
-      flex-direction: column;
-      align-items: flex-start;
       gap: 0;
-      padding: 8px 0;
-      background: rgba(7,6,14,0.75);
-      backdrop-filter: blur(12px);
-      border-right: 1px solid var(--border);
+      z-index: 3;
     }
-    #escalator-nav.show { display: flex; }
+    .rec-plant.left  { left: calc(13% - 36px); }
+    .rec-plant.right { right: calc(13% - 36px); }
 
-    .esc-floor-btn {
+    .plant-leaves {
       display: flex;
+      gap: 2px;
+      align-items: flex-end;
+    }
+    .plant-leaf {
+      width: 12px; height: 28px;
+      background: linear-gradient(180deg, #1a4e1a, #0e2c0e);
+      border: 1px solid rgba(40,140,40,.18);
+      border-radius: 50% 50% 0 50%;
+    }
+    .plant-leaf:nth-child(2) { border-radius: 50% 50% 50% 0; transform: translateY(-6px); }
+    .plant-leaf:nth-child(3) { border-radius: 50% 50% 0 50%; transform: translateY(-3px); }
+    .plant-pot {
+      width: 28px; height: 20px;
+      background: linear-gradient(180deg, #3a2010, #221508);
+      border-radius: 0 0 6px 6px;
+      border: 1px solid rgba(245,158,11,.18);
+      margin-top: -2px;
+    }
+
+    /* ── Reception desk assembly ── */
+    .rec-desk-wrap {
+      position: absolute;
+      bottom: 38%;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 5;
+      display: flex;
+      flex-direction: column;
       align-items: center;
-      gap: 10px;
-      padding: 12px 16px;
-      cursor: pointer;
-      text-decoration: none;
-      border-left: 2px solid transparent;
-      transition: border-color .2s, background .2s;
-      min-width: 44px;
+      opacity: 0;
+      transform: translateX(-50%) translateY(24px);
+      transition: opacity .9s ease, transform .9s cubic-bezier(0.22,1,0.36,1);
+    }
+    .rec-desk-wrap.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* nameplate floating above desk top */
+    .desk-nameplate {
+      background: linear-gradient(90deg, #12103a, #1e1650, #12103a);
+      border: 1px solid rgba(124,58,237,.5);
+      border-bottom: none;
+      padding: 5px 28px;
+      font-family: var(--font-mono);
+      font-size: .5rem; letter-spacing: 5px;
+      color: var(--accent);
+      display: flex; align-items: center; gap: 10px;
+    }
+    .nameplate-dot {
+      width: 5px; height: 5px; border-radius: 50%;
+      background: var(--gold);
+      box-shadow: 0 0 8px var(--gold);
+      animation: blink-tip 1.4s ease-in-out infinite;
+    }
+
+    /* desk top ledge */
+    .desk-top {
+      width: min(540px, 88vw); height: 18px;
+      background: linear-gradient(180deg, #2a1e68, #1c1450);
+      border: 1px solid rgba(124,58,237,.55);
+      border-bottom: none;
       position: relative;
     }
-    .esc-floor-btn:hover,
-    .esc-floor-btn.active {
-      background: rgba(124,58,237,.08);
-      border-left-color: var(--accent);
+    .desk-top::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 8%; right: 8%; height: 1px;
+      background: linear-gradient(90deg, transparent, var(--accent), var(--gold), var(--accent), transparent);
+      opacity: .65;
     }
-    .esc-floor-btn.active .esc-dot { background: var(--gold); box-shadow: 0 0 8px rgba(245,158,11,.6); }
 
-    .esc-dot {
-      width: 6px; height: 6px;
-      border-radius: 50%;
-      background: rgba(124,58,237,.4);
-      flex-shrink: 0;
-      transition: background .3s, box-shadow .3s;
+    /* desk main body */
+    .desk-body {
+      width: min(540px, 88vw);
+      background: linear-gradient(180deg, #0e0b20, #07060e);
+      border: 1px solid rgba(124,58,237,.3);
+      border-top: none;
+      border-radius: 0 0 6px 6px;
+      display: flex;
+      overflow: hidden;
+      box-shadow: 0 28px 70px rgba(0,0,0,.7), 0 0 0 1px rgba(124,58,237,.06);
     }
-    .esc-label {
+
+    /* desk left — monitor + phone */
+    .desk-left {
+      width: 180px; flex-shrink: 0;
+      background: linear-gradient(160deg, #0d0920, #130e2a);
+      border-right: 1px solid rgba(124,58,237,.18);
+      padding: 18px 14px;
+      display: flex; flex-direction: column; gap: 14px; align-items: flex-start;
+    }
+
+    /* mini monitor */
+    .desk-monitor {
+      width: 72px;
+    }
+    .monitor-screen {
+      width: 72px; height: 50px;
+      background: #030308;
+      border: 1px solid rgba(124,58,237,.5);
+      border-radius: 3px 3px 0 0;
+      position: relative;
+      overflow: hidden;
+    }
+    .monitor-screen::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: repeating-linear-gradient(0deg, rgba(124,58,237,.06) 0 1px, transparent 1px 5px);
+      animation: scan-lines 5s linear infinite;
+    }
+    @keyframes scan-lines { 0%{background-position:0 0;}100%{background-position:0 200px;} }
+    .monitor-text {
+      position: absolute;
+      top: 5px; left: 4px;
       font-family: var(--font-mono);
-      font-size: .48rem; letter-spacing: 2px;
+      font-size: 4.5px; color: rgba(124,58,237,.7);
+      line-height: 1.6; letter-spacing: .5px;
+    }
+    .monitor-cursor-blink {
+      display: inline-block; width: 4px; height: 6px;
+      background: rgba(124,58,237,.8);
+      animation: cursor-blink .8s step-end infinite;
+      vertical-align: middle;
+    }
+    @keyframes cursor-blink { 50%{opacity:0;} }
+    .monitor-stand {
+      width: 16px; height: 8px; margin: 0 auto;
+      background: #1a1530;
+      clip-path: polygon(20% 0%,80% 0%,100% 100%,0% 100%);
+    }
+    .monitor-base { width: 36px; height: 4px; margin: 0 auto; background: #1a1530; border-radius: 2px; }
+
+    /* desk phone prop */
+    .desk-phone {
+      width: 28px; height: 20px;
+      background: #0e0c1e;
+      border: 1px solid rgba(124,58,237,.2);
+      border-radius: 2px;
+      position: relative;
+    }
+    .desk-phone::before {
+      content: '';
+      position: absolute; inset: 3px;
+      background: rgba(124,58,237,.12); border-radius: 1px;
+    }
+
+    /* desk center — floor buttons (stage 06 will fill) */
+    .desk-center {
+      flex: 1;
+      padding: 16px 20px;
+      display: flex; flex-direction: column;
+      gap: 10px;
+    }
+    .desk-center-label {
+      font-family: var(--font-mono);
+      font-size: .5rem; letter-spacing: 4px;
       color: var(--muted);
       text-transform: uppercase;
-      white-space: nowrap;
-      opacity: 0;
-      transform: translateX(-4px);
-      transition: opacity .2s, transform .2s;
+      display: flex; align-items: center; gap: 8px;
     }
-    .esc-floor-btn:hover .esc-label,
-    .esc-floor-btn.active .esc-label {
+    .desk-center-label::after { content:''; flex:1; height:1px; background:rgba(124,58,237,.18); }
+    .desk-center-sub {
+      font-family: var(--font-mono);
+      font-size: .44rem; letter-spacing: 2px;
+      color: rgba(124,58,237,.38);
+    }
+    /* Placeholder floor button grid — Stage 06 will replace */
+    .desk-floor-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+    }
+    .desk-floor-btn-ph {
+      height: 42px;
+      background: rgba(124,58,237,.04);
+      border: 1px solid rgba(124,58,237,.15);
+      border-radius: 2px;
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-mono); font-size: .42rem; letter-spacing: 2px;
+      color: rgba(124,58,237,.3);
+    }
+
+    /* desk right — elevator shaft */
+    .desk-right {
+      width: 100px; flex-shrink: 0;
+      background: linear-gradient(160deg, #0a0818, #0d0b1e);
+      border-left: 1px solid rgba(124,58,237,.15);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 8px; padding: 10px 6px;
+      position: relative; overflow: hidden;
+    }
+    .desk-right::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: repeating-linear-gradient(180deg, rgba(124,58,237,.05) 0 1px, transparent 1px 22px);
+    }
+    .lift-label {
+      font-family: var(--font-mono); font-size: .4rem;
+      letter-spacing: 3px; color: rgba(124,58,237,.4);
+      writing-mode: vertical-rl; text-transform: uppercase;
+    }
+    .lift-car {
+      width: 40px; height: 50px;
+      background: linear-gradient(180deg, #12103a, #0d0b28);
+      border: 1px solid rgba(124,58,237,.4);
+      box-shadow: 0 0 12px rgba(124,58,237,.12);
+      position: relative; z-index: 1;
+      animation: lift-idle 4s ease-in-out infinite;
+      display: flex; align-items: center; justify-content: center;
+    }
+    @keyframes lift-idle { 0%,100%{transform:translateY(0);}50%{transform:translateY(-10px);} }
+    .lift-floor-num {
+      font-family: var(--font-display);
+      font-size: 1.1rem; color: var(--gold); letter-spacing: 2px;
+    }
+
+    /* desk base shadow strip */
+    .desk-base {
+      width: calc(min(540px,88vw) + 50px);
+      height: 14px;
+      background: linear-gradient(180deg, #0c0920, #050410);
+      border: 1px solid rgba(124,58,237,.18); border-top: none;
+      border-radius: 0 0 4px 4px;
+      box-shadow: 0 18px 50px rgba(0,0,0,.8);
+    }
+
+    /* ── Receptionist pixel character ── */
+    .receptionist {
+      position: absolute;
+      bottom: 38%;
+      left: 50%;
+      /* sits just behind the desk-wrap, offset left so they're visible */
+      transform: translateX(calc(-50% - 140px));
+      z-index: 4;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      opacity: 0;
+      transition: opacity .8s ease .4s;
+      filter: drop-shadow(0 0 12px rgba(124,58,237,.5));
+    }
+    .receptionist.show { opacity: 1; }
+
+    .rec-char-head {
+      width: 20px; height: 20px;
+      background: #e0b890;
+      border-radius: 50% 50% 45% 45%;
+      position: relative; z-index: 2;
+    }
+    /* hair */
+    .rec-char-head::before {
+      content: '';
+      position: absolute; top: -9px; left: -4px;
+      width: 28px; height: 14px;
+      background: #2a1a0a; border-radius: 50% 50% 0 0;
+    }
+    /* headset mic arm */
+    .rec-char-head::after {
+      content: '';
+      position: absolute; top: 2px; right: -10px;
+      width: 3px; height: 12px;
+      background: rgba(124,58,237,.8); border-radius: 2px;
+      box-shadow: -24px 0 0 rgba(124,58,237,.5);
+    }
+    .rec-char-body {
+      width: 22px; height: 30px;
+      background: linear-gradient(180deg, #1e1a3e, #16143a);
+      border-radius: 3px 3px 0 0;
+      margin-top: -1px; position: relative;
+    }
+    /* collar */
+    .rec-char-body::before {
+      content: '';
+      position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+      width: 8px; height: 8px;
+      background: rgba(245,158,11,.22);
+      clip-path: polygon(50% 0%,0% 100%,100% 100%);
+    }
+    .rec-char-name-tag {
+      font-family: var(--font-mono); font-size: .38rem; letter-spacing: 2px;
+      color: rgba(124,58,237,.45); margin-top: 4px;
+    }
+
+    /* ── Speech bubble ── */
+    .speech-bubble {
+      position: absolute;
+      bottom: calc(38% + 64px);
+      left: 50%;
+      transform: translateX(calc(-50% - 60px));
+      background: #13102a;
+      border: 1px solid rgba(124,58,237,.45);
+      border-radius: 10px 10px 10px 0;
+      padding: 10px 16px;
+      font-family: var(--font-mono);
+      font-size: .62rem; letter-spacing: 1.2px; line-height: 1.8;
+      color: var(--text);
+      max-width: 340px;
+      white-space: pre-wrap;
+      box-shadow: 0 4px 20px rgba(0,0,0,.5);
+      z-index: 6;
+      opacity: 0;
+      transform: translateX(calc(-50% - 60px)) translateY(8px) scale(.96);
+      transition: opacity .4s, transform .4s;
+      pointer-events: none;
+    }
+    .speech-bubble.show {
       opacity: 1;
-      transform: translateX(0);
+      transform: translateX(calc(-50% - 60px)) translateY(0) scale(1);
+    }
+    /* tail */
+    .speech-bubble::after {
+      content: '';
+      position: absolute;
+      bottom: -7px; left: 14px;
+      width: 12px; height: 7px;
+      background: rgba(124,58,237,.45);
+      clip-path: polygon(0% 0%,100% 0%,0% 100%);
+    }
+    .bubble-speaker {
+      font-size: .5rem; letter-spacing: 3px;
+      color: var(--gold); margin-bottom: 5px;
+      text-transform: uppercase;
+    }
+    .bubble-cursor {
+      display: inline-block; width: 6px; height: 12px;
+      background: var(--accent); opacity: .8;
+      animation: cursor-blink .8s step-end infinite;
+      vertical-align: middle; margin-left: 2px;
+    }
+
+    /* ── Escalator prompt ── */
+    .esc-prompt {
+      position: absolute;
+      bottom: 28px;
+      left: 50%; transform: translateX(-50%);
+      z-index: 6;
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+      opacity: 0;
+      transition: opacity .6s ease;
+      pointer-events: none;
+    }
+    .esc-prompt.show { opacity: 1; pointer-events: auto; }
+    .esc-prompt span {
+      font-family: var(--font-mono); font-size: .58rem; letter-spacing: 4px;
+      color: var(--muted); text-transform: uppercase;
+    }
+    .esc-prompt-arrow {
+      width: 1px; height: 30px;
+      background: linear-gradient(180deg, var(--accent), transparent);
+      animation: pulse-line 1.6s ease-in-out infinite;
     }
 
   </style>
 </head>
 <body>
 
-  <!-- =====================================================
-       ★ NEW — TRANSITION OVERLAYS (always in DOM)
-  ====================================================== -->
+  <!-- Transition overlays -->
   <div id="flash-overlay"></div>
-  <div id="transition-overlay">
-    <div class="transition-label">entering the building…</div>
-  </div>
+  <div id="transition-overlay"><div class="transition-label">entering the building…</div></div>
 
-  <!-- =====================================================
-       ★ NEW — INTERIOR NAV (hidden until entry)
-  ====================================================== -->
+  <!-- Interior nav -->
   <nav id="interior-nav">
     <div class="nav-logo">C. SREE HARSHITH REDDY</div>
     <ul class="nav-links">
@@ -525,235 +695,217 @@
     <a href="#contact-section" class="nav-cta">Let's Talk</a>
   </nav>
 
-  <!-- =====================================================
-       ★ NEW — ESCALATOR NAV (hidden until entry)
-  ====================================================== -->
+  <!-- Escalator nav -->
   <nav id="escalator-nav">
-    <a class="esc-floor-btn active" href="#reception-section" data-target="reception-section">
-      <div class="esc-dot"></div>
-      <span class="esc-label">Lobby</span>
-    </a>
-    <a class="esc-floor-btn" href="#about-section" data-target="about-section">
-      <div class="esc-dot"></div>
-      <span class="esc-label">About</span>
-    </a>
-    <a class="esc-floor-btn" href="#projects-section" data-target="projects-section">
-      <div class="esc-dot"></div>
-      <span class="esc-label">Projects</span>
-    </a>
-    <a class="esc-floor-btn" href="#experience-section" data-target="experience-section">
-      <div class="esc-dot"></div>
-      <span class="esc-label">Experience</span>
-    </a>
-    <a class="esc-floor-btn" href="#achievements-section" data-target="achievements-section">
-      <div class="esc-dot"></div>
-      <span class="esc-label">Achievements</span>
-    </a>
-    <a class="esc-floor-btn" href="#contact-section" data-target="contact-section">
-      <div class="esc-dot"></div>
-      <span class="esc-label">Contact</span>
-    </a>
+    <a class="esc-floor-btn active" href="#reception-section" data-target="reception-section"><div class="esc-dot"></div><span class="esc-label">Lobby</span></a>
+    <a class="esc-floor-btn" href="#about-section" data-target="about-section"><div class="esc-dot"></div><span class="esc-label">About</span></a>
+    <a class="esc-floor-btn" href="#projects-section" data-target="projects-section"><div class="esc-dot"></div><span class="esc-label">Projects</span></a>
+    <a class="esc-floor-btn" href="#experience-section" data-target="experience-section"><div class="esc-dot"></div><span class="esc-label">Experience</span></a>
+    <a class="esc-floor-btn" href="#achievements-section" data-target="achievements-section"><div class="esc-dot"></div><span class="esc-label">Achievements</span></a>
+    <a class="esc-floor-btn" href="#contact-section" data-target="contact-section"><div class="esc-dot"></div><span class="esc-label">Contact</span></a>
   </nav>
 
   <!-- =====================================================
-       SCROLL SCENE — unchanged from Stage 03
+       SCROLL SCENE — unchanged from Stage 04
   ====================================================== -->
   <div id="scene">
     <div class="sticky" id="sticky">
-
       <div class="sky" id="sky"></div>
       <div class="stars-wrap" id="starsWrap"></div>
       <div class="city-bg" id="cityBg"></div>
-
-      <!-- 3D Building — unchanged -->
       <div class="scene-3d" id="scene3d">
         <div class="building" id="building">
           <div class="blk" id="blk0" style="--tx:0px;--ty:0px;--tz:-500px;--rx:0deg;--ry:0deg;"><div class="b-antenna"></div></div>
           <div class="blk" id="blk1" style="--tx:0px;--ty:-320px;--tz:0px;--rx:0deg;--ry:0deg;"><div class="b-roof-tri"></div></div>
-          <div class="blk" id="blk2" style="--tx:0px;--ty:0px;--tz:500px;--rx:0deg;--ry:0deg;">
-            <div class="b-penthouse"><div class="b-penthouse-name">C. SREE HARSHITH REDDY'S<br>EMPIRE</div></div>
-          </div>
-          <div class="blk" id="blk3" style="--tx:-420px;--ty:0px;--tz:0px;--rx:0deg;--ry:-28deg;">
-            <div class="b-floor" data-label="FLOOR 04">
-              <div class="win l2"></div><div class="win"></div><div class="win l1"></div><div class="win l2"></div>
-              <div class="win"></div><div class="win l1"></div><div class="win"></div><div class="win l2"></div>
-            </div>
-          </div>
-          <div class="blk" id="blk4" style="--tx:420px;--ty:0px;--tz:0px;--rx:0deg;--ry:28deg;">
-            <div class="b-floor" data-label="FLOOR 03">
-              <div class="win"></div><div class="win l1"></div><div class="win l3"></div><div class="win l1"></div>
-              <div class="win l2"></div><div class="win"></div><div class="win l1"></div><div class="win"></div>
-            </div>
-          </div>
-          <div class="blk" id="blk5" style="--tx:0px;--ty:0px;--tz:-440px;--rx:22deg;--ry:0deg;">
-            <div class="b-floor" data-label="FLOOR 02">
-              <div class="win l1"></div><div class="win l2"></div><div class="win"></div><div class="win l1"></div>
-              <div class="win"></div><div class="win l3"></div><div class="win l2"></div><div class="win l1"></div>
-            </div>
-          </div>
+          <div class="blk" id="blk2" style="--tx:0px;--ty:0px;--tz:500px;--rx:0deg;--ry:0deg;"><div class="b-penthouse"><div class="b-penthouse-name">C. SREE HARSHITH REDDY'S<br>EMPIRE</div></div></div>
+          <div class="blk" id="blk3" style="--tx:-420px;--ty:0px;--tz:0px;--rx:0deg;--ry:-28deg;"><div class="b-floor" data-label="FLOOR 04"><div class="win l2"></div><div class="win"></div><div class="win l1"></div><div class="win l2"></div><div class="win"></div><div class="win l1"></div><div class="win"></div><div class="win l2"></div></div></div>
+          <div class="blk" id="blk4" style="--tx:420px;--ty:0px;--tz:0px;--rx:0deg;--ry:28deg;"><div class="b-floor" data-label="FLOOR 03"><div class="win"></div><div class="win l1"></div><div class="win l3"></div><div class="win l1"></div><div class="win l2"></div><div class="win"></div><div class="win l1"></div><div class="win"></div></div></div>
+          <div class="blk" id="blk5" style="--tx:0px;--ty:0px;--tz:-440px;--rx:22deg;--ry:0deg;"><div class="b-floor" data-label="FLOOR 02"><div class="win l1"></div><div class="win l2"></div><div class="win"></div><div class="win l1"></div><div class="win"></div><div class="win l3"></div><div class="win l2"></div><div class="win l1"></div></div></div>
           <div class="blk" id="blk6" style="--tx:0px;--ty:0px;--tz:0px;--rx:0deg;--ry:0deg;">
             <div class="b-wings">
-              <div class="b-wing" id="wingL">
-                <div class="win"></div><div class="win l1"></div><div class="win l2"></div><div class="win"></div>
-                <div class="win l1"></div><div class="win"></div><div class="win l2"></div><div class="win l1"></div>
-              </div>
-              <div class="b-wing-center">
-                <div class="win l2"></div><div class="win l1"></div><div class="win"></div><div class="win l1"></div><div class="win l3"></div>
-                <div class="win"></div><div class="win l2"></div><div class="win l1"></div><div class="win"></div><div class="win l2"></div>
-              </div>
-              <div class="b-wing" id="wingR">
-                <div class="win l2"></div><div class="win"></div><div class="win l1"></div><div class="win l2"></div>
-                <div class="win l1"></div><div class="win l3"></div><div class="win"></div><div class="win l1"></div>
-              </div>
+              <div class="b-wing" id="wingL"><div class="win"></div><div class="win l1"></div><div class="win l2"></div><div class="win"></div><div class="win l1"></div><div class="win"></div><div class="win l2"></div><div class="win l1"></div></div>
+              <div class="b-wing-center"><div class="win l2"></div><div class="win l1"></div><div class="win"></div><div class="win l1"></div><div class="win l3"></div><div class="win"></div><div class="win l2"></div><div class="win l1"></div><div class="win"></div><div class="win l2"></div></div>
+              <div class="b-wing" id="wingR"><div class="win l2"></div><div class="win"></div><div class="win l1"></div><div class="win l2"></div><div class="win l1"></div><div class="win l3"></div><div class="win"></div><div class="win l1"></div></div>
             </div>
           </div>
-          <div class="blk" id="blk7" style="--tx:0px;--ty:0px;--tz:460px;--rx:-20deg;--ry:0deg;">
-            <div class="b-floor" data-label="FLOOR 01">
-              <div class="win l1"></div><div class="win"></div><div class="win l2"></div><div class="win l1"></div>
-              <div class="win l3"></div><div class="win l1"></div><div class="win"></div><div class="win l2"></div>
-            </div>
-          </div>
-          <div class="blk" id="blk8" style="--tx:0px;--ty:220px;--tz:0px;--rx:0deg;--ry:0deg;">
-            <div class="b-lobby">
-              <div class="ground-glow" id="groundGlow"></div>
-              <div class="door-wrap">
-                <div class="door-panel left"  id="doorL"></div>
-                <div class="door-panel right" id="doorR"></div>
-                <div class="welcome-text" id="welcomeText">WELCOME</div>
-              </div>
-            </div>
-          </div>
-          <div class="blk" id="blk9" style="--tx:0px;--ty:0px;--tz:-300px;--rx:0deg;--ry:0deg;">
-            <div class="b-sill"></div>
-          </div>
+          <div class="blk" id="blk7" style="--tx:0px;--ty:0px;--tz:460px;--rx:-20deg;--ry:0deg;"><div class="b-floor" data-label="FLOOR 01"><div class="win l1"></div><div class="win"></div><div class="win l2"></div><div class="win l1"></div><div class="win l3"></div><div class="win l1"></div><div class="win"></div><div class="win l2"></div></div></div>
+          <div class="blk" id="blk8" style="--tx:0px;--ty:220px;--tz:0px;--rx:0deg;--ry:0deg;"><div class="b-lobby"><div class="ground-glow" id="groundGlow"></div><div class="door-wrap"><div class="door-panel left" id="doorL"></div><div class="door-panel right" id="doorR"></div><div class="welcome-text" id="welcomeText">WELCOME</div></div></div></div>
+          <div class="blk" id="blk9" style="--tx:0px;--ty:0px;--tz:-300px;--rx:0deg;--ry:0deg;"><div class="b-sill"></div></div>
         </div>
       </div>
-
       <div class="entrance-glow" id="entranceGlow"></div>
-
-      <!-- Character — unchanged from Stage 03 -->
       <div id="character">
         <div class="char-dist-tag" id="distTag">far away</div>
         <div class="char-head"></div>
         <div class="char-body"></div>
-        <div class="char-legs">
-          <div class="char-leg left"></div>
-          <div class="char-leg right"></div>
-        </div>
+        <div class="char-legs"><div class="char-leg left"></div><div class="char-leg right"></div></div>
         <div class="char-shadow" id="charShadow"></div>
       </div>
-
       <canvas id="footCanvas"></canvas>
-
-      <div class="ground">
-        <div class="pavement left"></div>
-        <div class="road"><div class="road-dashes" id="roadDashes"></div></div>
-        <div class="pavement right"></div>
-      </div>
-
-      <div class="scroll-hud" id="scrollHud">
-        <span class="hud-label">Scroll</span>
-        <span class="hud-value" id="hudValue">0%</span>
-        <div class="hud-bar"><div class="hud-bar-fill" id="hudFill"></div></div>
-      </div>
-
-      <div class="scroll-hint" id="scrollHint">
-        <span class="sh-label">Scroll to enter</span>
-        <div class="sh-arrow"></div>
-        <div class="sh-chevron"></div>
-      </div>
-
+      <div class="ground"><div class="pavement left"></div><div class="road"><div class="road-dashes" id="roadDashes"></div></div><div class="pavement right"></div></div>
+      <div class="scroll-hud" id="scrollHud"><span class="hud-label">Scroll</span><span class="hud-value" id="hudValue">0%</span><div class="hud-bar"><div class="hud-bar-fill" id="hudFill"></div></div></div>
+      <div class="scroll-hint" id="scrollHint"><span class="sh-label">Scroll to enter</span><div class="sh-arrow"></div><div class="sh-chevron"></div></div>
     </div>
   </div>
 
   <!-- =====================================================
-       ★ NEW — INTERIOR CONTAINER
-       Hidden until triggerEntry() fires.
-       Each floor section is a placeholder ready for
-       Stages 05–11 to fill in with real content.
+       INTERIOR
   ====================================================== -->
   <div id="interior">
 
-    <!-- FLOOR 0: Reception / Lobby -->
+    <!-- ============================================================
+         ★ NEW — STAGE 05: RECEPTION SECTION (full cinematic scene)
+    ============================================================ -->
     <section id="reception-section" class="floor-section">
       <span class="floor-tag">// Ground Floor — Reception</span>
-      <div class="floor-placeholder">
-        <div class="floor-badge">You're inside</div>
-        <h2>Welcome to the<br><span>Empire</span></h2>
-        <p>Reception lobby · Receptionist greets you<br>
-           Step onto the escalator to explore each floor</p>
-        <p style="color:rgba(124,58,237,.5);margin-top:8px;">
-          ← Stage 05 will build this into the full cinematic lobby
-        </p>
+
+      <!-- Back wall -->
+      <div class="rec-back-wall">
+        <div class="rec-wall-name">EMPIRE</div>
       </div>
+
+      <!-- Ceiling -->
+      <div class="rec-ceiling"></div>
+      <div class="rec-ceiling-glow"></div>
+
+      <!-- Perspective floor -->
+      <div class="rec-floor"></div>
+
+      <!-- Pillars -->
+      <div class="rec-pillar left"></div>
+      <div class="rec-pillar right"></div>
+
+      <!-- Plants -->
+      <div class="rec-plant left">
+        <div class="plant-leaves">
+          <div class="plant-leaf"></div>
+          <div class="plant-leaf"></div>
+          <div class="plant-leaf"></div>
+        </div>
+        <div class="plant-pot"></div>
+      </div>
+      <div class="rec-plant right">
+        <div class="plant-leaves">
+          <div class="plant-leaf"></div>
+          <div class="plant-leaf"></div>
+          <div class="plant-leaf"></div>
+        </div>
+        <div class="plant-pot"></div>
+      </div>
+
+      <!-- Receptionist character -->
+      <div class="receptionist" id="receptionist">
+        <div class="rec-char-head"></div>
+        <div class="rec-char-body"></div>
+        <div class="rec-char-name-tag">RECEPTION</div>
+      </div>
+
+      <!-- Speech bubble -->
+      <div class="speech-bubble" id="speechBubble">
+        <div class="bubble-speaker">— RECEPTIONIST</div>
+        <span id="bubbleText"></span><span class="bubble-cursor" id="bubbleCursor"></span>
+      </div>
+
+      <!-- Reception desk -->
+      <div class="rec-desk-wrap" id="deskWrap">
+        <div class="desk-nameplate">
+          <div class="nameplate-dot"></div>
+          RECEPTION DESK
+          <div class="nameplate-dot"></div>
+        </div>
+        <div class="desk-top"></div>
+        <div class="desk-body">
+          <!-- Left: monitor + phone -->
+          <div class="desk-left">
+            <div class="desk-monitor">
+              <div class="monitor-screen">
+                <div class="monitor-text">VISITOR LOG<br>> C.S.REDDY<br>> 10:42 AM<br>> WELCOME<br><span class="monitor-cursor-blink"></span></div>
+              </div>
+              <div class="monitor-stand"></div>
+              <div class="monitor-base"></div>
+            </div>
+            <div class="desk-phone"></div>
+          </div>
+          <!-- Center: floor selector (Stage 06 will replace) -->
+          <div class="desk-center">
+            <div class="desk-center-label">FLOOR DIRECTORY</div>
+            <div class="desk-center-sub">Select a floor to visit</div>
+            <div class="desk-floor-grid">
+              <a href="#about-section" class="desk-floor-btn-ph">01 — About</a>
+              <a href="#projects-section" class="desk-floor-btn-ph">02 — Projects</a>
+              <a href="#experience-section" class="desk-floor-btn-ph">03 — Experience</a>
+              <a href="#achievements-section" class="desk-floor-btn-ph">04 — Achievements</a>
+            </div>
+          </div>
+          <!-- Right: elevator shaft -->
+          <div class="desk-right">
+            <div class="lift-label">LIFT</div>
+            <div class="lift-car"><div class="lift-floor-num">G</div></div>
+          </div>
+        </div>
+        <div class="desk-base"></div>
+      </div>
+
+      <!-- Escalator prompt -->
+      <div class="esc-prompt" id="escPrompt">
+        <span>Scroll down to explore</span>
+        <div class="esc-prompt-arrow"></div>
+      </div>
+
     </section>
 
-    <!-- FLOOR 1: About -->
+    <!-- FLOOR 1: About (placeholder — Stage 07) -->
     <section id="about-section" class="floor-section">
       <span class="floor-tag">// Floor 01 — About</span>
       <div class="floor-placeholder">
         <div class="floor-badge">Floor 01</div>
         <h2>About <span>Me</span></h2>
-        <p>Bio · Skills · Stats<br>
-           Two-panel sticky scroll</p>
-        <p style="color:rgba(124,58,237,.5);margin-top:8px;">
-          ← Stage 07 will build this floor
-        </p>
+        <p>Bio · Skills · Stats<br>Two-panel sticky scroll</p>
+        <p style="color:rgba(124,58,237,.4);margin-top:8px;">← Stage 07 builds this floor</p>
       </div>
     </section>
 
-    <!-- FLOOR 2: Projects -->
+    <!-- FLOOR 2: Projects (placeholder — Stage 08) -->
     <section id="projects-section" class="floor-section">
       <span class="floor-tag">// Floor 02 — Projects</span>
       <div class="floor-placeholder">
         <div class="floor-badge">Floor 02</div>
         <h2><span>Projects</span></h2>
-        <p>Category filter · Horizontal scroll · Detail modal<br>
-           About · Key Features · Impact · Team · Tech Stack</p>
-        <p style="color:rgba(124,58,237,.5);margin-top:8px;">
-          ← Stage 08 will build this floor
-        </p>
+        <p>Category filter · Horizontal scroll · Detail modal</p>
+        <p style="color:rgba(124,58,237,.4);margin-top:8px;">← Stage 08 builds this floor</p>
       </div>
     </section>
 
-    <!-- FLOOR 3: Experience -->
+    <!-- FLOOR 3: Experience (placeholder — Stage 09) -->
     <section id="experience-section" class="floor-section">
       <span class="floor-tag">// Floor 03 — Experience</span>
       <div class="floor-placeholder">
         <div class="floor-badge">Floor 03</div>
         <h2><span>Experience</span></h2>
-        <p>Work experience timeline · Volunteering timeline<br>
-           Entries slide in from left and right</p>
-        <p style="color:rgba(124,58,237,.5);margin-top:8px;">
-          ← Stage 09 will build this floor
-        </p>
+        <p>Work timeline · Volunteering timeline</p>
+        <p style="color:rgba(124,58,237,.4);margin-top:8px;">← Stage 09 builds this floor</p>
       </div>
     </section>
 
-    <!-- FLOOR 4: Achievements -->
+    <!-- FLOOR 4: Achievements (placeholder — Stage 10) -->
     <section id="achievements-section" class="floor-section">
       <span class="floor-tag">// Floor 04 — Achievements</span>
       <div class="floor-placeholder">
         <div class="floor-badge">Floor 04</div>
         <h2><span>Achievements</span></h2>
-        <p>Achievements · Certifications<br>
-           Cards drop from above · Image upload</p>
-        <p style="color:rgba(124,58,237,.5);margin-top:8px;">
-          ← Stage 10 will build this floor
-        </p>
+        <p>Cards drop from above · Image upload</p>
+        <p style="color:rgba(124,58,237,.4);margin-top:8px;">← Stage 10 builds this floor</p>
       </div>
     </section>
 
-    <!-- FLOOR 5: Contact -->
+    <!-- FLOOR 5: Contact (placeholder — Stage 11) -->
     <section id="contact-section" class="floor-section">
       <span class="floor-tag">// Floor 05 — Contact</span>
       <div class="floor-placeholder">
         <div class="floor-badge">Floor 05</div>
         <h2>Let's <span>Talk</span></h2>
-        <p>Contact form · Social links · Location</p>
-        <p style="color:rgba(124,58,237,.5);margin-top:8px;">
-          ← Stage 11 will build this floor
-        </p>
+        <p>Contact form · Social links</p>
+        <p style="color:rgba(124,58,237,.4);margin-top:8px;">← Stage 11 builds this floor</p>
       </div>
     </section>
 
@@ -762,300 +914,165 @@
 
   <script>
     /* ==============================================================
-       STAGE 04 JavaScript
-       Stages 01–03 code unchanged. New code marked ★ NEW.
+       STAGE 05 JavaScript
+       Stages 01–04 code unchanged. New: initReception()
     ============================================================== */
 
-    /* ── Stage 01–02: generators (unchanged) ── */
-    function generateStars(count = 180) {
-      const wrap = document.getElementById('starsWrap'), frag = document.createDocumentFragment();
-      for (let i = 0; i < count; i++) {
-        const s=document.createElement('div'); s.className='star';
-        const sz=Math.random()*2+0.8,x=Math.random()*100,y=Math.random()*100;
-        const d=(Math.random()*3+2).toFixed(1),dl=(Math.random()*4).toFixed(1);
-        s.style.cssText=`width:${sz}px;height:${sz}px;left:${x}%;top:${y}%;--d:${d}s;--dl:${dl}s;`;
-        frag.appendChild(s);
-      }
-      wrap.appendChild(frag);
-    }
-    function generateCityBg() {
-      const c=document.getElementById('cityBg'),f=document.createDocumentFragment();
-      [[18,60],[28,95],[22,75],[35,130],[20,55],[30,110],[18,65],[42,155],[25,80],[30,100],
-       [20,70],[36,125],[24,85],[28,95],[18,50],[40,140],[22,70],[26,90],[32,115],[20,60],
-       [28,95],[18,55],[34,120],[22,75]]
-      .forEach(([w,h])=>{const el=document.createElement('div');el.className='cb';el.style.cssText=`width:${w}px;height:${h}px;`;f.appendChild(el);});
-      c.appendChild(f);
-    }
-    function generateRoadDashes(n=5){
-      const c=document.getElementById('roadDashes');
-      for(let i=0;i<n;i++){const d=document.createElement('div');d.className='rd';c.appendChild(d);}
-    }
+    function generateStars(c=180){const w=document.getElementById('starsWrap'),f=document.createDocumentFragment();for(let i=0;i<c;i++){const s=document.createElement('div');s.className='star';const sz=Math.random()*2+.8,x=Math.random()*100,y=Math.random()*100,d=(Math.random()*3+2).toFixed(1),dl=(Math.random()*4).toFixed(1);s.style.cssText=`width:${sz}px;height:${sz}px;left:${x}%;top:${y}%;--d:${d}s;--dl:${dl}s;`;f.appendChild(s);}w.appendChild(f);}
+    function generateCityBg(){const c=document.getElementById('cityBg'),f=document.createDocumentFragment();[[18,60],[28,95],[22,75],[35,130],[20,55],[30,110],[18,65],[42,155],[25,80],[30,100],[20,70],[36,125],[24,85],[28,95],[18,50],[40,140],[22,70],[26,90],[32,115],[20,60],[28,95],[18,55],[34,120],[22,75]].forEach(([w,h])=>{const el=document.createElement('div');el.className='cb';el.style.cssText=`width:${w}px;height:${h}px;`;f.appendChild(el);});c.appendChild(f);}
+    function generateRoadDashes(n=5){const c=document.getElementById('roadDashes');for(let i=0;i<n;i++){const d=document.createElement('div');d.className='rd';c.appendChild(d);}}
 
-    /* ── DOM refs ── */
-    const scene        = document.getElementById('scene');
-    const cityBg       = document.getElementById('cityBg');
-    const scrollHud    = document.getElementById('scrollHud');
-    const hudValue     = document.getElementById('hudValue');
-    const hudFill      = document.getElementById('hudFill');
-    const scrollHint   = document.getElementById('scrollHint');
-    const building     = document.getElementById('building');
-    const doorL        = document.getElementById('doorL');
-    const doorR        = document.getElementById('doorR');
-    const welcomeText  = document.getElementById('welcomeText');
-    const groundGlow   = document.getElementById('groundGlow');
-    const entranceGlow = document.getElementById('entranceGlow');
-    const blocks       = Array.from({length:10},(_,i)=>document.getElementById(`blk${i}`));
-    const character    = document.getElementById('character');
-    const charShadow   = document.getElementById('charShadow');
-    const distTag      = document.getElementById('distTag');
-    const footCanvas   = document.getElementById('footCanvas');
-    const footCtx      = footCanvas.getContext('2d');
+    const scene=document.getElementById('scene'),cityBg=document.getElementById('cityBg'),scrollHud=document.getElementById('scrollHud'),hudValue=document.getElementById('hudValue'),hudFill=document.getElementById('hudFill'),scrollHint=document.getElementById('scrollHint'),building=document.getElementById('building'),doorL=document.getElementById('doorL'),doorR=document.getElementById('doorR'),welcomeText=document.getElementById('welcomeText'),groundGlow=document.getElementById('groundGlow'),entranceGlow=document.getElementById('entranceGlow'),blocks=Array.from({length:10},(_,i)=>document.getElementById(`blk${i}`)),character=document.getElementById('character'),charShadow=document.getElementById('charShadow'),distTag=document.getElementById('distTag'),footCanvas=document.getElementById('footCanvas'),footCtx=footCanvas.getContext('2d');
+    const flashOverlay=document.getElementById('flash-overlay'),transitionOverlay=document.getElementById('transition-overlay'),interior=document.getElementById('interior'),interiorNav=document.getElementById('interior-nav'),escalatorNav=document.getElementById('escalator-nav');
+    const THRESHOLDS=[.38,.34,.30,.25,.22,.18,.15,.12,.07,.04],DELAYS=[0,40,70,55,55,70,35,70,15,0];
+    let doorsOpen=false,prevProgress=0,isWalking=false,walkStopTimer=null,lastFootX=-999,entryTriggered=false;
+    const dustParticles=[];
 
-    /* ★ NEW — Stage 04 DOM refs */
-    const flashOverlay      = document.getElementById('flash-overlay');
-    const transitionOverlay = document.getElementById('transition-overlay');
-    const interior          = document.getElementById('interior');
-    const interiorNav       = document.getElementById('interior-nav');
-    const escalatorNav      = document.getElementById('escalator-nav');
-
-    /* Stage 02 constants */
-    const THRESHOLDS = [0.38,0.34,0.30,0.25,0.22,0.18,0.15,0.12,0.07,0.04];
-    const DELAYS     = [0,40,70,55,55,70,35,70,15,0];
-    let doorsOpen    = false;
-
-    /* Stage 03 state */
-    let prevProgress  = 0;
-    let isWalking     = false;
-    let walkStopTimer = null;
-    let lastFootX     = -999;
-    const dustParticles = [];
-
-    /* ★ NEW — Stage 04 state */
-    let entryTriggered = false;   /* one-way flag — entry fires only once */
-
-    /* ============================================================
-       SCROLL HANDLER — extended from Stage 03
-    ============================================================ */
-    function onScroll() {
-      /* If interior is already showing, bail — scroll scene is done */
-      if (entryTriggered) return;
-
-      const sceneTop = scene.offsetTop;
-      const progress = Math.max(0, Math.min(1,
-        (window.scrollY - sceneTop) / (scene.offsetHeight - window.innerHeight)
-      ));
-
-      /* HUD */
-      scrollHud.classList.toggle('visible', progress > 0.005);
-      const pct = Math.round(progress * 100);
-      hudValue.textContent = `${pct}%`;
-      hudFill.style.width  = `${pct}%`;
-
-      /* scroll hint */
-      scrollHint.classList.toggle('hide', progress > 0.03);
-
-      /* city silhouette */
-      cityBg.style.opacity = Math.max(0, 0.24 - progress * 0.55).toFixed(3);
-
-      /* sky bloom */
-      const bl = Math.min(progress * 1.4, 1);
-      document.getElementById('sky').style.background = `
-        radial-gradient(ellipse 70% ${55+bl*20}% at 50% 0%,rgba(44,16,82,${(.85+bl*.15).toFixed(2)}) 0%,transparent 70%),
-        linear-gradient(180deg,#0d0720 0%,#09061a 40%,#07060e 100%)`;
-
-      /* Stage 02: blocks */
-      blocks.forEach((blk,i)=>{
-        if(progress>=THRESHOLDS[i]){if(!blk.classList.contains('vis'))setTimeout(()=>blk.classList.add('vis'),DELAYS[i]);}
-        else blk.classList.remove('vis');
-      });
-
-      /* Stage 02: building zoom */
-      const zp=Math.min(progress/0.82,1), ez=zp*zp*(3-2*zp);
-      building.style.transform=`translateX(-50%) scale(${(0.28+ez*0.97).toFixed(4)})`;
-
-      /* Stage 02: entrance glow */
-      const ga=Math.max(0,Math.min(1,(progress-0.38)/0.3));
-      entranceGlow.style.opacity=ga.toFixed(3);
-
-      /* Stage 02: doors */
-      if(progress>=0.82&&!doorsOpen){
-        doorsOpen=true;
-        doorL.classList.add('open');doorR.classList.add('open');
-        groundGlow.classList.add('show');welcomeText.classList.add('show');
-      } else if(progress<0.78&&doorsOpen){
-        doorsOpen=false;
-        doorL.classList.remove('open');doorR.classList.remove('open');
-        groundGlow.classList.remove('show');welcomeText.classList.remove('show');
-      }
-
-      /* Stage 03: character */
+    function onScroll(){
+      if(entryTriggered)return;
+      const sceneTop=scene.offsetTop,progress=Math.max(0,Math.min(1,(window.scrollY-sceneTop)/(scene.offsetHeight-window.innerHeight)));
+      scrollHud.classList.toggle('visible',progress>.005);
+      const pct=Math.round(progress*100);hudValue.textContent=`${pct}%`;hudFill.style.width=`${pct}%`;
+      scrollHint.classList.toggle('hide',progress>.03);
+      cityBg.style.opacity=Math.max(0,.24-progress*.55).toFixed(3);
+      const bl=Math.min(progress*1.4,1);document.getElementById('sky').style.background=`radial-gradient(ellipse 70% ${55+bl*20}% at 50% 0%,rgba(44,16,82,${(.85+bl*.15).toFixed(2)}) 0%,transparent 70%),linear-gradient(180deg,#0d0720 0%,#09061a 40%,#07060e 100%)`;
+      blocks.forEach((blk,i)=>{if(progress>=THRESHOLDS[i]){if(!blk.classList.contains('vis'))setTimeout(()=>blk.classList.add('vis'),DELAYS[i]);}else blk.classList.remove('vis');});
+      const zp=Math.min(progress/.82,1),ez=zp*zp*(3-2*zp);building.style.transform=`translateX(-50%) scale(${(.28+ez*.97).toFixed(4)})`;
+      const ga=Math.max(0,Math.min(1,(progress-.38)/.3));entranceGlow.style.opacity=ga.toFixed(3);
+      if(progress>=.82&&!doorsOpen){doorsOpen=true;doorL.classList.add('open');doorR.classList.add('open');groundGlow.classList.add('show');welcomeText.classList.add('show');}
+      else if(progress<.78&&doorsOpen){doorsOpen=false;doorL.classList.remove('open');doorR.classList.remove('open');groundGlow.classList.remove('show');welcomeText.classList.remove('show');}
       updateCharacter(progress);
-      const scrolling = Math.abs(progress-prevProgress)>0.0003;
-      if(scrolling&&progress>0.04&&progress<0.90) startWalking();
-      else if(!scrolling) scheduleStopWalking();
-      prevProgress = progress;
-
-      /* ★ NEW Stage 04: trigger entry at progress >= 0.92 */
-      if (progress >= 0.92) {
-        triggerEntry();
-      }
+      const scrolling=Math.abs(progress-prevProgress)>.0003;
+      if(scrolling&&progress>.04&&progress<.90)startWalking();else if(!scrolling)scheduleStopWalking();
+      prevProgress=progress;
+      if(progress>=.92)triggerEntry();
     }
 
-    /* ── Stage 03: character functions (unchanged) ── */
-    function updateCharacter(progress) {
-      const vw=window.innerWidth, vh=window.innerHeight;
-      const walkT=Math.max(0,Math.min(1,(progress-0.04)/0.78));
-      const walkEased=walkT*walkT*(3-2*walkT);
-      const charX=vw*0.05+walkEased*(vw*0.50-vw*0.05);
-      const charScale=0.45+walkEased*0.60;
-      charShadow.style.width=`${22+(1-walkEased)*28}px`;
-      let op=1;
-      if(progress<0.04) op=0;
-      else if(progress<0.08) op=(progress-0.04)/0.04;
-      else if(progress>0.85) op=Math.max(0,1-(progress-0.85)/0.07);
-      character.style.opacity=op.toFixed(3);
-      character.style.left=`${charX}px`;
-      character.style.transform=`translateX(-50%) scale(${charScale.toFixed(3)})`;
-      const dp=Math.round(walkEased*100);
-      distTag.textContent=dp<95?(dp<10?'far away':dp<40?'approaching':dp<75?'almost there':'entering...'):'';
-      if(isWalking&&op>0.2&&Math.abs(charX-lastFootX)>28){spawnDust(charX,vh-108);lastFootX=charX;}
-    }
+    function updateCharacter(p){const vw=window.innerWidth,vh=window.innerHeight,wt=Math.max(0,Math.min(1,(p-.04)/.78)),we=wt*wt*(3-2*wt),cx=vw*.05+we*(vw*.5-vw*.05),cs=.45+we*.60;charShadow.style.width=`${22+(1-we)*28}px`;let op=1;if(p<.04)op=0;else if(p<.08)op=(p-.04)/.04;else if(p>.85)op=Math.max(0,1-(p-.85)/.07);character.style.opacity=op.toFixed(3);character.style.left=`${cx}px`;character.style.transform=`translateX(-50%) scale(${cs.toFixed(3)})`;const dp=Math.round(we*100);distTag.textContent=dp<95?(dp<10?'far away':dp<40?'approaching':dp<75?'almost there':'entering...'):'';if(isWalking&&op>.2&&Math.abs(cx-lastFootX)>28){spawnDust(cx,vh-108);lastFootX=cx;}}
     function startWalking(){if(!isWalking){isWalking=true;character.classList.add('walking');}if(walkStopTimer){clearTimeout(walkStopTimer);walkStopTimer=null;}}
     function scheduleStopWalking(){if(walkStopTimer)return;walkStopTimer=setTimeout(()=>{isWalking=false;character.classList.remove('walking');walkStopTimer=null;},180);}
     function spawnDust(x,gy){const n=3+Math.floor(Math.random()*3);for(let i=0;i<n;i++)dustParticles.push({x:x+(Math.random()-.5)*14,y:gy-4,vx:(Math.random()-.5)*.8,vy:-(Math.random()*.8+.2),r:Math.random()*3+1,life:1,decay:.04+Math.random()*.03});}
-    function animateDust(){
-      if(footCanvas.width!==window.innerWidth){footCanvas.width=window.innerWidth;footCanvas.height=40;}
-      footCtx.clearRect(0,0,footCanvas.width,footCanvas.height);
-      for(let i=dustParticles.length-1;i>=0;i--){
-        const p=dustParticles[i];p.x+=p.vx;p.y+=p.vy;p.life-=p.decay;
-        if(p.life<=0){dustParticles.splice(i,1);continue;}
-        footCtx.beginPath();footCtx.arc(p.x,p.y,p.r*p.life,0,Math.PI*2);
-        footCtx.fillStyle=`rgba(124,58,237,${(p.life*.3).toFixed(2)})`;footCtx.fill();
-      }
-      requestAnimationFrame(animateDust);
-    }
+    function animateDust(){if(footCanvas.width!==window.innerWidth){footCanvas.width=window.innerWidth;footCanvas.height=40;}footCtx.clearRect(0,0,footCanvas.width,footCanvas.height);for(let i=dustParticles.length-1;i>=0;i--){const p=dustParticles[i];p.x+=p.vx;p.y+=p.vy;p.life-=p.decay;if(p.life<=0){dustParticles.splice(i,1);continue;}footCtx.beginPath();footCtx.arc(p.x,p.y,p.r*p.life,0,Math.PI*2);footCtx.fillStyle=`rgba(124,58,237,${(p.life*.3).toFixed(2)})`;footCtx.fill();}requestAnimationFrame(animateDust);}
 
-    /* ============================================================
-       ★ NEW — ENTRY TRANSITION SEQUENCE
-       Fires once when progress >= 0.92.
-       Timeline:
-         t=0ms    white flash appears (opacity → 0.92)
-         t=200ms  flash fades → black overlay fades in
-         t=600ms  interior mounts (display:block), scroll to top
-         t=800ms  scene hidden, interior fades in
-         t=1100ms nav + escalator appear
-         t=1400ms black overlay fades out (reveal interior)
-    ============================================================ */
-    function triggerEntry() {
-      if (entryTriggered) return;
-      entryTriggered = true;
-
-      /* disable scroll on the scene while transitioning */
-      document.body.style.overflow = 'hidden';
-
-      /* Step 1: white flash */
+    function triggerEntry(){
+      if(entryTriggered)return;entryTriggered=true;
+      document.body.style.overflow='hidden';
       flashOverlay.classList.add('flash');
-
-      setTimeout(() => {
-        /* Step 2: flash fades, black overlay rises */
+      setTimeout(()=>{
         flashOverlay.classList.remove('flash');
         transitionOverlay.classList.add('dark');
-
-        setTimeout(() => {
-          /* Step 3: mount interior, scroll to top */
+        setTimeout(()=>{
           interior.classList.add('mounted');
-          window.scrollTo({ top: 0, behavior: 'instant' });
-
-          /* Hide scroll scene so it doesn't block interior */
-          scene.style.display = 'none';
-
-          /* Re-enable scroll */
-          document.body.style.overflow = '';
-
-          setTimeout(() => {
-            /* Step 4: interior fades in */
+          window.scrollTo({top:0,behavior:'instant'});
+          scene.style.display='none';
+          document.body.style.overflow='';
+          setTimeout(()=>{
             interior.classList.add('visible');
-
-            setTimeout(() => {
-              /* Step 5: nav and escalator appear */
+            setTimeout(()=>{
               interiorNav.classList.add('show');
               escalatorNav.classList.add('show');
-
-              setTimeout(() => {
-                /* Step 6: black overlay fades out — full reveal */
+              setTimeout(()=>{
                 transitionOverlay.classList.remove('dark');
                 transitionOverlay.classList.add('clear');
-
-                /* Set up interior scroll handler */
                 initInteriorScroll();
+                /* ★ NEW Stage 05: start reception sequence */
+                initReception();
+              },300);
+            },300);
+          },200);
+        },420);
+      },220);
+    }
 
-              }, 300);
-            }, 300);
-          }, 200);
-        }, 420);
-      }, 220);
+    function initInteriorScroll(){
+      const secs=document.querySelectorAll('.floor-section'),btns=document.querySelectorAll('.esc-floor-btn');
+      function upd(){let aid='';secs.forEach(s=>{const r=s.getBoundingClientRect();if(r.top<=window.innerHeight*.5)aid=s.id;});btns.forEach(b=>b.classList.toggle('active',b.dataset.target===aid));}
+      window.addEventListener('scroll',upd,{passive:true});upd();
     }
 
     /* ============================================================
-       ★ NEW — INTERIOR SCROLL HANDLER
-       Updates escalator nav active state as user scrolls
-       through the interior floor sections.
+       ★ NEW — STAGE 05: RECEPTION SEQUENCE
+       Fires after the interior is fully revealed.
+       Timeline:
+         t=0ms    desk + receptionist fade in (staggered)
+         t=700ms  speech bubble appears
+         t=900ms  typewriter starts — 3 lines with pauses
+         t=end    escalator prompt appears
     ============================================================ */
-    function initInteriorScroll() {
-      const sections = document.querySelectorAll('.floor-section');
-      const escBtns  = document.querySelectorAll('.esc-floor-btn');
+    function initReception() {
+      const deskWrap    = document.getElementById('deskWrap');
+      const receptionist= document.getElementById('receptionist');
+      const speechBubble= document.getElementById('speechBubble');
+      const bubbleText  = document.getElementById('bubbleText');
+      const bubbleCursor= document.getElementById('bubbleCursor');
+      const escPrompt   = document.getElementById('escPrompt');
 
-      function updateEscalator() {
-        let activeId = '';
-        sections.forEach(sec => {
-          const rect = sec.getBoundingClientRect();
-          if (rect.top <= window.innerHeight * 0.5) {
-            activeId = sec.id;
-          }
-        });
-        escBtns.forEach(btn => {
-          btn.classList.toggle('active', btn.dataset.target === activeId);
-        });
+      /* Step 1: desk slides up, receptionist fades in */
+      setTimeout(() => {
+        deskWrap.classList.add('show');
+        receptionist.classList.add('show');
+      }, 400);
+
+      /* Step 2: speech bubble appears */
+      setTimeout(() => {
+        speechBubble.classList.add('show');
+        runTypewriter(bubbleText, bubbleCursor, escPrompt);
+      }, 900);
+    }
+
+    /* Typewriter engine — types each line then pauses before next */
+    function runTypewriter(textEl, cursorEl, escPrompt) {
+      const lines = [
+        'Good day! Welcome to\nC. Sree Harshith Reddy\'s Empire.',
+        'I\'m your guide for today.',
+        'Use the floor directory below\nor scroll down to explore.'
+      ];
+
+      let lineIdx = 0;
+      let charIdx = 0;
+      let fullText = '';
+
+      function typeChar() {
+        if (lineIdx >= lines.length) {
+          /* all lines done — hide cursor, show escalator prompt */
+          cursorEl.style.display = 'none';
+          setTimeout(() => {
+            escPrompt.classList.add('show');
+          }, 600);
+          return;
+        }
+
+        const line = lines[lineIdx];
+
+        if (charIdx < line.length) {
+          fullText += line[charIdx];
+          textEl.textContent = fullText;
+          charIdx++;
+          setTimeout(typeChar, 34);
+        } else {
+          /* end of this line — pause then move to next */
+          fullText += '\n';
+          charIdx = 0;
+          lineIdx++;
+          setTimeout(typeChar, 680);
+        }
       }
 
-      window.addEventListener('scroll', updateEscalator, { passive: true });
-      updateEscalator();
+      typeChar();
     }
 
-    /* ── Stage 02: helpers (unchanged) ── */
-    function initWingSplit() {
-      const wL=document.getElementById('wingL'),wR=document.getElementById('wingR');
-      wL.style.cssText+='transform:translateX(-55px);transition:transform 1.1s cubic-bezier(0.22,1,0.36,1);';
-      wR.style.cssText+='transform:translateX(55px);transition:transform 1.1s cubic-bezier(0.22,1,0.36,1);';
-      new MutationObserver(()=>{
-        const on=document.getElementById('blk6').classList.contains('vis');
-        wL.style.transform=on?'translateX(0)':'translateX(-55px)';
-        wR.style.transform=on?'translateX(0)':'translateX(55px)';
-      }).observe(document.getElementById('blk6'),{attributes:true,attributeFilter:['class']});
-    }
-    function startWindowFlicker(){
-      setInterval(()=>{
-        document.querySelectorAll('.win.l1,.win.l2,.win.l3').forEach(w=>{
-          if(Math.random()>0.91){w.style.opacity='0.22';setTimeout(()=>{w.style.opacity='';},100+Math.random()*200);}
-        });
-      },850);
-    }
+    function initWingSplit(){const wL=document.getElementById('wingL'),wR=document.getElementById('wingR');wL.style.cssText+='transform:translateX(-55px);transition:transform 1.1s cubic-bezier(0.22,1,0.36,1);';wR.style.cssText+='transform:translateX(55px);transition:transform 1.1s cubic-bezier(0.22,1,0.36,1);';new MutationObserver(()=>{const on=document.getElementById('blk6').classList.contains('vis');wL.style.transform=on?'translateX(0)':'translateX(-55px)';wR.style.transform=on?'translateX(0)':'translateX(55px)';}).observe(document.getElementById('blk6'),{attributes:true,attributeFilter:['class']});}
+    function startWindowFlicker(){setInterval(()=>{document.querySelectorAll('.win.l1,.win.l2,.win.l3').forEach(w=>{if(Math.random()>.91){w.style.opacity='.22';setTimeout(()=>{w.style.opacity='';},100+Math.random()*200);}});},850);}
 
-    /* ── INIT ── */
-    function init() {
-      generateStars(180);
-      generateCityBg();
-      generateRoadDashes(5);
-      initWingSplit();
-      footCanvas.width=window.innerWidth; footCanvas.height=40;
+    function init(){
+      generateStars(180);generateCityBg();generateRoadDashes(5);initWingSplit();
+      footCanvas.width=window.innerWidth;footCanvas.height=40;
       window.addEventListener('resize',()=>{footCanvas.width=window.innerWidth;footCanvas.height=40;});
-      window.addEventListener('scroll', onScroll, { passive: true });
-      onScroll();
-      startWindowFlicker();
-      animateDust();
+      window.addEventListener('scroll',onScroll,{passive:true});
+      onScroll();startWindowFlicker();animateDust();
     }
 
-    document.addEventListener('DOMContentLoaded', init);
+    document.addEventListener('DOMContentLoaded',init);
   </script>
 
 </body>
