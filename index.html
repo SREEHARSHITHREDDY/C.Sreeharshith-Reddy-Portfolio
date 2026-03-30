@@ -1,1079 +1,1027 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
   <title>C. Sree Harshith Reddy — Portfolio</title>
-
   <!--
-  ============================================================
-    STAGE 05 — Reception Lobby Interior
-    git commit: "feat: reception scene with animated receptionist"
-  ============================================================
-    CHANGES FROM STAGE 04:
-      + #reception-section rebuilt from placeholder into full
-        cinematic lobby scene:
-          • Back wall with ghosted name watermark
-          • Ceiling strip lights with glow pools
-          • Perspective marble tile floor (CSS 3D)
-          • Two architectural pillars with base caps
-          • Corner plants (pixel art style)
-          • Reception desk (monitor, nameplate, phone)
-          • Receptionist pixel character with headset
-          • Speech bubble with typewriter dialogue
-          • "Step on escalator ↓" prompt after dialogue ends
-      + JS: initReception() runs after interior mounts
-            - animates desk/receptionist fade-in (stagger)
-            - typewriter sequence: 3 lines with pauses
-            - escalator prompt appears after dialogue
-      + CSS: all reception styles scoped to #reception-section
+  ================================================================
+    STAGE 06 v2 — Escalator Walk Transition + Floor Panel
+    git commit: "feat: reception desk with elevator floor selector"
+  ================================================================
+    COMPLETE REDESIGN of interior navigation:
 
-    Everything from Stages 01–04 is unchanged.
-  ============================================================
+    RECEPTION LAYOUT FIX:
+      • Receptionist + speech bubble moved to TOP-LEFT area
+      • Desk moved to BOTTOM-CENTRE with no overlap
+      • Speech bubble positioned above receptionist, clear of desk
+
+    FLOOR SELECTION FLOW:
+      1. User clicks a floor button on the desk
+      2. Desk fades out
+      3. Pixel character walks right across lobby toward escalator
+      4. Escalator cinematic screen slides in from right (full viewport)
+      5. Character rides escalator upward (CSS animation)
+      6. Floor arrives: escalator fades, floor content fades in
+      7. Persistent side panel (right edge) shows building cross-section
+         with all floors listed, current floor highlighted in gold
+
+    FLOOR SIDE PANEL (visible on every floor after lobby):
+      • Fixed right strip — building silhouette
+      • Each floor labeled: G Lobby / 01 About / 02 Projects etc.
+      • Current floor highlighted gold with pulsing dot
+      • Click any floor row → triggers escalator transition to that floor
+
+    ESCALATOR TRANSITION SCREEN:
+      • Full-screen dark overlay with escalator visual
+      • Building cross-section on left showing floors
+      • Moving steps CSS animation
+      • Character sprite riding up
+      • Current floor destination shown at top
+      • Takes ~2s then resolves to floor content
+  ================================================================
   -->
-
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link
-    href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500&display=swap"
-    rel="stylesheet"
-  />
-
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
   <style>
-    /* =====================================================
-       DESIGN TOKENS — unchanged
-    ===================================================== */
-    :root {
-      --bg:           #07060e;
-      --accent:       #7c3aed;
-      --gold:         #f59e0b;
-      --cyan:         #06b6d4;
-      --text:         #e8e4f0;
-      --muted:        rgba(232, 228, 240, 0.42);
-      --glass:        rgba(124, 58, 237, 0.06);
-      --border:       rgba(124, 58, 237, 0.22);
-      --font-display: 'Bebas Neue', sans-serif;
-      --font-mono:    'Space Mono', monospace;
-      --font-body:    'DM Sans', sans-serif;
+    :root{
+      --bg:#07060e;--accent:#7c3aed;--gold:#f59e0b;--cyan:#06b6d4;
+      --text:#e8e4f0;--muted:rgba(232,228,240,.42);
+      --border:rgba(124,58,237,.22);
+      --font-display:'Bebas Neue',sans-serif;
+      --font-mono:'Space Mono',monospace;
+      --font-body:'DM Sans',sans-serif;
+    }
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+    html{scroll-behavior:smooth;}
+    body{background:var(--bg);color:var(--text);font-family:var(--font-body);overflow-x:hidden;}
+
+    /* ── SCROLL SCENE (stages 01-05, unchanged) ── */
+    #scene{height:600vh;position:relative;}
+    .sticky{position:sticky;top:0;height:100vh;overflow:hidden;display:flex;align-items:flex-end;justify-content:center;}
+    .sky{position:absolute;inset:0;z-index:0;background:radial-gradient(ellipse 70% 55% at 50% 0%,rgba(44,16,82,.85) 0%,transparent 70%),linear-gradient(180deg,#0d0720,#09061a 40%,#07060e 75%,#07060e);}
+    .stars-wrap{position:absolute;inset:0;z-index:1;overflow:hidden;height:70%;pointer-events:none;}
+    .star{position:absolute;border-radius:50%;background:rgba(255,255,255,.82);animation:twinkle var(--d,3s) ease-in-out infinite;animation-delay:var(--dl,0s);}
+    @keyframes twinkle{0%,100%{opacity:.12;transform:scale(.85);}50%{opacity:.95;transform:scale(1.1);}}
+    .city-bg{position:absolute;bottom:108px;left:0;right:0;z-index:2;height:170px;display:flex;align-items:flex-end;justify-content:center;gap:3px;opacity:.24;pointer-events:none;}
+    .cb{flex-shrink:0;background:linear-gradient(180deg,#1a183a,#0d0b1a);border-top:1px solid rgba(124,58,237,.18);}
+    .ground{position:absolute;bottom:0;left:0;right:0;height:108px;z-index:12;background:linear-gradient(180deg,#141228,#0a0916);border-top:1px solid rgba(124,58,237,.12);}
+    .road{position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:160px;height:108px;background:#0f0e1c;border-left:1px solid rgba(124,58,237,.10);border-right:1px solid rgba(124,58,237,.10);}
+    .road-dashes{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;gap:9px;}
+    .rd{width:5px;height:16px;background:rgba(245,158,11,.32);border-radius:1px;}
+    .pavement{position:absolute;bottom:0;height:108px;width:calc(50% - 80px);background:linear-gradient(180deg,#111028,#09080f);}
+    .pavement.left{left:0;}.pavement.right{right:0;}
+    .scroll-hud{position:absolute;top:28px;right:32px;z-index:50;display:flex;flex-direction:column;align-items:flex-end;gap:4px;opacity:0;transition:opacity .4s;pointer-events:none;}
+    .scroll-hud.visible{opacity:1;}
+    .hud-label{font-family:var(--font-mono);font-size:.58rem;letter-spacing:3px;color:var(--muted);text-transform:uppercase;}
+    .hud-value{font-family:var(--font-display);font-size:2rem;letter-spacing:3px;color:var(--gold);line-height:1;}
+    .hud-bar{width:80px;height:2px;background:rgba(245,158,11,.15);position:relative;overflow:hidden;}
+    .hud-bar-fill{position:absolute;left:0;top:0;bottom:0;width:0%;background:var(--gold);transition:width .1s linear;}
+    .scroll-hint{position:absolute;bottom:130px;left:50%;transform:translateX(-50%);z-index:30;display:flex;flex-direction:column;align-items:center;gap:8px;opacity:1;transition:opacity .6s;pointer-events:none;}
+    .scroll-hint.hide{opacity:0;}
+    .sh-label{font-family:var(--font-mono);font-size:.58rem;letter-spacing:4px;color:var(--muted);text-transform:uppercase;}
+    .sh-arrow{width:1px;height:36px;background:linear-gradient(180deg,transparent,var(--accent));animation:pulse-line 1.6s ease-in-out infinite;}
+    @keyframes pulse-line{0%,100%{opacity:.25;transform:scaleY(.75);}50%{opacity:1;transform:scaleY(1);}}
+    .sh-chevron{width:10px;height:10px;border-right:1.5px solid var(--accent);border-bottom:1.5px solid var(--accent);transform:rotate(45deg) translateY(-4px);animation:bounce-chevron 1.6s ease-in-out infinite;}
+    @keyframes bounce-chevron{0%,100%{transform:rotate(45deg) translateY(-4px);opacity:.4;}50%{transform:rotate(45deg) translateY(2px);opacity:1;}}
+
+    /* 3D BUILDING */
+    .scene-3d{position:absolute;bottom:108px;left:50%;transform:translateX(-50%);width:380px;height:540px;perspective:900px;perspective-origin:50% 120%;z-index:8;}
+    .building{position:absolute;bottom:0;left:50%;transform:translateX(-50%) scale(0.28);transform-origin:bottom center;transform-style:preserve-3d;width:340px;}
+    .blk{position:relative;width:100%;opacity:0;transform:translateX(var(--tx,0px)) translateY(var(--ty,0px)) translateZ(var(--tz,0px)) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));transition:opacity .95s cubic-bezier(.22,1,.36,1),transform .95s cubic-bezier(.22,1,.36,1);}
+    .blk.vis{opacity:1;transform:translateX(0) translateY(0) translateZ(0) rotateX(0deg) rotateY(0deg);}
+    .b-antenna{width:3px;height:32px;margin:0 auto;background:linear-gradient(180deg,rgba(245,158,11,.9),rgba(124,58,237,.3));position:relative;}
+    .b-antenna::after{content:'';position:absolute;top:-5px;left:50%;transform:translateX(-50%);width:8px;height:8px;border-radius:50%;background:var(--gold);box-shadow:0 0 18px 6px rgba(245,158,11,.8);animation:blink-tip 1.5s ease-in-out infinite;}
+    @keyframes blink-tip{0%,100%{opacity:1;box-shadow:0 0 18px 6px rgba(245,158,11,.8);}50%{opacity:.1;box-shadow:0 0 4px 1px rgba(245,158,11,.2);}}
+    .b-roof-tri{height:0;width:0;margin:0 auto;border-left:90px solid transparent;border-right:90px solid transparent;border-bottom:38px solid #1e1c42;position:relative;}
+    .b-roof-tri::after{content:'';position:absolute;bottom:-38px;left:-90px;right:-90px;height:2px;background:linear-gradient(90deg,transparent,var(--accent),var(--gold),var(--accent),transparent);opacity:.75;}
+    .b-penthouse{height:50px;width:216px;margin:0 auto;background:linear-gradient(180deg,#1c1a3e,#141230);border-top:2px solid var(--accent);border-left:1px solid rgba(124,58,237,.3);border-right:1px solid rgba(124,58,237,.3);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;}
+    .b-penthouse::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(124,58,237,.05) 3px,rgba(124,58,237,.05) 4px);}
+    .b-penthouse-name{font-family:var(--font-display);font-size:.68rem;letter-spacing:2.5px;line-height:1.3;color:var(--gold);text-shadow:0 0 14px rgba(245,158,11,.6);text-align:center;z-index:1;position:relative;}
+    .b-floor{height:60px;width:100%;background:linear-gradient(180deg,#111028,#0d0c22);border:1px solid rgba(124,58,237,.14);border-bottom:none;display:grid;grid-template-columns:repeat(8,1fr);gap:4px;padding:8px 10px;position:relative;}
+    .b-floor::before{content:attr(data-label);position:absolute;left:-38px;top:50%;transform:translateY(-50%);font-family:var(--font-mono);font-size:.36rem;letter-spacing:2px;color:rgba(124,58,237,.32);writing-mode:vertical-rl;rotate:180deg;}
+    .b-wings{display:flex;gap:4px;width:100%;}
+    .b-wing{flex:1;height:54px;background:linear-gradient(180deg,#0f0e24,#0b0a1a);border:1px solid rgba(124,58,237,.12);border-bottom:none;display:grid;grid-template-columns:repeat(4,1fr);gap:3px;padding:6px;}
+    .b-wing-center{width:216px;height:54px;background:linear-gradient(180deg,#111028,#0d0c22);border:1px solid rgba(124,58,237,.18);border-bottom:none;display:grid;grid-template-columns:repeat(5,1fr);gap:3px;padding:6px;}
+    .win{background:rgba(124,58,237,.06);border:1px solid rgba(124,58,237,.16);border-radius:1px;transition:background .4s,border-color .4s,opacity .15s;}
+    .win.l1{background:rgba(245,158,11,.30);border-color:rgba(245,158,11,.55);}
+    .win.l2{background:rgba(124,58,237,.38);border-color:var(--accent);}
+    .win.l3{background:rgba(6,182,212,.28);border-color:var(--cyan);}
+    .b-lobby{height:78px;width:100%;background:linear-gradient(180deg,#0d0c22,#07060e);border:1px solid rgba(124,58,237,.28);border-top:none;display:flex;align-items:flex-end;justify-content:center;position:relative;overflow:hidden;}
+    .b-lobby::before{content:'';position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:130px;height:30px;background:radial-gradient(ellipse at 50% 100%,rgba(124,58,237,.4),transparent 70%);}
+    .door-wrap{position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:124px;height:74px;display:flex;overflow:hidden;}
+    .door-panel{flex:1;height:100%;background:linear-gradient(180deg,rgba(124,58,237,.22),rgba(124,58,237,.06));border-top:1px solid rgba(124,58,237,.5);position:relative;transition:transform .85s cubic-bezier(.22,1,.36,1);}
+    .door-panel.left{border-right:1px solid rgba(124,58,237,.3);}.door-panel.right{border-left:1px solid rgba(124,58,237,.3);}
+    .door-panel.left::after,.door-panel.right::after{content:'';position:absolute;top:50%;width:5px;height:5px;border-radius:50%;background:var(--gold);box-shadow:0 0 8px 2px rgba(245,158,11,.6);transform:translateY(-50%);}
+    .door-panel.left::after{right:5px;}.door-panel.right::after{left:5px;}
+    .door-panel.left.open{transform:translateX(-100%);}.door-panel.right.open{transform:translateX(100%);}
+    .welcome-text{position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:124px;height:74px;display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:.85rem;letter-spacing:5px;color:var(--gold);text-shadow:0 0 22px rgba(245,158,11,.9);opacity:0;transition:opacity .7s ease .35s;pointer-events:none;}
+    .welcome-text.show{opacity:1;}
+    .ground-glow{position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:140px;height:20px;background:radial-gradient(ellipse at 50% 100%,rgba(124,58,237,.5),transparent 70%);opacity:0;transition:opacity .8s;pointer-events:none;}
+    .ground-glow.show{opacity:1;}
+    .entrance-glow{position:absolute;bottom:108px;left:50%;transform:translateX(-50%);z-index:13;width:110px;height:18px;background:radial-gradient(ellipse at 50% 0%,rgba(124,58,237,.55),transparent 70%);opacity:0;transition:opacity .5s;pointer-events:none;}
+    .b-sill{height:8px;width:148px;margin:0 auto;background:linear-gradient(90deg,rgba(124,58,237,0),rgba(124,58,237,.45),rgba(245,158,11,.45),rgba(124,58,237,.45),rgba(124,58,237,0));box-shadow:0 0 14px 3px rgba(124,58,237,.3);}
+
+    /* CHARACTER (outdoor) */
+    #character{position:absolute;bottom:108px;left:0;z-index:15;display:flex;flex-direction:column;align-items:center;transform-origin:bottom center;pointer-events:none;transition:opacity .5s;}
+    .char-head{width:18px;height:19px;background:#e8c49a;border-radius:50% 50% 42% 42%;position:relative;z-index:2;flex-shrink:0;}
+    .char-head::before{content:'';position:absolute;top:-8px;left:-3px;width:24px;height:13px;background:#1a0f06;border-radius:50% 50% 0 0;}
+    .char-head::after{content:'';position:absolute;top:6px;right:-3px;width:4px;height:5px;background:#d4aa82;border-radius:50%;}
+    .char-body{width:20px;height:26px;background:linear-gradient(180deg,#1e2a4a,#162038);border-radius:3px 3px 0 0;margin-top:-1px;position:relative;flex-shrink:0;}
+    .char-body::before{content:'';position:absolute;top:2px;left:50%;transform:translateX(-50%);width:6px;height:10px;background:#ffffff22;clip-path:polygon(50% 0%,0% 100%,100% 100%);}
+    .char-body::after{content:'';position:absolute;bottom:2px;right:-9px;width:8px;height:7px;background:#2a1a08;border:1px solid rgba(245,158,11,.45);border-radius:1px;}
+    @keyframes char-bob{0%,100%{transform:translateY(0);}50%{transform:translateY(-1.5px);}}
+    .char-legs{display:flex;gap:3px;flex-shrink:0;}
+    .char-leg{width:8px;height:16px;background:#111830;border-radius:0 0 3px 3px;transform-origin:top center;position:relative;}
+    .char-leg::after{content:'';position:absolute;bottom:-3px;left:-1px;width:10px;height:4px;background:#0a0a12;border-radius:0 2px 2px 0;}
+    .walking .char-leg.left{animation:swing-left .38s ease-in-out infinite;}
+    .walking .char-leg.right{animation:swing-right .38s ease-in-out infinite;}
+    .walking .char-body{animation:char-bob .38s ease-in-out infinite;}
+    @keyframes swing-left{0%{transform:rotate(-18deg);}50%{transform:rotate(18deg);}100%{transform:rotate(-18deg);}}
+    @keyframes swing-right{0%{transform:rotate(18deg);}50%{transform:rotate(-18deg);}100%{transform:rotate(18deg);}}
+    .char-shadow{width:22px;height:6px;background:rgba(0,0,0,.55);border-radius:50%;margin-top:2px;flex-shrink:0;}
+    #footCanvas{position:absolute;bottom:108px;left:0;right:0;height:40px;z-index:14;pointer-events:none;}
+    .char-dist-tag{position:absolute;top:-22px;left:50%;transform:translateX(-50%);font-family:var(--font-mono);font-size:.44rem;letter-spacing:2px;color:rgba(200,180,255,.5);white-space:nowrap;pointer-events:none;}
+
+    /* OVERLAYS */
+    #flash-overlay{position:fixed;inset:0;z-index:300;background:#fff;opacity:0;pointer-events:none;transition:opacity .18s;}
+    #flash-overlay.flash{opacity:.92;}
+    #transition-overlay{position:fixed;inset:0;z-index:299;background:#07060e;opacity:0;pointer-events:none;transition:opacity .45s;}
+    #transition-overlay.dark{opacity:1;pointer-events:all;}
+    #transition-overlay.clear{opacity:0;pointer-events:none;}
+    .transition-label{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:var(--font-mono);font-size:.65rem;letter-spacing:5px;color:rgba(124,58,237,.7);text-transform:uppercase;opacity:0;transition:opacity .3s;}
+    #transition-overlay.dark .transition-label{opacity:1;}
+
+    /* NAV */
+    #interior-nav{position:fixed;top:0;left:0;right:0;z-index:200;height:60px;display:none;align-items:center;justify-content:space-between;padding:0 40px;background:rgba(7,6,14,.9);backdrop-filter:blur(18px);border-bottom:1px solid var(--border);opacity:0;transition:opacity .5s .4s;}
+    #interior-nav.show{display:flex;opacity:1;}
+    .nav-logo{font-family:var(--font-display);font-size:1.1rem;letter-spacing:4px;color:var(--gold);}
+    .nav-links{display:flex;gap:28px;list-style:none;}
+    .nav-links a{font-family:var(--font-mono);font-size:.6rem;letter-spacing:2px;color:var(--muted);text-decoration:none;text-transform:uppercase;transition:color .2s;cursor:pointer;}
+    .nav-links a:hover,.nav-links a.active-nav{color:var(--gold);}
+    .nav-cta{font-family:var(--font-mono);font-size:.6rem;letter-spacing:2px;color:var(--accent);text-transform:uppercase;text-decoration:none;border:1px solid var(--accent);padding:6px 16px;transition:background .2s,color .2s;cursor:pointer;}
+    .nav-cta:hover{background:var(--accent);color:#fff;}
+
+    /* ── INTERIOR CONTAINER ── */
+    #interior{display:none;opacity:0;transition:opacity .6s;background:var(--bg);position:relative;min-height:100vh;}
+    #interior.mounted{display:block;}
+    #interior.visible{opacity:1;}
+
+    /* ══════════════════════════════════════════
+       RECEPTION SCENE (fixed layout - no overlap)
+    ══════════════════════════════════════════ */
+    #reception-scene{
+      position:relative;height:100vh;overflow:hidden;
+      background:#08060f;
+      display:flex;flex-direction:column;
+    }
+    /* Back wall */
+    .rec-back-wall{position:absolute;top:0;left:0;right:0;height:56%;background:linear-gradient(180deg,#0c0a22,#090718);border-bottom:1px solid rgba(124,58,237,.14);}
+    .rec-wall-name{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:var(--font-display);font-size:clamp(2.5rem,7vw,7rem);letter-spacing:14px;color:rgba(124,58,237,.07);white-space:nowrap;user-select:none;pointer-events:none;}
+    .rec-ceiling{position:absolute;top:0;left:0;right:0;height:5px;background:repeating-linear-gradient(90deg,transparent 0 50px,rgba(200,190,255,.15) 50px 180px);z-index:2;}
+    .rec-ceiling-glow{position:absolute;top:0;left:0;right:0;height:90px;background:repeating-linear-gradient(90deg,transparent 0 50px,rgba(124,58,237,.055) 50px 180px);filter:blur(24px);pointer-events:none;z-index:1;}
+    .rec-floor-tiles{position:absolute;bottom:0;left:-20%;right:-20%;height:46%;background:repeating-linear-gradient(90deg,rgba(124,58,237,.065) 0 1px,transparent 1px 90px),repeating-linear-gradient(0deg,rgba(124,58,237,.05) 0 1px,transparent 1px 90px),#08060f;transform:perspective(500px) rotateX(58deg);transform-origin:bottom;pointer-events:none;}
+    .rec-pillar{position:absolute;top:0;width:28px;height:56%;background:linear-gradient(90deg,#110e28,#0e0c22,#110e28);border:1px solid rgba(124,58,237,.12);z-index:3;}
+    .rec-pillar.left{left:12%;}.rec-pillar.right{right:12%;}
+    .rec-pillar::after{content:'';position:absolute;bottom:-9px;left:-7px;right:-7px;height:9px;background:rgba(124,58,237,.14);}
+    .rec-pillar::before{content:'';position:absolute;top:0;left:-5px;right:-5px;height:7px;background:rgba(124,58,237,.18);}
+    .rec-plant{position:absolute;bottom:44%;display:flex;flex-direction:column;align-items:center;z-index:3;}
+    .rec-plant.left{left:calc(12% - 32px);}.rec-plant.right{right:calc(12% - 32px);}
+    .plant-leaves{display:flex;gap:2px;align-items:flex-end;}
+    .plant-leaf{width:11px;height:26px;background:linear-gradient(180deg,#1a4e1a,#0e2c0e);border:1px solid rgba(40,140,40,.18);border-radius:50% 50% 0 50%;}
+    .plant-leaf:nth-child(2){border-radius:50% 50% 50% 0;transform:translateY(-5px);}
+    .plant-leaf:nth-child(3){transform:translateY(-3px);}
+    .plant-pot{width:26px;height:18px;background:linear-gradient(180deg,#3a2010,#221508);border-radius:0 0 5px 5px;border:1px solid rgba(245,158,11,.18);margin-top:-2px;}
+
+    /* ★ RECEPTIONIST — top-left, clear of desk */
+    .receptionist-area{
+      position:absolute;
+      top:12%;
+      left:8%;
+      z-index:6;
+      display:flex;
+      flex-direction:column;
+      align-items:flex-start;
+      gap:10px;
+      opacity:0;
+      transform:translateY(12px);
+      transition:opacity .8s,transform .8s cubic-bezier(.22,1,.36,1);
+    }
+    .receptionist-area.show{opacity:1;transform:translateY(0);}
+
+    /* speech bubble — sits above receptionist figure */
+    .speech-bubble{
+      background:#13102a;
+      border:1px solid rgba(124,58,237,.45);
+      border-radius:8px 8px 8px 0;
+      padding:10px 15px;
+      font-family:var(--font-mono);font-size:.6rem;letter-spacing:1px;line-height:1.75;
+      color:var(--text);max-width:290px;white-space:pre-wrap;
+      box-shadow:0 4px 20px rgba(0,0,0,.5);
+      position:relative;
+    }
+    .speech-bubble::after{content:'';position:absolute;bottom:-7px;left:16px;width:12px;height:7px;background:rgba(124,58,237,.45);clip-path:polygon(0% 0%,100% 0%,0% 100%);}
+    .bubble-speaker{font-size:.48rem;letter-spacing:3px;color:var(--gold);margin-bottom:5px;text-transform:uppercase;}
+    .bubble-cursor{display:inline-block;width:5px;height:11px;background:var(--accent);opacity:.8;animation:cursor-blink .8s step-end infinite;vertical-align:middle;margin-left:1px;}
+    @keyframes cursor-blink{50%{opacity:0;}}
+
+    /* pixel receptionist figure */
+    .rec-figure{display:flex;flex-direction:column;align-items:center;filter:drop-shadow(0 0 10px rgba(124,58,237,.5));}
+    .rec-head{width:20px;height:20px;background:#e0b890;border-radius:50% 50% 45% 45%;position:relative;z-index:2;}
+    .rec-head::before{content:'';position:absolute;top:-9px;left:-4px;width:28px;height:14px;background:#2a1a0a;border-radius:50% 50% 0 0;}
+    .rec-head::after{content:'';position:absolute;top:2px;right:-10px;width:3px;height:12px;background:rgba(124,58,237,.8);border-radius:2px;box-shadow:-24px 0 0 rgba(124,58,237,.5);}
+    .rec-body{width:22px;height:30px;background:linear-gradient(180deg,#1e1a3e,#16143a);border-radius:3px 3px 0 0;margin-top:-1px;position:relative;}
+    .rec-body::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:8px;height:8px;background:rgba(245,158,11,.22);clip-path:polygon(50% 0%,0% 100%,100% 100%);}
+    .rec-name-tag{font-family:var(--font-mono);font-size:.38rem;letter-spacing:2px;color:rgba(124,58,237,.45);margin-top:4px;}
+
+    /* ★ DESK — bottom-centre, no overlap with receptionist */
+    .desk-area{
+      position:absolute;
+      bottom:5%;
+      left:50%;
+      transform:translateX(-50%) translateY(20px);
+      z-index:5;
+      display:flex;flex-direction:column;align-items:center;
+      opacity:0;
+      transition:opacity .9s .2s,transform .9s .2s cubic-bezier(.22,1,.36,1);
+      width:min(680px,90vw);
+    }
+    .desk-area.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+    .desk-nameplate{background:linear-gradient(90deg,#12103a,#1e1650,#12103a);border:1px solid rgba(124,58,237,.5);border-bottom:none;padding:4px 24px;font-family:var(--font-mono);font-size:.48rem;letter-spacing:5px;color:var(--accent);display:flex;align-items:center;gap:10px;align-self:center;}
+    .nameplate-dot{width:5px;height:5px;border-radius:50%;background:var(--gold);box-shadow:0 0 8px var(--gold);animation:blink-tip 1.4s ease-in-out infinite;}
+    @keyframes blink-tip{0%,100%{opacity:1;}50%{opacity:.15;}}
+
+    .desk-top{width:100%;height:14px;background:linear-gradient(180deg,#2a1e68,#1c1450);border:1px solid rgba(124,58,237,.55);border-bottom:none;position:relative;}
+    .desk-top::after{content:'';position:absolute;top:0;left:8%;right:8%;height:1px;background:linear-gradient(90deg,transparent,var(--accent),var(--gold),var(--accent),transparent);opacity:.65;}
+
+    .desk-body{width:100%;background:linear-gradient(180deg,#0e0b20,#07060e);border:1px solid rgba(124,58,237,.3);border-top:none;border-radius:0 0 5px 5px;display:flex;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.7);}
+
+    /* desk left: monitor */
+    .desk-left{width:110px;flex-shrink:0;background:linear-gradient(160deg,#0d0920,#130e2a);border-right:1px solid rgba(124,58,237,.18);padding:12px 10px;display:flex;flex-direction:column;gap:10px;}
+    .monitor-wrap{width:64px;}
+    .monitor-screen{width:64px;height:44px;background:#030308;border:1px solid rgba(124,58,237,.5);border-radius:3px 3px 0 0;position:relative;overflow:hidden;}
+    .monitor-screen::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(124,58,237,.06) 0 1px,transparent 1px 5px);animation:scanl 5s linear infinite;}
+    @keyframes scanl{0%{background-position:0 0;}100%{background-position:0 200px;}}
+    .monitor-text{position:absolute;top:4px;left:4px;font-family:var(--font-mono);font-size:4px;color:rgba(124,58,237,.7);line-height:1.5;}
+    .monitor-csr{display:inline-block;width:4px;height:5px;background:rgba(124,58,237,.8);animation:cursor-blink .8s step-end infinite;vertical-align:middle;}
+    .monitor-stand{width:14px;height:7px;margin:0 auto;background:#1a1530;clip-path:polygon(20% 0%,80% 0%,100% 100%,0% 100%);}
+    .monitor-base{width:28px;height:4px;margin:0 auto;background:#1a1530;border-radius:2px;}
+    .desk-phone{width:24px;height:16px;background:#0e0c1e;border:1px solid rgba(124,58,237,.2);border-radius:2px;position:relative;}
+    .desk-phone::before{content:'';position:absolute;inset:3px;background:rgba(124,58,237,.1);}
+
+    /* ★ desk centre: floor selector */
+    .desk-center{flex:1;padding:10px 12px;display:flex;flex-direction:column;gap:4px;}
+    .desk-hdr{font-family:var(--font-mono);font-size:.44rem;letter-spacing:4px;color:var(--muted);text-transform:uppercase;display:flex;align-items:center;gap:8px;margin-bottom:2px;}
+    .desk-hdr::after{content:'';flex:1;height:1px;background:rgba(124,58,237,.18);}
+
+    .floor-btn{
+      display:flex;align-items:center;gap:7px;
+      padding:5px 8px 5px 0;
+      background:rgba(124,58,237,.03);
+      border:1px solid rgba(124,58,237,.1);
+      border-left:3px solid transparent;
+      cursor:pointer;text-decoration:none;color:var(--text);
+      position:relative;overflow:hidden;
+      transition:background .2s,border-left-color .2s,transform .15s;
+    }
+    .floor-btn:hover{background:rgba(124,58,237,.08);border-left-color:rgba(124,58,237,.4);transform:translateX(2px);}
+    .floor-btn.active{background:rgba(245,158,11,.05);border-left-color:var(--gold);}
+
+    .fb-bar{position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--gold);transform:scaleY(0);transform-origin:bottom;transition:transform .3s cubic-bezier(.22,1,.36,1);}
+    .floor-btn.active .fb-bar{transform:scaleY(1);}
+    .fb-num{font-family:var(--font-display);font-size:1.2rem;line-height:1;color:var(--gold);min-width:28px;text-align:center;flex-shrink:0;opacity:.4;transition:opacity .2s;}
+    .floor-btn.active .fb-num{opacity:1;}
+    .fb-info{display:flex;flex-direction:column;gap:1px;flex:1;min-width:0;}
+    .fb-name{font-family:var(--font-mono);font-size:.52rem;letter-spacing:2px;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .fb-sub{font-family:var(--font-mono);font-size:.38rem;letter-spacing:1.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .fb-dot{width:6px;height:6px;border-radius:50%;background:rgba(124,58,237,.2);flex-shrink:0;transition:background .3s,box-shadow .3s;}
+    .floor-btn.active .fb-dot{background:var(--gold);box-shadow:0 0 8px rgba(245,158,11,.7);animation:dot-pulse 1.4s ease-in-out infinite;}
+    @keyframes dot-pulse{0%,100%{box-shadow:0 0 5px rgba(245,158,11,.4);}50%{box-shadow:0 0 12px rgba(245,158,11,.85);}}
+
+    /* desk right: escalator shaft */
+    .desk-right{width:95px;flex-shrink:0;background:linear-gradient(160deg,#0a0818,#0d0b1e);border-left:1px solid rgba(124,58,237,.15);display:flex;flex-direction:column;align-items:center;padding:8px 5px;gap:4px;position:relative;overflow:hidden;}
+    .esc-lbl{font-family:var(--font-mono);font-size:.38rem;letter-spacing:3px;color:rgba(124,58,237,.38);text-transform:uppercase;}
+    .esc-shaft{flex:1;width:60px;position:relative;background:rgba(124,58,237,.04);border:1px solid rgba(124,58,237,.14);border-radius:2px;overflow:hidden;min-height:60px;}
+    .esc-steps{position:absolute;inset:0;background:repeating-linear-gradient(-45deg,transparent 0 7px,rgba(124,58,237,.13) 7px 8px);animation:esc-conv 1.1s linear infinite;}
+    @keyframes esc-conv{0%{background-position:0 0;}100%{background-position:0 -22px;}}
+    .esc-rail-l{position:absolute;left:4px;top:0;bottom:0;width:3px;background:rgba(124,58,237,.22);}
+    .esc-rail-r{position:absolute;right:4px;top:0;bottom:0;width:3px;background:rgba(124,58,237,.22);}
+    .esc-levels{position:absolute;right:8px;top:0;bottom:0;display:flex;flex-direction:column;justify-content:space-between;padding:4px 0;z-index:2;}
+    .esc-lvl{font-family:var(--font-display);font-size:.58rem;color:rgba(124,58,237,.25);letter-spacing:1px;line-height:1;transition:color .3s;}
+    .esc-lvl.cur{color:var(--gold);}
+    .esc-rider{position:absolute;left:10px;transition:top .55s cubic-bezier(.22,1,.36,1);z-index:3;display:flex;flex-direction:column;align-items:center;}
+    .esc-rider-head{width:8px;height:8px;background:#e8c49a;border-radius:50%;}
+    .esc-rider-body{width:10px;height:10px;background:#1e2a4a;border-radius:2px 2px 0 0;margin-top:-1px;}
+    .esc-rider-legs{display:flex;gap:1px;}
+    .esc-rider-leg{width:4px;height:6px;background:#111830;border-radius:0 0 1px 1px;}
+    .esc-readout{font-family:var(--font-display);font-size:1.1rem;color:var(--gold);letter-spacing:3px;}
+
+    .desk-shadow{width:calc(100% + 40px);height:12px;background:linear-gradient(180deg,#0c0920,#050410);border:1px solid rgba(124,58,237,.18);border-top:none;border-radius:0 0 4px 4px;box-shadow:0 16px 48px rgba(0,0,0,.8);align-self:center;}
+
+    /* ══════════════════════════════════════════
+       LOBBY WALK CHARACTER (interior)
+       Separate pixel character that walks from
+       centre toward escalator entrance (right)
+    ══════════════════════════════════════════ */
+    #lobby-char{
+      position:absolute;
+      bottom:44%;
+      z-index:10;
+      display:flex;flex-direction:column;align-items:center;
+      opacity:0;
+      pointer-events:none;
+      transform-origin:bottom center;
+    }
+    #lobby-char .lc-head{width:14px;height:14px;background:#e8c49a;border-radius:50% 50% 40% 40%;position:relative;}
+    #lobby-char .lc-head::before{content:'';position:absolute;top:-6px;left:-2px;width:18px;height:10px;background:#1a0f06;border-radius:50% 50% 0 0;}
+    #lobby-char .lc-body{width:16px;height:20px;background:linear-gradient(180deg,#1e2a4a,#162038);border-radius:2px 2px 0 0;margin-top:-1px;}
+    #lobby-char .lc-legs{display:flex;gap:2px;}
+    #lobby-char .lc-leg{width:6px;height:12px;background:#111830;border-radius:0 0 2px 2px;transform-origin:top center;}
+    #lobby-char.lc-walking .lc-leg:first-child{animation:swing-left .34s ease-in-out infinite;}
+    #lobby-char.lc-walking .lc-leg:last-child{animation:swing-right .34s ease-in-out infinite;}
+
+    /* ══════════════════════════════════════════
+       ESCALATOR TRANSITION SCREEN
+       Full-viewport overlay that plays during
+       floor change. Shows:
+         • Building cross-section (left)
+         • Escalator ride (centre)
+         • Destination label (top)
+    ══════════════════════════════════════════ */
+    #esc-transition{
+      position:fixed;inset:0;z-index:250;
+      background:#07060e;
+      display:flex;
+      opacity:0;
+      pointer-events:none;
+      transition:opacity .4s;
+    }
+    #esc-transition.show{opacity:1;pointer-events:all;}
+
+    /* destination header */
+    .esc-dest-header{
+      position:absolute;top:0;left:0;right:0;
+      padding:28px 40px 20px;
+      display:flex;align-items:center;gap:16px;
+      border-bottom:1px solid var(--border);
+      z-index:2;
+    }
+    .esc-dest-floor{font-family:var(--font-display);font-size:3rem;color:var(--gold);letter-spacing:4px;line-height:1;}
+    .esc-dest-info{display:flex;flex-direction:column;gap:3px;}
+    .esc-dest-label{font-family:var(--font-mono);font-size:.55rem;letter-spacing:4px;color:var(--muted);text-transform:uppercase;}
+    .esc-dest-name{font-family:var(--font-display);font-size:1.8rem;letter-spacing:4px;color:var(--text);}
+
+    /* building cross-section (left panel) */
+    .esc-building-panel{
+      width:200px;flex-shrink:0;
+      border-right:1px solid var(--border);
+      padding:100px 0 20px;
+      display:flex;flex-direction:column;justify-content:flex-end;
+      gap:0;
+      background:rgba(12,10,30,.6);
+    }
+    .esc-floor-row{
+      display:flex;align-items:center;gap:12px;
+      padding:10px 20px;
+      border-bottom:1px solid rgba(124,58,237,.08);
+      transition:background .3s;
+      cursor:pointer;
+    }
+    .esc-floor-row:hover{background:rgba(124,58,237,.06);}
+    .esc-floor-row.current{background:rgba(245,158,11,.06);}
+    .esc-floor-row.destination{background:rgba(245,158,11,.1);}
+    .efr-num{font-family:var(--font-display);font-size:1.1rem;color:rgba(124,58,237,.3);min-width:28px;line-height:1;transition:color .3s;}
+    .esc-floor-row.current .efr-num,.esc-floor-row.destination .efr-num{color:var(--gold);}
+    .efr-info{display:flex;flex-direction:column;gap:1px;}
+    .efr-name{font-family:var(--font-mono);font-size:.5rem;letter-spacing:2px;color:var(--muted);text-transform:uppercase;}
+    .esc-floor-row.current .efr-name,.esc-floor-row.destination .efr-name{color:var(--text);}
+    .efr-indicator{width:6px;height:6px;border-radius:50%;background:transparent;margin-left:auto;transition:background .3s,box-shadow .3s;}
+    .esc-floor-row.current .efr-indicator,.esc-floor-row.destination .efr-indicator{background:var(--gold);box-shadow:0 0 8px rgba(245,158,11,.7);}
+
+    /* main escalator visual */
+    .esc-main{
+      flex:1;
+      display:flex;flex-direction:column;align-items:center;justify-content:center;
+      position:relative;overflow:hidden;
+      padding-top:80px;
+    }
+    /* escalator track — diagonal shaft */
+    .esc-track{
+      width:120px;height:320px;
+      position:relative;
+      background:rgba(124,58,237,.04);
+      border:1px solid rgba(124,58,237,.2);
+      border-radius:4px;
+      overflow:hidden;
+      transform:perspective(300px) rotateX(4deg);
+    }
+    .esc-track-steps{
+      position:absolute;inset:0;
+      background:repeating-linear-gradient(-45deg,transparent 0 10px,rgba(124,58,237,.15) 10px 11px);
+      animation:esc-ride 0.9s linear infinite;
+    }
+    @keyframes esc-ride{0%{background-position:0 0;}100%{background-position:0 -30px;}}
+    .esc-track-rail-l{position:absolute;left:10px;top:0;bottom:0;width:4px;background:rgba(124,58,237,.3);border-radius:2px;}
+    .esc-track-rail-r{position:absolute;right:10px;top:0;bottom:0;width:4px;background:rgba(124,58,237,.3);border-radius:2px;}
+
+    /* rider on escalator transition */
+    .esc-main-rider{
+      position:absolute;
+      left:50%;transform:translateX(-50%);
+      display:flex;flex-direction:column;align-items:center;
+      transition:bottom 2.2s cubic-bezier(.22,1,.36,1);
+      z-index:2;
+      filter:drop-shadow(0 0 8px rgba(124,58,237,.6));
+    }
+    .emr-head{width:16px;height:16px;background:#e8c49a;border-radius:50% 50% 42% 42%;position:relative;}
+    .emr-head::before{content:'';position:absolute;top:-7px;left:-3px;width:22px;height:11px;background:#1a0f06;border-radius:50% 50% 0 0;}
+    .emr-body{width:18px;height:22px;background:linear-gradient(180deg,#1e2a4a,#162038);border-radius:2px 2px 0 0;margin-top:-1px;}
+    .emr-legs{display:flex;gap:2px;}
+    .emr-leg{width:7px;height:12px;background:#111830;border-radius:0 0 2px 2px;animation:swing-right .5s ease-in-out infinite;}
+    .emr-leg:first-child{animation-name:swing-left;}
+
+    /* floor counter during ride */
+    .esc-counter{
+      font-family:var(--font-display);font-size:4rem;
+      color:rgba(124,58,237,.12);letter-spacing:6px;
+      position:absolute;bottom:30px;left:50%;transform:translateX(-50%);
+      transition:opacity .3s;
     }
 
-    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
-    body { background: var(--bg); color: var(--text); font-family: var(--font-body); overflow-x: hidden; }
+    /* ══════════════════════════════════════════
+       FLOOR SECTIONS (actual content pages)
+    ══════════════════════════════════════════ */
+    .floor-page{
+      display:none;
+      min-height:100vh;
+      position:relative;
+    }
+    .floor-page.active-floor{display:flex;}
 
-    /* =====================================================
-       SCROLL SCENE — unchanged
-    ===================================================== */
-    #scene { height: 600vh; position: relative; }
-    .sticky { position: sticky; top: 0; height: 100vh; overflow: hidden; display: flex; align-items: flex-end; justify-content: center; }
-    .sky { position: absolute; inset: 0; z-index: 0; background: radial-gradient(ellipse 70% 55% at 50% 0%, rgba(44,16,82,.85) 0%, transparent 70%), linear-gradient(180deg, #0d0720 0%, #09061a 40%, #07060e 75%, #07060e 100%); }
-    .stars-wrap { position: absolute; inset: 0; z-index: 1; overflow: hidden; height: 70%; pointer-events: none; }
-    .star { position: absolute; border-radius: 50%; background: rgba(255,255,255,.82); animation: twinkle var(--d,3s) ease-in-out infinite; animation-delay: var(--dl,0s); }
-    @keyframes twinkle { 0%,100%{opacity:.12;transform:scale(.85);}50%{opacity:.95;transform:scale(1.1);} }
-    .city-bg { position: absolute; bottom: 108px; left: 0; right: 0; z-index: 2; height: 170px; display: flex; align-items: flex-end; justify-content: center; gap: 3px; opacity: .24; pointer-events: none; }
-    .cb { flex-shrink: 0; background: linear-gradient(180deg, #1a183a, #0d0b1a); border-top: 1px solid rgba(124,58,237,.18); }
-    .ground { position: absolute; bottom: 0; left: 0; right: 0; height: 108px; z-index: 12; background: linear-gradient(180deg, #141228, #0a0916); border-top: 1px solid rgba(124,58,237,.12); }
-    .road { position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 160px; height: 108px; background: #0f0e1c; border-left: 1px solid rgba(124,58,237,.10); border-right: 1px solid rgba(124,58,237,.10); }
-    .road-dashes { position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; gap: 9px; }
-    .rd { width: 5px; height: 16px; background: rgba(245,158,11,.32); border-radius: 1px; }
-    .pavement { position: absolute; bottom: 0; height: 108px; width: calc(50% - 80px); background: linear-gradient(180deg, #111028, #09080f); }
-    .pavement.left { left: 0; } .pavement.right { right: 0; }
-    .scroll-hud { position: absolute; top: 28px; right: 32px; z-index: 50; display: flex; flex-direction: column; align-items: flex-end; gap: 4px; opacity: 0; transition: opacity .4s; pointer-events: none; }
-    .scroll-hud.visible { opacity: 1; }
-    .hud-label { font-family: var(--font-mono); font-size: .58rem; letter-spacing: 3px; color: var(--muted); text-transform: uppercase; }
-    .hud-value { font-family: var(--font-display); font-size: 2rem; letter-spacing: 3px; color: var(--gold); line-height: 1; }
-    .hud-bar { width: 80px; height: 2px; background: rgba(245,158,11,.15); position: relative; overflow: hidden; }
-    .hud-bar-fill { position: absolute; left: 0; top: 0; bottom: 0; width: 0%; background: var(--gold); transition: width .1s linear; }
-    .scroll-hint { position: absolute; bottom: 130px; left: 50%; transform: translateX(-50%); z-index: 30; display: flex; flex-direction: column; align-items: center; gap: 8px; opacity: 1; transition: opacity .6s ease; pointer-events: none; }
-    .scroll-hint.hide { opacity: 0; }
-    .sh-label { font-family: var(--font-mono); font-size: .58rem; letter-spacing: 4px; color: var(--muted); text-transform: uppercase; }
-    .sh-arrow { width: 1px; height: 36px; background: linear-gradient(180deg, transparent, var(--accent)); animation: pulse-line 1.6s ease-in-out infinite; }
-    @keyframes pulse-line { 0%,100%{opacity:.25;transform:scaleY(.75);}50%{opacity:1;transform:scaleY(1);} }
-    .sh-chevron { width:10px;height:10px;border-right:1.5px solid var(--accent);border-bottom:1.5px solid var(--accent);transform:rotate(45deg) translateY(-4px);animation:bounce-chevron 1.6s ease-in-out infinite; }
-    @keyframes bounce-chevron { 0%,100%{transform:rotate(45deg) translateY(-4px);opacity:.4;}50%{transform:rotate(45deg) translateY(2px);opacity:1;} }
+    /* fixed right panel — building directory */
+    .floor-dir-panel{
+      position:fixed;
+      right:0;top:60px;bottom:0;
+      width:72px;
+      background:rgba(7,6,14,.85);
+      backdrop-filter:blur(12px);
+      border-left:1px solid var(--border);
+      z-index:150;
+      display:none;
+      flex-direction:column;
+      align-items:center;
+      padding:16px 0;
+      gap:0;
+    }
+    .floor-dir-panel.show{display:flex;}
+    .fdp-lbl{font-family:var(--font-mono);font-size:.36rem;letter-spacing:3px;color:rgba(124,58,237,.3);text-transform:uppercase;writing-mode:vertical-rl;rotate:180deg;margin-bottom:12px;}
 
-    /* =====================================================
-       3D BUILDING — unchanged (condensed)
-    ===================================================== */
-    .scene-3d { position:absolute;bottom:108px;left:50%;transform:translateX(-50%);width:380px;height:540px;perspective:900px;perspective-origin:50% 120%;z-index:8; }
-    .building { position:absolute;bottom:0;left:50%;transform:translateX(-50%) scale(0.28);transform-origin:bottom center;transform-style:preserve-3d;width:340px; }
-    .blk { position:relative;width:100%;opacity:0;transform:translateX(var(--tx,0px)) translateY(var(--ty,0px)) translateZ(var(--tz,0px)) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));transition:opacity .95s cubic-bezier(0.22,1,0.36,1),transform .95s cubic-bezier(0.22,1,0.36,1); }
-    .blk.vis { opacity:1;transform:translateX(0) translateY(0) translateZ(0) rotateX(0deg) rotateY(0deg); }
-    .b-antenna { width:3px;height:32px;margin:0 auto;background:linear-gradient(180deg,rgba(245,158,11,.9),rgba(124,58,237,.3));position:relative; }
-    .b-antenna::after { content:'';position:absolute;top:-5px;left:50%;transform:translateX(-50%);width:8px;height:8px;border-radius:50%;background:var(--gold);box-shadow:0 0 18px 6px rgba(245,158,11,.8);animation:blink-tip 1.5s ease-in-out infinite; }
-    @keyframes blink-tip { 0%,100%{opacity:1;box-shadow:0 0 18px 6px rgba(245,158,11,.8);}50%{opacity:.1;box-shadow:0 0 4px 1px rgba(245,158,11,.2);} }
-    .b-roof-tri { height:0;width:0;margin:0 auto;border-left:90px solid transparent;border-right:90px solid transparent;border-bottom:38px solid #1e1c42;position:relative; }
-    .b-roof-tri::after { content:'';position:absolute;bottom:-38px;left:-90px;right:-90px;height:2px;background:linear-gradient(90deg,transparent,var(--accent),var(--gold),var(--accent),transparent);opacity:.75; }
-    .b-penthouse { height:50px;width:216px;margin:0 auto;background:linear-gradient(180deg,#1c1a3e,#141230);border-top:2px solid var(--accent);border-left:1px solid rgba(124,58,237,.3);border-right:1px solid rgba(124,58,237,.3);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden; }
-    .b-penthouse::before { content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(124,58,237,.05) 3px,rgba(124,58,237,.05) 4px); }
-    .b-penthouse-name { font-family:var(--font-display);font-size:.68rem;letter-spacing:2.5px;line-height:1.3;color:var(--gold);text-shadow:0 0 14px rgba(245,158,11,.6);text-align:center;z-index:1;position:relative; }
-    .b-floor { height:60px;width:100%;background:linear-gradient(180deg,#111028,#0d0c22);border:1px solid rgba(124,58,237,.14);border-bottom:none;display:grid;grid-template-columns:repeat(8,1fr);gap:4px;padding:8px 10px;position:relative; }
-    .b-floor::before { content:attr(data-label);position:absolute;left:-38px;top:50%;transform:translateY(-50%);font-family:var(--font-mono);font-size:.36rem;letter-spacing:2px;color:rgba(124,58,237,.32);writing-mode:vertical-rl;rotate:180deg; }
-    .b-wings { display:flex;gap:4px;width:100%; }
-    .b-wing { flex:1;height:54px;background:linear-gradient(180deg,#0f0e24,#0b0a1a);border:1px solid rgba(124,58,237,.12);border-bottom:none;display:grid;grid-template-columns:repeat(4,1fr);gap:3px;padding:6px; }
-    .b-wing-center { width:216px;height:54px;background:linear-gradient(180deg,#111028,#0d0c22);border:1px solid rgba(124,58,237,.18);border-bottom:none;display:grid;grid-template-columns:repeat(5,1fr);gap:3px;padding:6px; }
-    .win { background:rgba(124,58,237,.06);border:1px solid rgba(124,58,237,.16);border-radius:1px;transition:background .4s,border-color .4s,opacity .15s; }
-    .win.l1 { background:rgba(245,158,11,.30);border-color:rgba(245,158,11,.55); }
-    .win.l2 { background:rgba(124,58,237,.38);border-color:var(--accent); }
-    .win.l3 { background:rgba(6,182,212,.28);border-color:var(--cyan); }
-    .b-lobby { height:78px;width:100%;background:linear-gradient(180deg,#0d0c22,#07060e);border:1px solid rgba(124,58,237,.28);border-top:none;display:flex;align-items:flex-end;justify-content:center;position:relative;overflow:hidden; }
-    .b-lobby::before { content:'';position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:130px;height:30px;background:radial-gradient(ellipse at 50% 100%,rgba(124,58,237,.4),transparent 70%); }
-    .door-wrap { position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:124px;height:74px;display:flex;overflow:hidden; }
-    .door-panel { flex:1;height:100%;background:linear-gradient(180deg,rgba(124,58,237,.22),rgba(124,58,237,.06));border-top:1px solid rgba(124,58,237,.5);position:relative;transition:transform .85s cubic-bezier(0.22,1,0.36,1); }
-    .door-panel.left { border-right:1px solid rgba(124,58,237,.3); }
-    .door-panel.right { border-left:1px solid rgba(124,58,237,.3); }
-    .door-panel.left::after,.door-panel.right::after { content:'';position:absolute;top:50%;width:5px;height:5px;border-radius:50%;background:var(--gold);box-shadow:0 0 8px 2px rgba(245,158,11,.6);transform:translateY(-50%); }
-    .door-panel.left::after { right:5px; } .door-panel.right::after { left:5px; }
-    .door-panel.left.open { transform:translateX(-100%); } .door-panel.right.open { transform:translateX(100%); }
-    .welcome-text { position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:124px;height:74px;display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:.85rem;letter-spacing:5px;color:var(--gold);text-shadow:0 0 22px rgba(245,158,11,.9);opacity:0;transition:opacity .7s ease .35s;pointer-events:none; }
-    .welcome-text.show { opacity:1; }
-    .ground-glow { position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:140px;height:20px;background:radial-gradient(ellipse at 50% 100%,rgba(124,58,237,.5),transparent 70%);opacity:0;transition:opacity .8s ease;pointer-events:none; }
-    .ground-glow.show { opacity:1; }
-    .entrance-glow { position:absolute;bottom:108px;left:50%;transform:translateX(-50%);z-index:13;width:110px;height:18px;background:radial-gradient(ellipse at 50% 0%,rgba(124,58,237,.55),transparent 70%);opacity:0;transition:opacity .5s ease;pointer-events:none; }
-    .b-sill { height:8px;width:148px;margin:0 auto;background:linear-gradient(90deg,rgba(124,58,237,0),rgba(124,58,237,.45),rgba(245,158,11,.45),rgba(124,58,237,.45),rgba(124,58,237,0));box-shadow:0 0 14px 3px rgba(124,58,237,.3); }
+    .fdp-floor{
+      width:100%;display:flex;flex-direction:column;align-items:center;
+      padding:8px 0;cursor:pointer;position:relative;
+      transition:background .2s;border-left:2px solid transparent;
+    }
+    .fdp-floor:hover{background:rgba(124,58,237,.06);}
+    .fdp-floor.fdp-current{border-left-color:var(--gold);background:rgba(245,158,11,.04);}
+    .fdp-num{font-family:var(--font-display);font-size:1rem;color:rgba(124,58,237,.3);line-height:1;transition:color .3s;}
+    .fdp-floor.fdp-current .fdp-num{color:var(--gold);}
+    .fdp-name{font-family:var(--font-mono);font-size:.34rem;letter-spacing:1px;color:rgba(124,58,237,.25);text-transform:uppercase;margin-top:2px;transition:color .3s;}
+    .fdp-floor.fdp-current .fdp-name{color:var(--muted);}
+    .fdp-dot{width:5px;height:5px;border-radius:50%;background:transparent;margin-top:3px;transition:background .3s,box-shadow .3s;}
+    .fdp-floor.fdp-current .fdp-dot{background:var(--gold);box-shadow:0 0 6px rgba(245,158,11,.7);}
+    .fdp-divider{width:30px;height:1px;background:rgba(124,58,237,.1);margin:2px 0;}
 
-    /* =====================================================
-       CHARACTER — unchanged (condensed)
-    ===================================================== */
-    #character { position:absolute;bottom:108px;left:0;z-index:15;display:flex;flex-direction:column;align-items:center;transform-origin:bottom center;pointer-events:none;transition:opacity .5s ease; }
-    .char-head { width:18px;height:19px;background:#e8c49a;border-radius:50% 50% 42% 42%;position:relative;z-index:2;flex-shrink:0; }
-    .char-head::before { content:'';position:absolute;top:-8px;left:-3px;width:24px;height:13px;background:#1a0f06;border-radius:50% 50% 0 0; }
-    .char-head::after { content:'';position:absolute;top:6px;right:-3px;width:4px;height:5px;background:#d4aa82;border-radius:50%; }
-    .char-body { width:20px;height:26px;background:linear-gradient(180deg,#1e2a4a,#162038);border-radius:3px 3px 0 0;margin-top:-1px;position:relative;flex-shrink:0; }
-    .char-body::before { content:'';position:absolute;top:2px;left:50%;transform:translateX(-50%);width:6px;height:10px;background:#ffffff22;clip-path:polygon(50% 0%,0% 100%,100% 100%); }
-    .char-body::after { content:'';position:absolute;bottom:2px;right:-9px;width:8px;height:7px;background:#2a1a08;border:1px solid rgba(245,158,11,.45);border-radius:1px; }
-    @keyframes char-bob { 0%,100%{transform:translateY(0);}50%{transform:translateY(-1.5px);} }
-    .char-legs { display:flex;gap:3px;flex-shrink:0; }
-    .char-leg { width:8px;height:16px;background:#111830;border-radius:0 0 3px 3px;transform-origin:top center;position:relative; }
-    .char-leg::after { content:'';position:absolute;bottom:-3px;left:-1px;width:10px;height:4px;background:#0a0a12;border-radius:0 2px 2px 0; }
-    .walking .char-leg.left { animation:swing-left .38s ease-in-out infinite; }
-    .walking .char-leg.right { animation:swing-right .38s ease-in-out infinite; }
-    .walking .char-body { animation:char-bob .38s ease-in-out infinite; }
-    @keyframes swing-left { 0%{transform:rotate(-18deg);}50%{transform:rotate(18deg);}100%{transform:rotate(-18deg);} }
-    @keyframes swing-right { 0%{transform:rotate(18deg);}50%{transform:rotate(-18deg);}100%{transform:rotate(18deg);} }
-    .char-shadow { width:22px;height:6px;background:rgba(0,0,0,.55);border-radius:50%;margin-top:2px;flex-shrink:0; }
-    #footCanvas { position:absolute;bottom:108px;left:0;right:0;height:40px;z-index:14;pointer-events:none; }
-    .char-dist-tag { position:absolute;top:-22px;left:50%;transform:translateX(-50%);font-family:var(--font-mono);font-size:.44rem;letter-spacing:2px;color:rgba(200,180,255,.5);white-space:nowrap;pointer-events:none; }
-
-    /* =====================================================
-       TRANSITION OVERLAYS + INTERIOR FRAME — unchanged
-    ===================================================== */
-    #flash-overlay { position:fixed;inset:0;z-index:200;background:#ffffff;opacity:0;pointer-events:none;transition:opacity .18s ease; }
-    #flash-overlay.flash { opacity:.92; }
-    #transition-overlay { position:fixed;inset:0;z-index:199;background:#07060e;opacity:0;pointer-events:none;transition:opacity .45s ease; }
-    #transition-overlay.dark { opacity:1;pointer-events:all; }
-    #transition-overlay.clear { opacity:0;pointer-events:none; }
-    .transition-label { position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:var(--font-mono);font-size:.65rem;letter-spacing:5px;color:rgba(124,58,237,.7);text-transform:uppercase;opacity:0;transition:opacity .3s ease; }
-    #transition-overlay.dark .transition-label { opacity:1; }
-    #interior { display:none;opacity:0;transition:opacity .6s ease;min-height:100vh;background:var(--bg); }
-    #interior.mounted { display:block; } #interior.visible { opacity:1; }
-    #interior-nav { position:fixed;top:0;left:0;right:0;z-index:100;height:60px;display:none;align-items:center;justify-content:space-between;padding:0 40px;background:rgba(7,6,14,.88);backdrop-filter:blur(18px);border-bottom:1px solid var(--border);opacity:0;transition:opacity .5s ease .4s; }
-    #interior-nav.show { display:flex;opacity:1; }
-    .nav-logo { font-family:var(--font-display);font-size:1.1rem;letter-spacing:4px;color:var(--gold); }
-    .nav-links { display:flex;gap:32px;list-style:none; }
-    .nav-links a { font-family:var(--font-mono);font-size:.6rem;letter-spacing:2px;color:var(--muted);text-decoration:none;text-transform:uppercase;transition:color .2s; }
-    .nav-links a:hover { color:var(--text); }
-    .nav-cta { font-family:var(--font-mono);font-size:.6rem;letter-spacing:2px;color:var(--accent);text-transform:uppercase;text-decoration:none;border:1px solid var(--accent);padding:6px 16px;transition:background .2s,color .2s; }
-    .nav-cta:hover { background:var(--accent);color:#fff; }
-    .floor-section { min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:100px 60px 60px;position:relative;border-top:1px solid var(--border); }
-    .floor-section::before { content:'';position:absolute;top:0;left:0;right:0;height:3px; }
-    #reception-section::before  { background:linear-gradient(90deg,var(--accent),var(--gold)); }
-    #about-section::before      { background:linear-gradient(90deg,var(--cyan),var(--accent)); }
-    #projects-section::before   { background:linear-gradient(90deg,var(--gold),var(--cyan)); }
-    #experience-section::before { background:linear-gradient(90deg,var(--accent),var(--cyan)); }
-    #achievements-section::before { background:linear-gradient(90deg,var(--gold),var(--accent)); }
-    #contact-section::before    { background:linear-gradient(90deg,var(--cyan),var(--gold)); }
-    .floor-tag { position:absolute;top:24px;left:40px;font-family:var(--font-mono);font-size:.52rem;letter-spacing:4px;color:var(--muted);text-transform:uppercase; }
-    .floor-placeholder { display:flex;flex-direction:column;align-items:center;gap:20px;text-align:center;max-width:480px; }
-    .floor-placeholder h2 { font-family:var(--font-display);font-size:clamp(2.5rem,6vw,5rem);letter-spacing:4px;color:var(--text);line-height:1; }
-    .floor-placeholder h2 span { color:var(--gold); }
-    .floor-placeholder p { font-family:var(--font-mono);font-size:.6rem;letter-spacing:3px;color:var(--muted);text-transform:uppercase;line-height:1.8; }
-    .floor-badge { display:inline-block;font-family:var(--font-mono);font-size:.5rem;letter-spacing:3px;padding:6px 18px;border:1px solid var(--border);color:var(--accent);text-transform:uppercase; }
-    #escalator-nav { position:fixed;left:0;top:50%;transform:translateY(-50%);z-index:101;display:none;flex-direction:column;align-items:flex-start;gap:0;padding:8px 0;background:rgba(7,6,14,.75);backdrop-filter:blur(12px);border-right:1px solid var(--border); }
-    #escalator-nav.show { display:flex; }
-    .esc-floor-btn { display:flex;align-items:center;gap:10px;padding:12px 16px;cursor:pointer;text-decoration:none;border-left:2px solid transparent;transition:border-color .2s,background .2s;min-width:44px;position:relative; }
-    .esc-floor-btn:hover,.esc-floor-btn.active { background:rgba(124,58,237,.08);border-left-color:var(--accent); }
-    .esc-floor-btn.active .esc-dot { background:var(--gold);box-shadow:0 0 8px rgba(245,158,11,.6); }
-    .esc-dot { width:6px;height:6px;border-radius:50%;background:rgba(124,58,237,.4);flex-shrink:0;transition:background .3s,box-shadow .3s; }
-    .esc-label { font-family:var(--font-mono);font-size:.48rem;letter-spacing:2px;color:var(--muted);text-transform:uppercase;white-space:nowrap;opacity:0;transform:translateX(-4px);transition:opacity .2s,transform .2s; }
-    .esc-floor-btn:hover .esc-label,.esc-floor-btn.active .esc-label { opacity:1;transform:translateX(0); }
-
-    /* =====================================================
-       ★ NEW — STAGE 05: RECEPTION LOBBY
-    ===================================================== */
-
-    /* Reception section overrides the base floor-section centering
-       because we build a full cinematic scene, not centred content */
-    #reception-section {
-      padding: 0;
-      min-height: 100vh;
-      position: relative;
-      overflow: hidden;
-      display: block;          /* override flex so children stack naturally */
-      background: #08060f;
+    /* floor content wrapper (right-padded for panel) */
+    .floor-content{
+      flex:1;padding:80px 92px 60px 60px;
+      display:flex;flex-direction:column;align-items:center;justify-content:center;
+      min-height:100vh;
     }
-
-    /* ── Back wall ── */
-    .rec-back-wall {
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 58%;
-      background: linear-gradient(180deg, #0c0a22 0%, #090718 100%);
-      border-bottom: 1px solid rgba(124,58,237,.14);
-    }
-
-    /* Ghost watermark name on the back wall */
-    .rec-wall-name {
-      position: absolute;
-      top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-      font-family: var(--font-display);
-      font-size: clamp(3rem, 9vw, 8rem);
-      letter-spacing: 16px;
-      color: rgba(124,58,237,.07);
-      white-space: nowrap;
-      user-select: none;
-      pointer-events: none;
-      text-shadow: 0 0 60px rgba(124,58,237,.04);
-    }
-
-    /* ── Ceiling strip lights ── */
-    .rec-ceiling {
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 5px;
-      background: repeating-linear-gradient(
-        90deg,
-        transparent 0px, transparent 50px,
-        rgba(200,190,255,.15) 50px, rgba(200,190,255,.15) 180px
-      );
-      z-index: 2;
-    }
-    .rec-ceiling-glow {
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 100px;
-      background: repeating-linear-gradient(
-        90deg,
-        transparent 0px, transparent 50px,
-        rgba(124,58,237,.055) 50px, rgba(124,58,237,.055) 180px
-      );
-      filter: blur(28px);
-      pointer-events: none;
-      z-index: 1;
-    }
-
-    /* ── Perspective marble tile floor ── */
-    .rec-floor {
-      position: absolute;
-      bottom: 0; left: -20%; right: -20%;
-      height: 46%;
-      background:
-        repeating-linear-gradient(90deg, rgba(124,58,237,.065) 0 1px, transparent 1px 90px),
-        repeating-linear-gradient(0deg, rgba(124,58,237,.05) 0 1px, transparent 1px 90px),
-        #08060f;
-      transform: perspective(500px) rotateX(58deg);
-      transform-origin: bottom;
-      pointer-events: none;
-      z-index: 0;
-    }
-
-    /* ── Pillars ── */
-    .rec-pillar {
-      position: absolute;
-      top: 0;
-      width: 32px;
-      height: 58%;
-      background: linear-gradient(90deg, #110e28, #0e0c22, #110e28);
-      border: 1px solid rgba(124,58,237,.12);
-      z-index: 3;
-    }
-    .rec-pillar.left  { left: 13%; }
-    .rec-pillar.right { right: 13%; }
-    /* pillar base cap */
-    .rec-pillar::after {
-      content: '';
-      position: absolute;
-      bottom: -10px; left: -8px; right: -8px;
-      height: 10px;
-      background: rgba(124,58,237,.14);
-      border-radius: 0 0 2px 2px;
-    }
-    /* pillar top cap */
-    .rec-pillar::before {
-      content: '';
-      position: absolute;
-      top: 0; left: -6px; right: -6px;
-      height: 8px;
-      background: rgba(124,58,237,.18);
-    }
-
-    /* ── Corner plants ── */
-    .rec-plant {
-      position: absolute;
-      bottom: 42%;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 0;
-      z-index: 3;
-    }
-    .rec-plant.left  { left: calc(13% - 36px); }
-    .rec-plant.right { right: calc(13% - 36px); }
-
-    .plant-leaves {
-      display: flex;
-      gap: 2px;
-      align-items: flex-end;
-    }
-    .plant-leaf {
-      width: 12px; height: 28px;
-      background: linear-gradient(180deg, #1a4e1a, #0e2c0e);
-      border: 1px solid rgba(40,140,40,.18);
-      border-radius: 50% 50% 0 50%;
-    }
-    .plant-leaf:nth-child(2) { border-radius: 50% 50% 50% 0; transform: translateY(-6px); }
-    .plant-leaf:nth-child(3) { border-radius: 50% 50% 0 50%; transform: translateY(-3px); }
-    .plant-pot {
-      width: 28px; height: 20px;
-      background: linear-gradient(180deg, #3a2010, #221508);
-      border-radius: 0 0 6px 6px;
-      border: 1px solid rgba(245,158,11,.18);
-      margin-top: -2px;
-    }
-
-    /* ── Reception desk assembly ── */
-    .rec-desk-wrap {
-      position: absolute;
-      bottom: 38%;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 5;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      opacity: 0;
-      transform: translateX(-50%) translateY(24px);
-      transition: opacity .9s ease, transform .9s cubic-bezier(0.22,1,0.36,1);
-    }
-    .rec-desk-wrap.show {
-      opacity: 1;
-      transform: translateX(-50%) translateY(0);
-    }
-
-    /* nameplate floating above desk top */
-    .desk-nameplate {
-      background: linear-gradient(90deg, #12103a, #1e1650, #12103a);
-      border: 1px solid rgba(124,58,237,.5);
-      border-bottom: none;
-      padding: 5px 28px;
-      font-family: var(--font-mono);
-      font-size: .5rem; letter-spacing: 5px;
-      color: var(--accent);
-      display: flex; align-items: center; gap: 10px;
-    }
-    .nameplate-dot {
-      width: 5px; height: 5px; border-radius: 50%;
-      background: var(--gold);
-      box-shadow: 0 0 8px var(--gold);
-      animation: blink-tip 1.4s ease-in-out infinite;
-    }
-
-    /* desk top ledge */
-    .desk-top {
-      width: min(540px, 88vw); height: 18px;
-      background: linear-gradient(180deg, #2a1e68, #1c1450);
-      border: 1px solid rgba(124,58,237,.55);
-      border-bottom: none;
-      position: relative;
-    }
-    .desk-top::after {
-      content: '';
-      position: absolute;
-      top: 0; left: 8%; right: 8%; height: 1px;
-      background: linear-gradient(90deg, transparent, var(--accent), var(--gold), var(--accent), transparent);
-      opacity: .65;
-    }
-
-    /* desk main body */
-    .desk-body {
-      width: min(540px, 88vw);
-      background: linear-gradient(180deg, #0e0b20, #07060e);
-      border: 1px solid rgba(124,58,237,.3);
-      border-top: none;
-      border-radius: 0 0 6px 6px;
-      display: flex;
-      overflow: hidden;
-      box-shadow: 0 28px 70px rgba(0,0,0,.7), 0 0 0 1px rgba(124,58,237,.06);
-    }
-
-    /* desk left — monitor + phone */
-    .desk-left {
-      width: 180px; flex-shrink: 0;
-      background: linear-gradient(160deg, #0d0920, #130e2a);
-      border-right: 1px solid rgba(124,58,237,.18);
-      padding: 18px 14px;
-      display: flex; flex-direction: column; gap: 14px; align-items: flex-start;
-    }
-
-    /* mini monitor */
-    .desk-monitor {
-      width: 72px;
-    }
-    .monitor-screen {
-      width: 72px; height: 50px;
-      background: #030308;
-      border: 1px solid rgba(124,58,237,.5);
-      border-radius: 3px 3px 0 0;
-      position: relative;
-      overflow: hidden;
-    }
-    .monitor-screen::before {
-      content: '';
-      position: absolute; inset: 0;
-      background: repeating-linear-gradient(0deg, rgba(124,58,237,.06) 0 1px, transparent 1px 5px);
-      animation: scan-lines 5s linear infinite;
-    }
-    @keyframes scan-lines { 0%{background-position:0 0;}100%{background-position:0 200px;} }
-    .monitor-text {
-      position: absolute;
-      top: 5px; left: 4px;
-      font-family: var(--font-mono);
-      font-size: 4.5px; color: rgba(124,58,237,.7);
-      line-height: 1.6; letter-spacing: .5px;
-    }
-    .monitor-cursor-blink {
-      display: inline-block; width: 4px; height: 6px;
-      background: rgba(124,58,237,.8);
-      animation: cursor-blink .8s step-end infinite;
-      vertical-align: middle;
-    }
-    @keyframes cursor-blink { 50%{opacity:0;} }
-    .monitor-stand {
-      width: 16px; height: 8px; margin: 0 auto;
-      background: #1a1530;
-      clip-path: polygon(20% 0%,80% 0%,100% 100%,0% 100%);
-    }
-    .monitor-base { width: 36px; height: 4px; margin: 0 auto; background: #1a1530; border-radius: 2px; }
-
-    /* desk phone prop */
-    .desk-phone {
-      width: 28px; height: 20px;
-      background: #0e0c1e;
-      border: 1px solid rgba(124,58,237,.2);
-      border-radius: 2px;
-      position: relative;
-    }
-    .desk-phone::before {
-      content: '';
-      position: absolute; inset: 3px;
-      background: rgba(124,58,237,.12); border-radius: 1px;
-    }
-
-    /* desk center — floor buttons (stage 06 will fill) */
-    .desk-center {
-      flex: 1;
-      padding: 16px 20px;
-      display: flex; flex-direction: column;
-      gap: 10px;
-    }
-    .desk-center-label {
-      font-family: var(--font-mono);
-      font-size: .5rem; letter-spacing: 4px;
-      color: var(--muted);
-      text-transform: uppercase;
-      display: flex; align-items: center; gap: 8px;
-    }
-    .desk-center-label::after { content:''; flex:1; height:1px; background:rgba(124,58,237,.18); }
-    .desk-center-sub {
-      font-family: var(--font-mono);
-      font-size: .44rem; letter-spacing: 2px;
-      color: rgba(124,58,237,.38);
-    }
-    /* Placeholder floor button grid — Stage 06 will replace */
-    .desk-floor-grid {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
-    }
-    .desk-floor-btn-ph {
-      height: 42px;
-      background: rgba(124,58,237,.04);
-      border: 1px solid rgba(124,58,237,.15);
-      border-radius: 2px;
-      display: flex; align-items: center; justify-content: center;
-      font-family: var(--font-mono); font-size: .42rem; letter-spacing: 2px;
-      color: rgba(124,58,237,.3);
-    }
-
-    /* desk right — elevator shaft */
-    .desk-right {
-      width: 100px; flex-shrink: 0;
-      background: linear-gradient(160deg, #0a0818, #0d0b1e);
-      border-left: 1px solid rgba(124,58,237,.15);
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      gap: 8px; padding: 10px 6px;
-      position: relative; overflow: hidden;
-    }
-    .desk-right::before {
-      content: '';
-      position: absolute; inset: 0;
-      background: repeating-linear-gradient(180deg, rgba(124,58,237,.05) 0 1px, transparent 1px 22px);
-    }
-    .lift-label {
-      font-family: var(--font-mono); font-size: .4rem;
-      letter-spacing: 3px; color: rgba(124,58,237,.4);
-      writing-mode: vertical-rl; text-transform: uppercase;
-    }
-    .lift-car {
-      width: 40px; height: 50px;
-      background: linear-gradient(180deg, #12103a, #0d0b28);
-      border: 1px solid rgba(124,58,237,.4);
-      box-shadow: 0 0 12px rgba(124,58,237,.12);
-      position: relative; z-index: 1;
-      animation: lift-idle 4s ease-in-out infinite;
-      display: flex; align-items: center; justify-content: center;
-    }
-    @keyframes lift-idle { 0%,100%{transform:translateY(0);}50%{transform:translateY(-10px);} }
-    .lift-floor-num {
-      font-family: var(--font-display);
-      font-size: 1.1rem; color: var(--gold); letter-spacing: 2px;
-    }
-
-    /* desk base shadow strip */
-    .desk-base {
-      width: calc(min(540px,88vw) + 50px);
-      height: 14px;
-      background: linear-gradient(180deg, #0c0920, #050410);
-      border: 1px solid rgba(124,58,237,.18); border-top: none;
-      border-radius: 0 0 4px 4px;
-      box-shadow: 0 18px 50px rgba(0,0,0,.8);
-    }
-
-    /* ── Receptionist pixel character ── */
-    .receptionist {
-      position: absolute;
-      bottom: 38%;
-      left: 50%;
-      /* sits just behind the desk-wrap, offset left so they're visible */
-      transform: translateX(calc(-50% - 140px));
-      z-index: 4;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      opacity: 0;
-      transition: opacity .8s ease .4s;
-      filter: drop-shadow(0 0 12px rgba(124,58,237,.5));
-    }
-    .receptionist.show { opacity: 1; }
-
-    .rec-char-head {
-      width: 20px; height: 20px;
-      background: #e0b890;
-      border-radius: 50% 50% 45% 45%;
-      position: relative; z-index: 2;
-    }
-    /* hair */
-    .rec-char-head::before {
-      content: '';
-      position: absolute; top: -9px; left: -4px;
-      width: 28px; height: 14px;
-      background: #2a1a0a; border-radius: 50% 50% 0 0;
-    }
-    /* headset mic arm */
-    .rec-char-head::after {
-      content: '';
-      position: absolute; top: 2px; right: -10px;
-      width: 3px; height: 12px;
-      background: rgba(124,58,237,.8); border-radius: 2px;
-      box-shadow: -24px 0 0 rgba(124,58,237,.5);
-    }
-    .rec-char-body {
-      width: 22px; height: 30px;
-      background: linear-gradient(180deg, #1e1a3e, #16143a);
-      border-radius: 3px 3px 0 0;
-      margin-top: -1px; position: relative;
-    }
-    /* collar */
-    .rec-char-body::before {
-      content: '';
-      position: absolute; top: 0; left: 50%; transform: translateX(-50%);
-      width: 8px; height: 8px;
-      background: rgba(245,158,11,.22);
-      clip-path: polygon(50% 0%,0% 100%,100% 100%);
-    }
-    .rec-char-name-tag {
-      font-family: var(--font-mono); font-size: .38rem; letter-spacing: 2px;
-      color: rgba(124,58,237,.45); margin-top: 4px;
-    }
-
-    /* ── Speech bubble ── */
-    .speech-bubble {
-      position: absolute;
-      bottom: calc(38% + 64px);
-      left: 50%;
-      transform: translateX(calc(-50% - 60px));
-      background: #13102a;
-      border: 1px solid rgba(124,58,237,.45);
-      border-radius: 10px 10px 10px 0;
-      padding: 10px 16px;
-      font-family: var(--font-mono);
-      font-size: .62rem; letter-spacing: 1.2px; line-height: 1.8;
-      color: var(--text);
-      max-width: 340px;
-      white-space: pre-wrap;
-      box-shadow: 0 4px 20px rgba(0,0,0,.5);
-      z-index: 6;
-      opacity: 0;
-      transform: translateX(calc(-50% - 60px)) translateY(8px) scale(.96);
-      transition: opacity .4s, transform .4s;
-      pointer-events: none;
-    }
-    .speech-bubble.show {
-      opacity: 1;
-      transform: translateX(calc(-50% - 60px)) translateY(0) scale(1);
-    }
-    /* tail */
-    .speech-bubble::after {
-      content: '';
-      position: absolute;
-      bottom: -7px; left: 14px;
-      width: 12px; height: 7px;
-      background: rgba(124,58,237,.45);
-      clip-path: polygon(0% 0%,100% 0%,0% 100%);
-    }
-    .bubble-speaker {
-      font-size: .5rem; letter-spacing: 3px;
-      color: var(--gold); margin-bottom: 5px;
-      text-transform: uppercase;
-    }
-    .bubble-cursor {
-      display: inline-block; width: 6px; height: 12px;
-      background: var(--accent); opacity: .8;
-      animation: cursor-blink .8s step-end infinite;
-      vertical-align: middle; margin-left: 2px;
-    }
-
-    /* ── Escalator prompt ── */
-    .esc-prompt {
-      position: absolute;
-      bottom: 28px;
-      left: 50%; transform: translateX(-50%);
-      z-index: 6;
-      display: flex; flex-direction: column; align-items: center; gap: 8px;
-      opacity: 0;
-      transition: opacity .6s ease;
-      pointer-events: none;
-    }
-    .esc-prompt.show { opacity: 1; pointer-events: auto; }
-    .esc-prompt span {
-      font-family: var(--font-mono); font-size: .58rem; letter-spacing: 4px;
-      color: var(--muted); text-transform: uppercase;
-    }
-    .esc-prompt-arrow {
-      width: 1px; height: 30px;
-      background: linear-gradient(180deg, var(--accent), transparent);
-      animation: pulse-line 1.6s ease-in-out infinite;
-    }
-
+    .floor-tag-lbl{font-family:var(--font-mono);font-size:.52rem;letter-spacing:4px;color:var(--muted);text-transform:uppercase;margin-bottom:20px;}
+    .floor-ph{display:flex;flex-direction:column;align-items:center;gap:20px;text-align:center;}
+    .floor-ph h2{font-family:var(--font-display);font-size:clamp(2.5rem,6vw,5rem);letter-spacing:4px;line-height:1;}
+    .floor-ph h2 span{color:var(--gold);}
+    .floor-ph p{font-family:var(--font-mono);font-size:.6rem;letter-spacing:3px;color:var(--muted);text-transform:uppercase;line-height:1.8;}
+    .floor-badge{display:inline-block;font-family:var(--font-mono);font-size:.5rem;letter-spacing:3px;padding:6px 18px;border:1px solid var(--border);color:var(--accent);text-transform:uppercase;}
   </style>
 </head>
 <body>
 
-  <!-- Transition overlays -->
-  <div id="flash-overlay"></div>
-  <div id="transition-overlay"><div class="transition-label">entering the building…</div></div>
+<div id="flash-overlay"></div>
+<div id="transition-overlay"><div class="transition-label">entering the building…</div></div>
 
-  <!-- Interior nav -->
-  <nav id="interior-nav">
-    <div class="nav-logo">C. SREE HARSHITH REDDY</div>
-    <ul class="nav-links">
-      <li><a href="#about-section">About</a></li>
-      <li><a href="#projects-section">Projects</a></li>
-      <li><a href="#experience-section">Experience</a></li>
-      <li><a href="#achievements-section">Achievements</a></li>
-      <li><a href="#contact-section">Contact</a></li>
-    </ul>
-    <a href="#contact-section" class="nav-cta">Let's Talk</a>
-  </nav>
+<!-- NAV -->
+<nav id="interior-nav">
+  <div class="nav-logo">C. SREE HARSHITH REDDY</div>
+  <ul class="nav-links">
+    <li><a onclick="goToFloor(1)">About</a></li>
+    <li><a onclick="goToFloor(2)">Projects</a></li>
+    <li><a onclick="goToFloor(3)">Experience</a></li>
+    <li><a onclick="goToFloor(4)">Achievements</a></li>
+    <li><a onclick="goToFloor(5)">Contact</a></li>
+  </ul>
+  <a class="nav-cta" onclick="goToFloor(5)">Let's Talk</a>
+</nav>
 
-  <!-- Escalator nav -->
-  <nav id="escalator-nav">
-    <a class="esc-floor-btn active" href="#reception-section" data-target="reception-section"><div class="esc-dot"></div><span class="esc-label">Lobby</span></a>
-    <a class="esc-floor-btn" href="#about-section" data-target="about-section"><div class="esc-dot"></div><span class="esc-label">About</span></a>
-    <a class="esc-floor-btn" href="#projects-section" data-target="projects-section"><div class="esc-dot"></div><span class="esc-label">Projects</span></a>
-    <a class="esc-floor-btn" href="#experience-section" data-target="experience-section"><div class="esc-dot"></div><span class="esc-label">Experience</span></a>
-    <a class="esc-floor-btn" href="#achievements-section" data-target="achievements-section"><div class="esc-dot"></div><span class="esc-label">Achievements</span></a>
-    <a class="esc-floor-btn" href="#contact-section" data-target="contact-section"><div class="esc-dot"></div><span class="esc-label">Contact</span></a>
-  </nav>
+<!-- FLOOR DIRECTORY PANEL (right edge, visible on all floors) -->
+<div class="floor-dir-panel" id="floorDirPanel">
+  <div class="fdp-lbl">FLOORS</div>
+  <div class="fdp-floor fdp-current" data-fi="0" onclick="goToFloor(0)">
+    <div class="fdp-num">G</div><div class="fdp-name">Lobby</div><div class="fdp-dot"></div>
+  </div>
+  <div class="fdp-divider"></div>
+  <div class="fdp-floor" data-fi="1" onclick="goToFloor(1)">
+    <div class="fdp-num">01</div><div class="fdp-name">About</div><div class="fdp-dot"></div>
+  </div>
+  <div class="fdp-divider"></div>
+  <div class="fdp-floor" data-fi="2" onclick="goToFloor(2)">
+    <div class="fdp-num">02</div><div class="fdp-name">Projects</div><div class="fdp-dot"></div>
+  </div>
+  <div class="fdp-divider"></div>
+  <div class="fdp-floor" data-fi="3" onclick="goToFloor(3)">
+    <div class="fdp-num">03</div><div class="fdp-name">Exp</div><div class="fdp-dot"></div>
+  </div>
+  <div class="fdp-divider"></div>
+  <div class="fdp-floor" data-fi="4" onclick="goToFloor(4)">
+    <div class="fdp-num">04</div><div class="fdp-name">Achiev</div><div class="fdp-dot"></div>
+  </div>
+  <div class="fdp-divider"></div>
+  <div class="fdp-floor" data-fi="5" onclick="goToFloor(5)">
+    <div class="fdp-num">05</div><div class="fdp-name">Contact</div><div class="fdp-dot"></div>
+  </div>
+</div>
 
-  <!-- =====================================================
-       SCROLL SCENE — unchanged from Stage 04
-  ====================================================== -->
-  <div id="scene">
-    <div class="sticky" id="sticky">
-      <div class="sky" id="sky"></div>
-      <div class="stars-wrap" id="starsWrap"></div>
-      <div class="city-bg" id="cityBg"></div>
-      <div class="scene-3d" id="scene3d">
-        <div class="building" id="building">
-          <div class="blk" id="blk0" style="--tx:0px;--ty:0px;--tz:-500px;--rx:0deg;--ry:0deg;"><div class="b-antenna"></div></div>
-          <div class="blk" id="blk1" style="--tx:0px;--ty:-320px;--tz:0px;--rx:0deg;--ry:0deg;"><div class="b-roof-tri"></div></div>
-          <div class="blk" id="blk2" style="--tx:0px;--ty:0px;--tz:500px;--rx:0deg;--ry:0deg;"><div class="b-penthouse"><div class="b-penthouse-name">C. SREE HARSHITH REDDY'S<br>EMPIRE</div></div></div>
-          <div class="blk" id="blk3" style="--tx:-420px;--ty:0px;--tz:0px;--rx:0deg;--ry:-28deg;"><div class="b-floor" data-label="FLOOR 04"><div class="win l2"></div><div class="win"></div><div class="win l1"></div><div class="win l2"></div><div class="win"></div><div class="win l1"></div><div class="win"></div><div class="win l2"></div></div></div>
-          <div class="blk" id="blk4" style="--tx:420px;--ty:0px;--tz:0px;--rx:0deg;--ry:28deg;"><div class="b-floor" data-label="FLOOR 03"><div class="win"></div><div class="win l1"></div><div class="win l3"></div><div class="win l1"></div><div class="win l2"></div><div class="win"></div><div class="win l1"></div><div class="win"></div></div></div>
-          <div class="blk" id="blk5" style="--tx:0px;--ty:0px;--tz:-440px;--rx:22deg;--ry:0deg;"><div class="b-floor" data-label="FLOOR 02"><div class="win l1"></div><div class="win l2"></div><div class="win"></div><div class="win l1"></div><div class="win"></div><div class="win l3"></div><div class="win l2"></div><div class="win l1"></div></div></div>
-          <div class="blk" id="blk6" style="--tx:0px;--ty:0px;--tz:0px;--rx:0deg;--ry:0deg;">
-            <div class="b-wings">
-              <div class="b-wing" id="wingL"><div class="win"></div><div class="win l1"></div><div class="win l2"></div><div class="win"></div><div class="win l1"></div><div class="win"></div><div class="win l2"></div><div class="win l1"></div></div>
-              <div class="b-wing-center"><div class="win l2"></div><div class="win l1"></div><div class="win"></div><div class="win l1"></div><div class="win l3"></div><div class="win"></div><div class="win l2"></div><div class="win l1"></div><div class="win"></div><div class="win l2"></div></div>
-              <div class="b-wing" id="wingR"><div class="win l2"></div><div class="win"></div><div class="win l1"></div><div class="win l2"></div><div class="win l1"></div><div class="win l3"></div><div class="win"></div><div class="win l1"></div></div>
-            </div>
-          </div>
-          <div class="blk" id="blk7" style="--tx:0px;--ty:0px;--tz:460px;--rx:-20deg;--ry:0deg;"><div class="b-floor" data-label="FLOOR 01"><div class="win l1"></div><div class="win"></div><div class="win l2"></div><div class="win l1"></div><div class="win l3"></div><div class="win l1"></div><div class="win"></div><div class="win l2"></div></div></div>
-          <div class="blk" id="blk8" style="--tx:0px;--ty:220px;--tz:0px;--rx:0deg;--ry:0deg;"><div class="b-lobby"><div class="ground-glow" id="groundGlow"></div><div class="door-wrap"><div class="door-panel left" id="doorL"></div><div class="door-panel right" id="doorR"></div><div class="welcome-text" id="welcomeText">WELCOME</div></div></div></div>
-          <div class="blk" id="blk9" style="--tx:0px;--ty:0px;--tz:-300px;--rx:0deg;--ry:0deg;"><div class="b-sill"></div></div>
-        </div>
-      </div>
-      <div class="entrance-glow" id="entranceGlow"></div>
-      <div id="character">
-        <div class="char-dist-tag" id="distTag">far away</div>
-        <div class="char-head"></div>
-        <div class="char-body"></div>
-        <div class="char-legs"><div class="char-leg left"></div><div class="char-leg right"></div></div>
-        <div class="char-shadow" id="charShadow"></div>
-      </div>
-      <canvas id="footCanvas"></canvas>
-      <div class="ground"><div class="pavement left"></div><div class="road"><div class="road-dashes" id="roadDashes"></div></div><div class="pavement right"></div></div>
-      <div class="scroll-hud" id="scrollHud"><span class="hud-label">Scroll</span><span class="hud-value" id="hudValue">0%</span><div class="hud-bar"><div class="hud-bar-fill" id="hudFill"></div></div></div>
-      <div class="scroll-hint" id="scrollHint"><span class="sh-label">Scroll to enter</span><div class="sh-arrow"></div><div class="sh-chevron"></div></div>
+<!-- ESCALATOR TRANSITION SCREEN -->
+<div id="esc-transition">
+  <div class="esc-dest-header">
+    <div class="esc-dest-floor" id="escDestFloor">01</div>
+    <div class="esc-dest-info">
+      <div class="esc-dest-label">Heading to floor</div>
+      <div class="esc-dest-name" id="escDestName">About</div>
     </div>
   </div>
 
-  <!-- =====================================================
-       INTERIOR
-  ====================================================== -->
-  <div id="interior">
+  <!-- left: building directory -->
+  <div class="esc-building-panel" id="escBuildingPanel">
+    <!-- populated by JS -->
+  </div>
 
-    <!-- ============================================================
-         ★ NEW — STAGE 05: RECEPTION SECTION (full cinematic scene)
-    ============================================================ -->
-    <section id="reception-section" class="floor-section">
-      <span class="floor-tag">// Ground Floor — Reception</span>
-
-      <!-- Back wall -->
-      <div class="rec-back-wall">
-        <div class="rec-wall-name">EMPIRE</div>
+  <!-- centre: escalator ride -->
+  <div class="esc-main">
+    <div class="esc-track">
+      <div class="esc-track-steps"></div>
+      <div class="esc-track-rail-l"></div>
+      <div class="esc-track-rail-r"></div>
+      <div class="esc-main-rider" id="escMainRider" style="bottom:10px;">
+        <div class="emr-head"></div>
+        <div class="emr-body"></div>
+        <div class="emr-legs"><div class="emr-leg"></div><div class="emr-leg"></div></div>
       </div>
+    </div>
+    <div class="esc-counter" id="escCounter">G</div>
+  </div>
+</div>
 
-      <!-- Ceiling -->
-      <div class="rec-ceiling"></div>
-      <div class="rec-ceiling-glow"></div>
-
-      <!-- Perspective floor -->
-      <div class="rec-floor"></div>
-
-      <!-- Pillars -->
-      <div class="rec-pillar left"></div>
-      <div class="rec-pillar right"></div>
-
-      <!-- Plants -->
-      <div class="rec-plant left">
-        <div class="plant-leaves">
-          <div class="plant-leaf"></div>
-          <div class="plant-leaf"></div>
-          <div class="plant-leaf"></div>
+<!-- SCROLL SCENE -->
+<div id="scene">
+  <div class="sticky" id="sticky">
+    <div class="sky" id="sky"></div>
+    <div class="stars-wrap" id="starsWrap"></div>
+    <div class="city-bg" id="cityBg"></div>
+    <div class="scene-3d" id="scene3d">
+      <div class="building" id="building">
+        <div class="blk" id="blk0" style="--tx:0px;--ty:0px;--tz:-500px;--rx:0deg;--ry:0deg;"><div class="b-antenna"></div></div>
+        <div class="blk" id="blk1" style="--tx:0px;--ty:-320px;--tz:0px;--rx:0deg;--ry:0deg;"><div class="b-roof-tri"></div></div>
+        <div class="blk" id="blk2" style="--tx:0px;--ty:0px;--tz:500px;--rx:0deg;--ry:0deg;"><div class="b-penthouse"><div class="b-penthouse-name">C. SREE HARSHITH REDDY'S<br>EMPIRE</div></div></div>
+        <div class="blk" id="blk3" style="--tx:-420px;--ty:0px;--tz:0px;--rx:0deg;--ry:-28deg;"><div class="b-floor" data-label="FLOOR 04"><div class="win l2"></div><div class="win"></div><div class="win l1"></div><div class="win l2"></div><div class="win"></div><div class="win l1"></div><div class="win"></div><div class="win l2"></div></div></div>
+        <div class="blk" id="blk4" style="--tx:420px;--ty:0px;--tz:0px;--rx:0deg;--ry:28deg;"><div class="b-floor" data-label="FLOOR 03"><div class="win"></div><div class="win l1"></div><div class="win l3"></div><div class="win l1"></div><div class="win l2"></div><div class="win"></div><div class="win l1"></div><div class="win"></div></div></div>
+        <div class="blk" id="blk5" style="--tx:0px;--ty:0px;--tz:-440px;--rx:22deg;--ry:0deg;"><div class="b-floor" data-label="FLOOR 02"><div class="win l1"></div><div class="win l2"></div><div class="win"></div><div class="win l1"></div><div class="win"></div><div class="win l3"></div><div class="win l2"></div><div class="win l1"></div></div></div>
+        <div class="blk" id="blk6" style="--tx:0px;--ty:0px;--tz:0px;--rx:0deg;--ry:0deg;">
+          <div class="b-wings">
+            <div class="b-wing" id="wingL"><div class="win"></div><div class="win l1"></div><div class="win l2"></div><div class="win"></div><div class="win l1"></div><div class="win"></div><div class="win l2"></div><div class="win l1"></div></div>
+            <div class="b-wing-center"><div class="win l2"></div><div class="win l1"></div><div class="win"></div><div class="win l1"></div><div class="win l3"></div><div class="win"></div><div class="win l2"></div><div class="win l1"></div><div class="win"></div><div class="win l2"></div></div>
+            <div class="b-wing" id="wingR"><div class="win l2"></div><div class="win"></div><div class="win l1"></div><div class="win l2"></div><div class="win l1"></div><div class="win l3"></div><div class="win"></div><div class="win l1"></div></div>
+          </div>
         </div>
-        <div class="plant-pot"></div>
+        <div class="blk" id="blk7" style="--tx:0px;--ty:0px;--tz:460px;--rx:-20deg;--ry:0deg;"><div class="b-floor" data-label="FLOOR 01"><div class="win l1"></div><div class="win"></div><div class="win l2"></div><div class="win l1"></div><div class="win l3"></div><div class="win l1"></div><div class="win"></div><div class="win l2"></div></div></div>
+        <div class="blk" id="blk8" style="--tx:0px;--ty:220px;--tz:0px;--rx:0deg;--ry:0deg;"><div class="b-lobby"><div class="ground-glow" id="groundGlow"></div><div class="door-wrap"><div class="door-panel left" id="doorL"></div><div class="door-panel right" id="doorR"></div><div class="welcome-text" id="welcomeText">WELCOME</div></div></div></div>
+        <div class="blk" id="blk9" style="--tx:0px;--ty:0px;--tz:-300px;--rx:0deg;--ry:0deg;"><div class="b-sill"></div></div>
       </div>
-      <div class="rec-plant right">
-        <div class="plant-leaves">
-          <div class="plant-leaf"></div>
-          <div class="plant-leaf"></div>
-          <div class="plant-leaf"></div>
-        </div>
-        <div class="plant-pot"></div>
-      </div>
+    </div>
+    <div class="entrance-glow" id="entranceGlow"></div>
+    <div id="character">
+      <div class="char-dist-tag" id="distTag">far away</div>
+      <div class="char-head"></div><div class="char-body"></div>
+      <div class="char-legs"><div class="char-leg left"></div><div class="char-leg right"></div></div>
+      <div class="char-shadow" id="charShadow"></div>
+    </div>
+    <canvas id="footCanvas"></canvas>
+    <div class="ground"><div class="pavement left"></div><div class="road"><div class="road-dashes" id="roadDashes"></div></div><div class="pavement right"></div></div>
+    <div class="scroll-hud" id="scrollHud"><span class="hud-label">Scroll</span><span class="hud-value" id="hudValue">0%</span><div class="hud-bar"><div class="hud-bar-fill" id="hudFill"></div></div></div>
+    <div class="scroll-hint" id="scrollHint"><span class="sh-label">Scroll to enter</span><div class="sh-arrow"></div><div class="sh-chevron"></div></div>
+  </div>
+</div>
 
-      <!-- Receptionist character -->
-      <div class="receptionist" id="receptionist">
-        <div class="rec-char-head"></div>
-        <div class="rec-char-body"></div>
-        <div class="rec-char-name-tag">RECEPTION</div>
-      </div>
+<!-- INTERIOR -->
+<div id="interior">
 
-      <!-- Speech bubble -->
-      <div class="speech-bubble" id="speechBubble">
+  <!-- RECEPTION -->
+  <div id="reception-scene">
+    <div class="rec-back-wall"><div class="rec-wall-name">EMPIRE</div></div>
+    <div class="rec-ceiling"></div><div class="rec-ceiling-glow"></div>
+    <div class="rec-floor-tiles"></div>
+    <div class="rec-pillar left"></div><div class="rec-pillar right"></div>
+    <div class="rec-plant left"><div class="plant-leaves"><div class="plant-leaf"></div><div class="plant-leaf"></div><div class="plant-leaf"></div></div><div class="plant-pot"></div></div>
+    <div class="rec-plant right"><div class="plant-leaves"><div class="plant-leaf"></div><div class="plant-leaf"></div><div class="plant-leaf"></div></div><div class="plant-pot"></div></div>
+
+    <!-- RECEPTIONIST top-left (no overlap) -->
+    <div class="receptionist-area" id="recArea">
+      <div class="speech-bubble">
         <div class="bubble-speaker">— RECEPTIONIST</div>
         <span id="bubbleText"></span><span class="bubble-cursor" id="bubbleCursor"></span>
       </div>
+      <div class="rec-figure">
+        <div class="rec-head"></div><div class="rec-body"></div>
+        <div class="rec-name-tag">RECEPTION</div>
+      </div>
+    </div>
 
-      <!-- Reception desk -->
-      <div class="rec-desk-wrap" id="deskWrap">
-        <div class="desk-nameplate">
-          <div class="nameplate-dot"></div>
-          RECEPTION DESK
-          <div class="nameplate-dot"></div>
+    <!-- LOBBY WALK CHARACTER -->
+    <div id="lobby-char">
+      <div class="lc-head"></div><div class="lc-body"></div>
+      <div class="lc-legs"><div class="lc-leg"></div><div class="lc-leg"></div></div>
+    </div>
+
+    <!-- DESK bottom-centre -->
+    <div class="desk-area" id="deskArea">
+      <div class="desk-nameplate"><div class="nameplate-dot"></div>RECEPTION DESK<div class="nameplate-dot"></div></div>
+      <div class="desk-top"></div>
+      <div class="desk-body">
+        <div class="desk-left">
+          <div class="monitor-wrap">
+            <div class="monitor-screen"><div class="monitor-text">VISITOR LOG<br>&gt; C.S.REDDY<br>&gt; WELCOME<br><span class="monitor-csr"></span></div></div>
+            <div class="monitor-stand"></div><div class="monitor-base"></div>
+          </div>
+          <div class="desk-phone"></div>
         </div>
-        <div class="desk-top"></div>
-        <div class="desk-body">
-          <!-- Left: monitor + phone -->
-          <div class="desk-left">
-            <div class="desk-monitor">
-              <div class="monitor-screen">
-                <div class="monitor-text">VISITOR LOG<br>> C.S.REDDY<br>> 10:42 AM<br>> WELCOME<br><span class="monitor-cursor-blink"></span></div>
-              </div>
-              <div class="monitor-stand"></div>
-              <div class="monitor-base"></div>
-            </div>
-            <div class="desk-phone"></div>
-          </div>
-          <!-- Center: floor selector (Stage 06 will replace) -->
-          <div class="desk-center">
-            <div class="desk-center-label">FLOOR DIRECTORY</div>
-            <div class="desk-center-sub">Select a floor to visit</div>
-            <div class="desk-floor-grid">
-              <a href="#about-section" class="desk-floor-btn-ph">01 — About</a>
-              <a href="#projects-section" class="desk-floor-btn-ph">02 — Projects</a>
-              <a href="#experience-section" class="desk-floor-btn-ph">03 — Experience</a>
-              <a href="#achievements-section" class="desk-floor-btn-ph">04 — Achievements</a>
-            </div>
-          </div>
-          <!-- Right: elevator shaft -->
-          <div class="desk-right">
-            <div class="lift-label">LIFT</div>
-            <div class="lift-car"><div class="lift-floor-num">G</div></div>
-          </div>
+
+        <!-- floor buttons -->
+        <div class="desk-center">
+          <div class="desk-hdr">FLOOR DIRECTORY</div>
+          <a class="floor-btn active" data-fi="0" onclick="deskFloorClick(event,0)"><div class="fb-bar"></div><div class="fb-num">G</div><div class="fb-info"><div class="fb-name">Reception</div><div class="fb-sub">Ground lobby</div></div><div class="fb-dot"></div></a>
+          <a class="floor-btn" data-fi="1" onclick="deskFloorClick(event,1)"><div class="fb-bar"></div><div class="fb-num">01</div><div class="fb-info"><div class="fb-name">About</div><div class="fb-sub">Bio · Skills · Stats</div></div><div class="fb-dot"></div></a>
+          <a class="floor-btn" data-fi="2" onclick="deskFloorClick(event,2)"><div class="fb-bar"></div><div class="fb-num">02</div><div class="fb-info"><div class="fb-name">Projects</div><div class="fb-sub">Enterprise · Research · Innovation</div></div><div class="fb-dot"></div></a>
+          <a class="floor-btn" data-fi="3" onclick="deskFloorClick(event,3)"><div class="fb-bar"></div><div class="fb-num">03</div><div class="fb-info"><div class="fb-name">Experience</div><div class="fb-sub">Work · Volunteering</div></div><div class="fb-dot"></div></a>
+          <a class="floor-btn" data-fi="4" onclick="deskFloorClick(event,4)"><div class="fb-bar"></div><div class="fb-num">04</div><div class="fb-info"><div class="fb-name">Achievements</div><div class="fb-sub">Certifications · Awards</div></div><div class="fb-dot"></div></a>
+          <a class="floor-btn" data-fi="5" onclick="deskFloorClick(event,5)"><div class="fb-bar"></div><div class="fb-num">05</div><div class="fb-info"><div class="fb-name">Contact</div><div class="fb-sub">Let's connect</div></div><div class="fb-dot"></div></a>
         </div>
-        <div class="desk-base"></div>
+
+        <!-- escalator shaft -->
+        <div class="desk-right">
+          <div class="esc-lbl">ESC</div>
+          <div class="esc-shaft" id="escShaft">
+            <div class="esc-steps"></div>
+            <div class="esc-rail-l"></div><div class="esc-rail-r"></div>
+            <div class="esc-levels">
+              <div class="esc-lvl" data-fi="5">05</div>
+              <div class="esc-lvl" data-fi="4">04</div>
+              <div class="esc-lvl" data-fi="3">03</div>
+              <div class="esc-lvl" data-fi="2">02</div>
+              <div class="esc-lvl" data-fi="1">01</div>
+              <div class="esc-lvl cur" data-fi="0">G</div>
+            </div>
+            <div class="esc-rider" id="escRider" style="top:calc(100% - 26px);">
+              <div class="esc-rider-head"></div><div class="esc-rider-body"></div>
+              <div class="esc-rider-legs"><div class="esc-rider-leg"></div><div class="esc-rider-leg"></div></div>
+            </div>
+          </div>
+          <div class="esc-readout" id="escReadout">G</div>
+        </div>
       </div>
+      <div class="desk-shadow"></div>
+    </div>
+  </div><!-- #reception-scene -->
 
-      <!-- Escalator prompt -->
-      <div class="esc-prompt" id="escPrompt">
-        <span>Scroll down to explore</span>
-        <div class="esc-prompt-arrow"></div>
-      </div>
+  <!-- FLOOR PAGES -->
+  <div id="floor-about" class="floor-page">
+    <div class="floor-content">
+      <div class="floor-tag-lbl">// Floor 01 — About</div>
+      <div class="floor-ph"><div class="floor-badge">Floor 01</div><h2>About <span>Me</span></h2><p>Bio · Skills · Stats<br>Stage 07 builds this floor</p></div>
+    </div>
+  </div>
+  <div id="floor-projects" class="floor-page">
+    <div class="floor-content">
+      <div class="floor-tag-lbl">// Floor 02 — Projects</div>
+      <div class="floor-ph"><div class="floor-badge">Floor 02</div><h2><span>Projects</span></h2><p>Category filter · Horizontal scroll<br>Stage 08 builds this floor</p></div>
+    </div>
+  </div>
+  <div id="floor-experience" class="floor-page">
+    <div class="floor-content">
+      <div class="floor-tag-lbl">// Floor 03 — Experience</div>
+      <div class="floor-ph"><div class="floor-badge">Floor 03</div><h2><span>Experience</span></h2><p>Work · Volunteering timeline<br>Stage 09 builds this floor</p></div>
+    </div>
+  </div>
+  <div id="floor-achievements" class="floor-page">
+    <div class="floor-content">
+      <div class="floor-tag-lbl">// Floor 04 — Achievements</div>
+      <div class="floor-ph"><div class="floor-badge">Floor 04</div><h2><span>Achievements</span></h2><p>Certifications · Awards<br>Stage 10 builds this floor</p></div>
+    </div>
+  </div>
+  <div id="floor-contact" class="floor-page">
+    <div class="floor-content">
+      <div class="floor-tag-lbl">// Floor 05 — Contact</div>
+      <div class="floor-ph"><div class="floor-badge">Floor 05</div><h2>Let's <span>Talk</span></h2><p>Contact form · Social links<br>Stage 11 builds this floor</p></div>
+    </div>
+  </div>
 
-    </section>
+</div><!-- #interior -->
 
-    <!-- FLOOR 1: About (placeholder — Stage 07) -->
-    <section id="about-section" class="floor-section">
-      <span class="floor-tag">// Floor 01 — About</span>
-      <div class="floor-placeholder">
-        <div class="floor-badge">Floor 01</div>
-        <h2>About <span>Me</span></h2>
-        <p>Bio · Skills · Stats<br>Two-panel sticky scroll</p>
-        <p style="color:rgba(124,58,237,.4);margin-top:8px;">← Stage 07 builds this floor</p>
-      </div>
-    </section>
+<script>
+/* ================================================================
+   STAGE 06 v2 JavaScript
+   Outdoor stages 01-03 unchanged. New interior nav system.
+================================================================ */
 
-    <!-- FLOOR 2: Projects (placeholder — Stage 08) -->
-    <section id="projects-section" class="floor-section">
-      <span class="floor-tag">// Floor 02 — Projects</span>
-      <div class="floor-placeholder">
-        <div class="floor-badge">Floor 02</div>
-        <h2><span>Projects</span></h2>
-        <p>Category filter · Horizontal scroll · Detail modal</p>
-        <p style="color:rgba(124,58,237,.4);margin-top:8px;">← Stage 08 builds this floor</p>
-      </div>
-    </section>
+/* generators */
+function generateStars(c=180){const w=document.getElementById('starsWrap'),f=document.createDocumentFragment();for(let i=0;i<c;i++){const s=document.createElement('div');s.className='star';const sz=Math.random()*2+.8,x=Math.random()*100,y=Math.random()*100,d=(Math.random()*3+2).toFixed(1),dl=(Math.random()*4).toFixed(1);s.style.cssText=`width:${sz}px;height:${sz}px;left:${x}%;top:${y}%;--d:${d}s;--dl:${dl}s;`;f.appendChild(s);}w.appendChild(f);}
+function generateCityBg(){const c=document.getElementById('cityBg'),f=document.createDocumentFragment();[[18,60],[28,95],[22,75],[35,130],[20,55],[30,110],[18,65],[42,155],[25,80],[30,100],[20,70],[36,125],[24,85],[28,95],[18,50],[40,140],[22,70],[26,90],[32,115],[20,60],[28,95],[18,55],[34,120],[22,75]].forEach(([w,h])=>{const el=document.createElement('div');el.className='cb';el.style.cssText=`width:${w}px;height:${h}px;`;f.appendChild(el);});c.appendChild(f);}
+function generateRoadDashes(n=5){const c=document.getElementById('roadDashes');for(let i=0;i<n;i++){const d=document.createElement('div');d.className='rd';c.appendChild(d);}}
 
-    <!-- FLOOR 3: Experience (placeholder — Stage 09) -->
-    <section id="experience-section" class="floor-section">
-      <span class="floor-tag">// Floor 03 — Experience</span>
-      <div class="floor-placeholder">
-        <div class="floor-badge">Floor 03</div>
-        <h2><span>Experience</span></h2>
-        <p>Work timeline · Volunteering timeline</p>
-        <p style="color:rgba(124,58,237,.4);margin-top:8px;">← Stage 09 builds this floor</p>
-      </div>
-    </section>
+const scene=document.getElementById('scene'),cityBg=document.getElementById('cityBg'),scrollHud=document.getElementById('scrollHud'),hudValue=document.getElementById('hudValue'),hudFill=document.getElementById('hudFill'),scrollHint=document.getElementById('scrollHint'),building=document.getElementById('building'),doorL=document.getElementById('doorL'),doorR=document.getElementById('doorR'),welcomeText=document.getElementById('welcomeText'),groundGlow=document.getElementById('groundGlow'),entranceGlow=document.getElementById('entranceGlow'),blocks=Array.from({length:10},(_,i)=>document.getElementById(`blk${i}`)),character=document.getElementById('character'),charShadow=document.getElementById('charShadow'),distTag=document.getElementById('distTag'),footCanvas=document.getElementById('footCanvas'),footCtx=footCanvas.getContext('2d');
+const flashOverlay=document.getElementById('flash-overlay'),transitionOverlay=document.getElementById('transition-overlay'),interior=document.getElementById('interior'),interiorNav=document.getElementById('interior-nav');
+const THRESHOLDS=[.38,.34,.30,.25,.22,.18,.15,.12,.07,.04],DELAYS=[0,40,70,55,55,70,35,70,15,0];
+let doorsOpen=false,prevProgress=0,isWalking=false,walkStopTimer=null,lastFootX=-999,entryTriggered=false;
+const dustParticles=[];
 
-    <!-- FLOOR 4: Achievements (placeholder — Stage 10) -->
-    <section id="achievements-section" class="floor-section">
-      <span class="floor-tag">// Floor 04 — Achievements</span>
-      <div class="floor-placeholder">
-        <div class="floor-badge">Floor 04</div>
-        <h2><span>Achievements</span></h2>
-        <p>Cards drop from above · Image upload</p>
-        <p style="color:rgba(124,58,237,.4);margin-top:8px;">← Stage 10 builds this floor</p>
-      </div>
-    </section>
+function onScroll(){
+  if(entryTriggered)return;
+  const sceneTop=scene.offsetTop,progress=Math.max(0,Math.min(1,(window.scrollY-sceneTop)/(scene.offsetHeight-window.innerHeight)));
+  scrollHud.classList.toggle('visible',progress>.005);
+  const pct=Math.round(progress*100);hudValue.textContent=`${pct}%`;hudFill.style.width=`${pct}%`;
+  scrollHint.classList.toggle('hide',progress>.03);
+  cityBg.style.opacity=Math.max(0,.24-progress*.55).toFixed(3);
+  const bl=Math.min(progress*1.4,1);document.getElementById('sky').style.background=`radial-gradient(ellipse 70% ${55+bl*20}% at 50% 0%,rgba(44,16,82,${(.85+bl*.15).toFixed(2)}) 0%,transparent 70%),linear-gradient(180deg,#0d0720 0%,#09061a 40%,#07060e 100%)`;
+  blocks.forEach((blk,i)=>{if(progress>=THRESHOLDS[i]){if(!blk.classList.contains('vis'))setTimeout(()=>blk.classList.add('vis'),DELAYS[i]);}else blk.classList.remove('vis');});
+  const zp=Math.min(progress/.82,1),ez=zp*zp*(3-2*zp);building.style.transform=`translateX(-50%) scale(${(.28+ez*.97).toFixed(4)})`;
+  const ga=Math.max(0,Math.min(1,(progress-.38)/.3));entranceGlow.style.opacity=ga.toFixed(3);
+  if(progress>=.82&&!doorsOpen){doorsOpen=true;doorL.classList.add('open');doorR.classList.add('open');groundGlow.classList.add('show');welcomeText.classList.add('show');}
+  else if(progress<.78&&doorsOpen){doorsOpen=false;doorL.classList.remove('open');doorR.classList.remove('open');groundGlow.classList.remove('show');welcomeText.classList.remove('show');}
+  updateCharacter(progress);
+  const scrolling=Math.abs(progress-prevProgress)>.0003;
+  if(scrolling&&progress>.04&&progress<.90)startWalking();else if(!scrolling)scheduleStopWalking();
+  prevProgress=progress;
+  if(progress>=.92)triggerEntry();
+}
 
-    <!-- FLOOR 5: Contact (placeholder — Stage 11) -->
-    <section id="contact-section" class="floor-section">
-      <span class="floor-tag">// Floor 05 — Contact</span>
-      <div class="floor-placeholder">
-        <div class="floor-badge">Floor 05</div>
-        <h2>Let's <span>Talk</span></h2>
-        <p>Contact form · Social links</p>
-        <p style="color:rgba(124,58,237,.4);margin-top:8px;">← Stage 11 builds this floor</p>
-      </div>
-    </section>
+function updateCharacter(p){const vw=window.innerWidth,vh=window.innerHeight,wt=Math.max(0,Math.min(1,(p-.04)/.78)),we=wt*wt*(3-2*wt),cx=vw*.05+we*(vw*.5-vw*.05),cs=.45+we*.60;charShadow.style.width=`${22+(1-we)*28}px`;let op=1;if(p<.04)op=0;else if(p<.08)op=(p-.04)/.04;else if(p>.85)op=Math.max(0,1-(p-.85)/.07);character.style.opacity=op.toFixed(3);character.style.left=`${cx}px`;character.style.transform=`translateX(-50%) scale(${cs.toFixed(3)})`;const dp=Math.round(we*100);distTag.textContent=dp<95?(dp<10?'far away':dp<40?'approaching':dp<75?'almost there':'entering...'):'';if(isWalking&&op>.2&&Math.abs(cx-lastFootX)>28){spawnDust(cx,vh-108);lastFootX=cx;}}
+function startWalking(){if(!isWalking){isWalking=true;character.classList.add('walking');}if(walkStopTimer){clearTimeout(walkStopTimer);walkStopTimer=null;}}
+function scheduleStopWalking(){if(walkStopTimer)return;walkStopTimer=setTimeout(()=>{isWalking=false;character.classList.remove('walking');walkStopTimer=null;},180);}
+function spawnDust(x,gy){const n=3+Math.floor(Math.random()*3);for(let i=0;i<n;i++)dustParticles.push({x:x+(Math.random()-.5)*14,y:gy-4,vx:(Math.random()-.5)*.8,vy:-(Math.random()*.8+.2),r:Math.random()*3+1,life:1,decay:.04+Math.random()*.03});}
+function animateDust(){if(footCanvas.width!==window.innerWidth){footCanvas.width=window.innerWidth;footCanvas.height=40;}footCtx.clearRect(0,0,footCanvas.width,footCanvas.height);for(let i=dustParticles.length-1;i>=0;i--){const p=dustParticles[i];p.x+=p.vx;p.y+=p.vy;p.life-=p.decay;if(p.life<=0){dustParticles.splice(i,1);continue;}footCtx.beginPath();footCtx.arc(p.x,p.y,p.r*p.life,0,Math.PI*2);footCtx.fillStyle=`rgba(124,58,237,${(p.life*.3).toFixed(2)})`;footCtx.fill();}requestAnimationFrame(animateDust);}
 
-  </div><!-- /#interior -->
-
-
-  <script>
-    /* ==============================================================
-       STAGE 05 JavaScript
-       Stages 01–04 code unchanged. New: initReception()
-    ============================================================== */
-
-    function generateStars(c=180){const w=document.getElementById('starsWrap'),f=document.createDocumentFragment();for(let i=0;i<c;i++){const s=document.createElement('div');s.className='star';const sz=Math.random()*2+.8,x=Math.random()*100,y=Math.random()*100,d=(Math.random()*3+2).toFixed(1),dl=(Math.random()*4).toFixed(1);s.style.cssText=`width:${sz}px;height:${sz}px;left:${x}%;top:${y}%;--d:${d}s;--dl:${dl}s;`;f.appendChild(s);}w.appendChild(f);}
-    function generateCityBg(){const c=document.getElementById('cityBg'),f=document.createDocumentFragment();[[18,60],[28,95],[22,75],[35,130],[20,55],[30,110],[18,65],[42,155],[25,80],[30,100],[20,70],[36,125],[24,85],[28,95],[18,50],[40,140],[22,70],[26,90],[32,115],[20,60],[28,95],[18,55],[34,120],[22,75]].forEach(([w,h])=>{const el=document.createElement('div');el.className='cb';el.style.cssText=`width:${w}px;height:${h}px;`;f.appendChild(el);});c.appendChild(f);}
-    function generateRoadDashes(n=5){const c=document.getElementById('roadDashes');for(let i=0;i<n;i++){const d=document.createElement('div');d.className='rd';c.appendChild(d);}}
-
-    const scene=document.getElementById('scene'),cityBg=document.getElementById('cityBg'),scrollHud=document.getElementById('scrollHud'),hudValue=document.getElementById('hudValue'),hudFill=document.getElementById('hudFill'),scrollHint=document.getElementById('scrollHint'),building=document.getElementById('building'),doorL=document.getElementById('doorL'),doorR=document.getElementById('doorR'),welcomeText=document.getElementById('welcomeText'),groundGlow=document.getElementById('groundGlow'),entranceGlow=document.getElementById('entranceGlow'),blocks=Array.from({length:10},(_,i)=>document.getElementById(`blk${i}`)),character=document.getElementById('character'),charShadow=document.getElementById('charShadow'),distTag=document.getElementById('distTag'),footCanvas=document.getElementById('footCanvas'),footCtx=footCanvas.getContext('2d');
-    const flashOverlay=document.getElementById('flash-overlay'),transitionOverlay=document.getElementById('transition-overlay'),interior=document.getElementById('interior'),interiorNav=document.getElementById('interior-nav'),escalatorNav=document.getElementById('escalator-nav');
-    const THRESHOLDS=[.38,.34,.30,.25,.22,.18,.15,.12,.07,.04],DELAYS=[0,40,70,55,55,70,35,70,15,0];
-    let doorsOpen=false,prevProgress=0,isWalking=false,walkStopTimer=null,lastFootX=-999,entryTriggered=false;
-    const dustParticles=[];
-
-    function onScroll(){
-      if(entryTriggered)return;
-      const sceneTop=scene.offsetTop,progress=Math.max(0,Math.min(1,(window.scrollY-sceneTop)/(scene.offsetHeight-window.innerHeight)));
-      scrollHud.classList.toggle('visible',progress>.005);
-      const pct=Math.round(progress*100);hudValue.textContent=`${pct}%`;hudFill.style.width=`${pct}%`;
-      scrollHint.classList.toggle('hide',progress>.03);
-      cityBg.style.opacity=Math.max(0,.24-progress*.55).toFixed(3);
-      const bl=Math.min(progress*1.4,1);document.getElementById('sky').style.background=`radial-gradient(ellipse 70% ${55+bl*20}% at 50% 0%,rgba(44,16,82,${(.85+bl*.15).toFixed(2)}) 0%,transparent 70%),linear-gradient(180deg,#0d0720 0%,#09061a 40%,#07060e 100%)`;
-      blocks.forEach((blk,i)=>{if(progress>=THRESHOLDS[i]){if(!blk.classList.contains('vis'))setTimeout(()=>blk.classList.add('vis'),DELAYS[i]);}else blk.classList.remove('vis');});
-      const zp=Math.min(progress/.82,1),ez=zp*zp*(3-2*zp);building.style.transform=`translateX(-50%) scale(${(.28+ez*.97).toFixed(4)})`;
-      const ga=Math.max(0,Math.min(1,(progress-.38)/.3));entranceGlow.style.opacity=ga.toFixed(3);
-      if(progress>=.82&&!doorsOpen){doorsOpen=true;doorL.classList.add('open');doorR.classList.add('open');groundGlow.classList.add('show');welcomeText.classList.add('show');}
-      else if(progress<.78&&doorsOpen){doorsOpen=false;doorL.classList.remove('open');doorR.classList.remove('open');groundGlow.classList.remove('show');welcomeText.classList.remove('show');}
-      updateCharacter(progress);
-      const scrolling=Math.abs(progress-prevProgress)>.0003;
-      if(scrolling&&progress>.04&&progress<.90)startWalking();else if(!scrolling)scheduleStopWalking();
-      prevProgress=progress;
-      if(progress>=.92)triggerEntry();
-    }
-
-    function updateCharacter(p){const vw=window.innerWidth,vh=window.innerHeight,wt=Math.max(0,Math.min(1,(p-.04)/.78)),we=wt*wt*(3-2*wt),cx=vw*.05+we*(vw*.5-vw*.05),cs=.45+we*.60;charShadow.style.width=`${22+(1-we)*28}px`;let op=1;if(p<.04)op=0;else if(p<.08)op=(p-.04)/.04;else if(p>.85)op=Math.max(0,1-(p-.85)/.07);character.style.opacity=op.toFixed(3);character.style.left=`${cx}px`;character.style.transform=`translateX(-50%) scale(${cs.toFixed(3)})`;const dp=Math.round(we*100);distTag.textContent=dp<95?(dp<10?'far away':dp<40?'approaching':dp<75?'almost there':'entering...'):'';if(isWalking&&op>.2&&Math.abs(cx-lastFootX)>28){spawnDust(cx,vh-108);lastFootX=cx;}}
-    function startWalking(){if(!isWalking){isWalking=true;character.classList.add('walking');}if(walkStopTimer){clearTimeout(walkStopTimer);walkStopTimer=null;}}
-    function scheduleStopWalking(){if(walkStopTimer)return;walkStopTimer=setTimeout(()=>{isWalking=false;character.classList.remove('walking');walkStopTimer=null;},180);}
-    function spawnDust(x,gy){const n=3+Math.floor(Math.random()*3);for(let i=0;i<n;i++)dustParticles.push({x:x+(Math.random()-.5)*14,y:gy-4,vx:(Math.random()-.5)*.8,vy:-(Math.random()*.8+.2),r:Math.random()*3+1,life:1,decay:.04+Math.random()*.03});}
-    function animateDust(){if(footCanvas.width!==window.innerWidth){footCanvas.width=window.innerWidth;footCanvas.height=40;}footCtx.clearRect(0,0,footCanvas.width,footCanvas.height);for(let i=dustParticles.length-1;i>=0;i--){const p=dustParticles[i];p.x+=p.vx;p.y+=p.vy;p.life-=p.decay;if(p.life<=0){dustParticles.splice(i,1);continue;}footCtx.beginPath();footCtx.arc(p.x,p.y,p.r*p.life,0,Math.PI*2);footCtx.fillStyle=`rgba(124,58,237,${(p.life*.3).toFixed(2)})`;footCtx.fill();}requestAnimationFrame(animateDust);}
-
-    function triggerEntry(){
-      if(entryTriggered)return;entryTriggered=true;
-      document.body.style.overflow='hidden';
-      flashOverlay.classList.add('flash');
+function triggerEntry(){
+  if(entryTriggered)return;entryTriggered=true;
+  document.body.style.overflow='hidden';
+  flashOverlay.classList.add('flash');
+  setTimeout(()=>{
+    flashOverlay.classList.remove('flash');
+    transitionOverlay.classList.add('dark');
+    setTimeout(()=>{
+      interior.classList.add('mounted');
+      window.scrollTo({top:0,behavior:'instant'});
+      scene.style.display='none';
+      document.body.style.overflow='';
       setTimeout(()=>{
-        flashOverlay.classList.remove('flash');
-        transitionOverlay.classList.add('dark');
+        interior.classList.add('visible');
         setTimeout(()=>{
-          interior.classList.add('mounted');
-          window.scrollTo({top:0,behavior:'instant'});
-          scene.style.display='none';
-          document.body.style.overflow='';
+          interiorNav.classList.add('show');
           setTimeout(()=>{
-            interior.classList.add('visible');
-            setTimeout(()=>{
-              interiorNav.classList.add('show');
-              escalatorNav.classList.add('show');
-              setTimeout(()=>{
-                transitionOverlay.classList.remove('dark');
-                transitionOverlay.classList.add('clear');
-                initInteriorScroll();
-                /* ★ NEW Stage 05: start reception sequence */
-                initReception();
-              },300);
-            },300);
-          },200);
-        },420);
-      },220);
+            transitionOverlay.classList.remove('dark');transitionOverlay.classList.add('clear');
+            initReception();
+          },300);
+        },300);
+      },200);
+    },420);
+  },220);
+}
+
+/* ================================================================
+   FLOOR DATA
+================================================================ */
+const FLOORS = [
+  {num:'G',  name:'Reception',    sub:'Ground lobby',            pageId:null},
+  {num:'01', name:'About',        sub:'Bio · Skills · Stats',    pageId:'floor-about'},
+  {num:'02', name:'Projects',     sub:'Enterprise · Research',   pageId:'floor-projects'},
+  {num:'03', name:'Experience',   sub:'Work · Volunteering',     pageId:'floor-experience'},
+  {num:'04', name:'Achievements', sub:'Certifications · Awards', pageId:'floor-achievements'},
+  {num:'05', name:'Contact',      sub:"Let's connect",           pageId:'floor-contact'},
+];
+
+let currentFloor = 0;  /* 0 = reception/lobby */
+let transitioning = false;
+
+/* ── DESK FLOOR BUTTON CLICK ── */
+function deskFloorClick(e, fi) {
+  e.preventDefault();
+  if(fi === 0 || transitioning) return; /* G = already here */
+  goToFloor(fi);
+}
+
+/* ── GLOBAL NAVIGATE TO FLOOR ── */
+function goToFloor(fi) {
+  if(fi === currentFloor || transitioning) return;
+  if(currentFloor === 0) {
+    /* From lobby: walk to escalator then ride */
+    lobbyWalkThenEscalate(fi);
+  } else {
+    /* Already on a floor: straight escalator transition */
+    escalateTo(fi);
+  }
+}
+
+/* ── STEP 1: lobby walk character walks right toward escalator ── */
+function lobbyWalkThenEscalate(targetFloor) {
+  transitioning = true;
+  const lc  = document.getElementById('lobby-char');
+  const vw  = window.innerWidth;
+
+  /* show character at lobby centre */
+  lc.style.left  = '50%';
+  lc.style.transform = 'translateX(-50%)';
+  lc.style.opacity = '1';
+  lc.classList.add('lc-walking');
+
+  /* fade desk and receptionist */
+  document.getElementById('deskArea').style.transition = 'opacity .5s';
+  document.getElementById('deskArea').style.opacity = '0';
+  document.getElementById('recArea').style.transition = 'opacity .5s';
+  document.getElementById('recArea').style.opacity = '0';
+
+  /* animate character walking right (~1.2s) */
+  let pos = 50; /* starts at 50% */
+  const walkInterval = setInterval(() => {
+    pos += 1.2;
+    lc.style.left  = pos + '%';
+    lc.style.transform = 'translateX(0)';
+    if(pos >= 88) {
+      clearInterval(walkInterval);
+      lc.classList.remove('lc-walking');
+      lc.style.opacity = '0';
+      setTimeout(()=> escalateTo(targetFloor), 200);
     }
+  }, 20);
+}
 
-    function initInteriorScroll(){
-      const secs=document.querySelectorAll('.floor-section'),btns=document.querySelectorAll('.esc-floor-btn');
-      function upd(){let aid='';secs.forEach(s=>{const r=s.getBoundingClientRect();if(r.top<=window.innerHeight*.5)aid=s.id;});btns.forEach(b=>b.classList.toggle('active',b.dataset.target===aid));}
-      window.addEventListener('scroll',upd,{passive:true});upd();
-    }
+/* ── STEP 2: escalator transition screen ── */
+function escalateTo(targetFloor) {
+  const escTrans  = document.getElementById('esc-transition');
+  const escPanel  = document.getElementById('escBuildingPanel');
+  const escDestF  = document.getElementById('escDestFloor');
+  const escDestN  = document.getElementById('escDestName');
+  const escRider  = document.getElementById('escMainRider');
+  const escCount  = document.getElementById('escCounter');
+  const floor     = FLOORS[targetFloor];
 
-    /* ============================================================
-       ★ NEW — STAGE 05: RECEPTION SEQUENCE
-       Fires after the interior is fully revealed.
-       Timeline:
-         t=0ms    desk + receptionist fade in (staggered)
-         t=700ms  speech bubble appears
-         t=900ms  typewriter starts — 3 lines with pauses
-         t=end    escalator prompt appears
-    ============================================================ */
-    function initReception() {
-      const deskWrap    = document.getElementById('deskWrap');
-      const receptionist= document.getElementById('receptionist');
-      const speechBubble= document.getElementById('speechBubble');
-      const bubbleText  = document.getElementById('bubbleText');
-      const bubbleCursor= document.getElementById('bubbleCursor');
-      const escPrompt   = document.getElementById('escPrompt');
+  /* build the building panel */
+  escPanel.innerHTML = '';
+  [...FLOORS].reverse().forEach((f, ri) => {
+    const fi = FLOORS.length - 1 - ri;
+    const row = document.createElement('div');
+    row.className = 'esc-floor-row' + (fi===currentFloor?' current':'') + (fi===targetFloor?' destination':'');
+    row.innerHTML = `<div class="efr-num">${f.num}</div><div class="efr-info"><div class="efr-name">${f.name}</div></div><div class="efr-indicator"></div>`;
+    row.onclick = ()=>{ if(!transitioning)goToFloor(fi); };
+    escPanel.appendChild(row);
+  });
 
-      /* Step 1: desk slides up, receptionist fades in */
-      setTimeout(() => {
-        deskWrap.classList.add('show');
-        receptionist.classList.add('show');
-      }, 400);
+  /* set destination header */
+  escDestF.textContent = floor.num;
+  escDestN.textContent = floor.name;
 
-      /* Step 2: speech bubble appears */
-      setTimeout(() => {
-        speechBubble.classList.add('show');
-        runTypewriter(bubbleText, bubbleCursor, escPrompt);
-      }, 900);
-    }
+  /* rider starts at bottom */
+  escRider.style.bottom = '10px';
+  escCount.textContent = FLOORS[currentFloor].num;
 
-    /* Typewriter engine — types each line then pauses before next */
-    function runTypewriter(textEl, cursorEl, escPrompt) {
-      const lines = [
-        'Good day! Welcome to\nC. Sree Harshith Reddy\'s Empire.',
-        'I\'m your guide for today.',
-        'Use the floor directory below\nor scroll down to explore.'
-      ];
+  /* show transition screen */
+  escTrans.classList.add('show');
 
-      let lineIdx = 0;
-      let charIdx = 0;
-      let fullText = '';
+  /* animate rider upward (maps target floor to track height) */
+  setTimeout(()=>{
+    const trackH = 280; /* approx track height */
+    const riderH = 36;
+    const frac   = targetFloor / (FLOORS.length - 1);
+    const dest   = Math.round(frac * (trackH - riderH));
+    escRider.style.bottom = dest + 'px';
 
-      function typeChar() {
-        if (lineIdx >= lines.length) {
-          /* all lines done — hide cursor, show escalator prompt */
-          cursorEl.style.display = 'none';
-          setTimeout(() => {
-            escPrompt.classList.add('show');
-          }, 600);
-          return;
-        }
+    /* count up floors as rider moves */
+    let counted = currentFloor;
+    const dir   = targetFloor > currentFloor ? 1 : -1;
+    const countInterval = setInterval(()=>{
+      counted += dir;
+      escCount.textContent = FLOORS[Math.max(0,Math.min(FLOORS.length-1,counted))].num;
+      if(counted === targetFloor) clearInterval(countInterval);
+    }, 2200 / (Math.abs(targetFloor-currentFloor) || 1));
 
-        const line = lines[lineIdx];
+  }, 100);
 
-        if (charIdx < line.length) {
-          fullText += line[charIdx];
-          textEl.textContent = fullText;
-          charIdx++;
-          setTimeout(typeChar, 34);
-        } else {
-          /* end of this line — pause then move to next */
-          fullText += '\n';
-          charIdx = 0;
-          lineIdx++;
-          setTimeout(typeChar, 680);
-        }
-      }
+  /* after 2.4s → resolve to floor */
+  setTimeout(()=>{
+    escTrans.classList.remove('show');
+    currentFloor = targetFloor;
+    resolveToFloor(targetFloor);
+  }, 2600);
+}
 
-      typeChar();
-    }
+/* ── STEP 3: show target floor content ── */
+function resolveToFloor(fi) {
+  /* hide all floor pages */
+  document.querySelectorAll('.floor-page').forEach(p=>{p.classList.remove('active-floor');p.style.display='none';});
+  document.getElementById('reception-scene').style.display = 'none';
 
-    function initWingSplit(){const wL=document.getElementById('wingL'),wR=document.getElementById('wingR');wL.style.cssText+='transform:translateX(-55px);transition:transform 1.1s cubic-bezier(0.22,1,0.36,1);';wR.style.cssText+='transform:translateX(55px);transition:transform 1.1s cubic-bezier(0.22,1,0.36,1);';new MutationObserver(()=>{const on=document.getElementById('blk6').classList.contains('vis');wL.style.transform=on?'translateX(0)':'translateX(-55px)';wR.style.transform=on?'translateX(0)':'translateX(55px)';}).observe(document.getElementById('blk6'),{attributes:true,attributeFilter:['class']});}
-    function startWindowFlicker(){setInterval(()=>{document.querySelectorAll('.win.l1,.win.l2,.win.l3').forEach(w=>{if(Math.random()>.91){w.style.opacity='.22';setTimeout(()=>{w.style.opacity='';},100+Math.random()*200);}});},850);}
+  if(fi === 0) {
+    /* back to lobby */
+    document.getElementById('reception-scene').style.display = 'block';
+    document.getElementById('deskArea').style.opacity = '1';
+    document.getElementById('recArea').style.opacity = '1';
+    document.getElementById('lobby-char').style.opacity = '0';
+  } else {
+    const page = document.getElementById(FLOORS[fi].pageId);
+    if(page){ page.style.display='flex'; page.classList.add('active-floor'); }
+  }
 
-    function init(){
-      generateStars(180);generateCityBg();generateRoadDashes(5);initWingSplit();
-      footCanvas.width=window.innerWidth;footCanvas.height=40;
-      window.addEventListener('resize',()=>{footCanvas.width=window.innerWidth;footCanvas.height=40;});
-      window.addEventListener('scroll',onScroll,{passive:true});
-      onScroll();startWindowFlicker();animateDust();
-    }
+  /* update floor directory panel */
+  updateFloorPanel(fi);
 
-    document.addEventListener('DOMContentLoaded',init);
-  </script>
+  /* show directory panel (only on non-lobby floors) */
+  const fdp = document.getElementById('floorDirPanel');
+  if(fi > 0){ fdp.classList.add('show'); }
+  else { fdp.classList.remove('show'); }
 
+  /* update desk mini escalator */
+  updateDeskEscalator(fi);
+
+  transitioning = false;
+  window.scrollTo({top:0,behavior:'instant'});
+}
+
+function updateFloorPanel(fi){
+  document.querySelectorAll('.fdp-floor').forEach(f=>{
+    f.classList.toggle('fdp-current', parseInt(f.dataset.fi)===fi);
+  });
+  document.querySelectorAll('.nav-links a').forEach((a,i)=>{
+    a.classList.toggle('active-nav', i+1===fi);
+  });
+}
+
+function updateDeskEscalator(fi){
+  /* update desk shaft labels */
+  document.querySelectorAll('.esc-lvl').forEach(l=>{
+    l.classList.toggle('cur', parseInt(l.dataset.fi)===fi);
+  });
+  /* move rider */
+  const shaft  = document.getElementById('escShaft');
+  const rider  = document.getElementById('escRider');
+  const readout= document.getElementById('escReadout');
+  const shH    = shaft.offsetHeight || 100;
+  const rH     = 26;
+  const usable = shH - rH - 10;
+  const topPx  = 5 + usable * (1 - fi/(FLOORS.length-1));
+  rider.style.top = Math.round(topPx)+'px';
+  readout.textContent = FLOORS[fi].num;
+  /* desk floor buttons */
+  document.querySelectorAll('.floor-btn').forEach(b=>{
+    b.classList.toggle('active', parseInt(b.dataset.fi)===fi);
+  });
+}
+
+/* ── RECEPTION INIT ── */
+function initReception(){
+  setTimeout(()=>{
+    document.getElementById('deskArea').classList.add('show');
+    document.getElementById('recArea').classList.add('show');
+  },400);
+  setTimeout(()=>runTypewriter(),900);
+}
+
+function runTypewriter(){
+  const textEl=document.getElementById('bubbleText'),curEl=document.getElementById('bubbleCursor');
+  const lines=['Good day! Welcome to\nC. Sree Harshith Reddy\'s Empire.','Select a floor below\nto begin your visit.'];
+  let li=0,ci=0,ft='';
+  function next(){if(li>=lines.length){curEl.style.display='none';return;}const ln=lines[li];if(ci<ln.length){ft+=ln[ci];textEl.textContent=ft;ci++;setTimeout(next,36);}else{ft+='\n';ci=0;li++;setTimeout(next,700);}}
+  next();
+}
+
+function initWingSplit(){const wL=document.getElementById('wingL'),wR=document.getElementById('wingR');wL.style.cssText+='transform:translateX(-55px);transition:transform 1.1s cubic-bezier(.22,1,.36,1);';wR.style.cssText+='transform:translateX(55px);transition:transform 1.1s cubic-bezier(.22,1,.36,1);';new MutationObserver(()=>{const on=document.getElementById('blk6').classList.contains('vis');wL.style.transform=on?'translateX(0)':'translateX(-55px)';wR.style.transform=on?'translateX(0)':'translateX(55px)';}).observe(document.getElementById('blk6'),{attributes:true,attributeFilter:['class']});}
+function startWindowFlicker(){setInterval(()=>{document.querySelectorAll('.win.l1,.win.l2,.win.l3').forEach(w=>{if(Math.random()>.91){w.style.opacity='.22';setTimeout(()=>{w.style.opacity='';},100+Math.random()*200);}});},850);}
+
+function init(){
+  generateStars(180);generateCityBg();generateRoadDashes(5);initWingSplit();
+  footCanvas.width=window.innerWidth;footCanvas.height=40;
+  window.addEventListener('resize',()=>{footCanvas.width=window.innerWidth;footCanvas.height=40;});
+  window.addEventListener('scroll',onScroll,{passive:true});
+  onScroll();startWindowFlicker();animateDust();
+}
+document.addEventListener('DOMContentLoaded',init);
+</script>
 </body>
 </html>
