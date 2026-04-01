@@ -454,6 +454,238 @@
     #floor-experience::before{background:linear-gradient(90deg,var(--accent),var(--cyan));}
     #floor-achievements::before{background:linear-gradient(90deg,var(--gold),var(--accent));}
     #floor-contact::before{background:linear-gradient(90deg,var(--cyan),var(--gold));}
+    /* ── EXPERIENCE FLOOR — COMPLETE REWRITE ── */
+    #floor-experience{
+      flex-direction:column;
+      overflow-y:auto;overflow-x:hidden;
+      height:100vh;scrollbar-width:none;
+      background:var(--bg);
+      scroll-behavior:smooth;
+    }
+    #floor-experience::-webkit-scrollbar{display:none;}
+    #floor-experience::before{background:linear-gradient(90deg,var(--accent),var(--cyan)) !important;}
+
+    .exp-floor{
+      min-height:100vh;
+      display:flex;flex-direction:column;
+    }
+
+    /* ── sticky header ── */
+    .exp-header{
+      position:sticky;top:0;z-index:20;
+      background:rgba(7,6,14,.97);
+      backdrop-filter:blur(18px);
+      border-bottom:1px solid rgba(124,58,237,.18);
+      padding:68px 92px 0 60px;
+    }
+    .exp-header-top{
+      display:flex;align-items:baseline;gap:14px;
+      padding-bottom:14px;
+    }
+    .exp-ftag{font-family:var(--font-mono);font-size:.48rem;letter-spacing:4px;color:var(--muted);text-transform:uppercase;}
+    .exp-title{font-family:var(--font-display);font-size:clamp(2.5rem,5vw,4rem);letter-spacing:4px;color:var(--text);line-height:1;}
+
+    /* two column headers */
+    .exp-col-headers{
+      display:grid;grid-template-columns:1fr 1fr;
+      border-top:1px solid rgba(124,58,237,.12);
+    }
+    .exp-col-hdr{
+      font-family:var(--font-mono);font-size:.5rem;letter-spacing:3px;text-transform:uppercase;
+      display:flex;align-items:center;gap:8px;
+      padding:10px 0;
+    }
+    .exp-col-hdr-work{
+      color:var(--gold);
+      border-right:1px solid rgba(124,58,237,.15);
+      padding-right:24px;
+    }
+    .exp-col-hdr-work .exp-hdr-dot{
+      width:7px;height:7px;border-radius:50%;
+      background:var(--gold);box-shadow:0 0 8px rgba(245,158,11,.6);
+      flex-shrink:0;
+    }
+    .exp-col-hdr-vol{
+      color:var(--cyan);
+      padding-left:24px;
+    }
+    .exp-col-hdr-vol .exp-hdr-dot{
+      width:7px;height:7px;border-radius:50%;
+      background:var(--cyan);box-shadow:0 0 8px rgba(6,182,212,.6);
+      flex-shrink:0;
+    }
+
+    /* ── BODY: two independent columns ── */
+    .exp-body{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      flex:1;
+    }
+
+    /* each column independently scrollable via the parent floor scroll */
+    .exp-col-work,.exp-col-vol{
+      padding:36px 0 80px;
+      display:flex;flex-direction:column;
+      gap:0;
+      position:relative;
+    }
+    .exp-col-work{
+      padding-left:60px;padding-right:36px;
+      border-right:1px solid rgba(124,58,237,.1);
+    }
+    .exp-col-vol{
+      padding-left:36px;padding-right:92px;
+    }
+
+    /* column inner timeline line */
+    .exp-col-work::before,
+    .exp-col-vol::before{
+      content:'';
+      position:absolute;
+      left:84px; /* work: aligns with card edge */
+      top:36px;bottom:80px;
+      width:1px;
+      background:linear-gradient(180deg,transparent,rgba(124,58,237,.25) 10%,rgba(124,58,237,.25) 90%,transparent);
+    }
+    .exp-col-vol::before{left:60px;}
+
+    /* ── ENTRY CARD ── */
+    .exp-entry{
+      position:relative;
+      padding:0 0 36px 40px;
+      /* slide+fade reveal */
+      opacity:0;
+      transition:
+        opacity   .55s ease,
+        transform .55s cubic-bezier(.22,1,.36,1),
+        filter    .55s ease;
+      filter:blur(4px);
+    }
+    .exp-col-work .exp-entry{
+      transform:translateX(-28px);
+    }
+    .exp-col-vol .exp-entry{
+      transform:translateX(28px);
+    }
+    .exp-entry.exp-in{
+      opacity:1;
+      transform:translateX(0);
+      filter:blur(0);
+    }
+    /* stagger via delay set by JS */
+
+    /* timeline dot on the line */
+    .exp-entry-dot{
+      position:absolute;
+      left:-5px;top:18px;
+      width:11px;height:11px;border-radius:50%;
+      border:2px solid rgba(124,58,237,.4);
+      background:var(--bg);
+      z-index:2;
+      transition:background .4s,border-color .4s,box-shadow .4s;
+    }
+    .exp-entry.exp-in .exp-entry-dot{
+      background:var(--accent);
+      border-color:var(--accent);
+      box-shadow:0 0 0 3px rgba(124,58,237,.2),0 0 12px rgba(124,58,237,.5);
+    }
+    /* work entries get gold dot */
+    .exp-col-work .exp-entry.exp-in .exp-entry-dot{
+      background:var(--gold);border-color:var(--gold);
+      box-shadow:0 0 0 3px rgba(245,158,11,.15),0 0 12px rgba(245,158,11,.5);
+    }
+
+    /* card */
+    .exp-card{
+      background:linear-gradient(145deg,#131028,#0e0c20);
+      border:1px solid rgba(124,58,237,.15);
+      border-radius:10px;
+      overflow:hidden;
+      position:relative;
+      transition:border-color .3s,box-shadow .3s,transform .25s;
+    }
+    .exp-card::before{
+      content:'';position:absolute;
+      top:0;left:0;right:0;height:2px;
+      background:linear-gradient(90deg,var(--accent),var(--gold));
+      transform:scaleX(0);transform-origin:left;
+      transition:transform .4s cubic-bezier(.22,1,.36,1);
+    }
+    .exp-entry:hover .exp-card{
+      border-color:rgba(124,58,237,.38);
+      box-shadow:0 8px 36px rgba(124,58,237,.1),0 2px 8px rgba(0,0,0,.4);
+      transform:translateY(-2px);
+    }
+    .exp-entry:hover .exp-card::before{transform:scaleX(1);}
+
+    /* card body */
+    .exp-card-body{padding:18px 20px 16px;}
+
+    /* role + badge row */
+    .exp-role-row{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:8px;}
+    .exp-role{
+      font-family:var(--font-display);
+      font-size:1.1rem;letter-spacing:2px;
+      /* BRIGHT text — high contrast against dark card */
+      color:#f0ecff;
+      line-height:1.15;flex:1;
+    }
+    .exp-badge{
+      font-family:var(--font-mono);font-size:.38rem;letter-spacing:2px;text-transform:uppercase;
+      padding:3px 10px;border-radius:20px;white-space:nowrap;flex-shrink:0;margin-top:3px;
+    }
+    .exp-badge-startup{background:rgba(245,158,11,.15);border:1px solid rgba(245,158,11,.4);color:#fcd47a;}
+    .exp-badge-vol    {background:rgba(6,182,212,.12);border:1px solid rgba(6,182,212,.35);color:#67e3f9;}
+    .exp-badge-lead   {background:rgba(124,58,237,.15);border:1px solid rgba(124,58,237,.4);color:#c4b5fd;}
+    .exp-badge-mentor {background:rgba(168,85,247,.12);border:1px solid rgba(168,85,247,.35);color:#d8b4fe;}
+
+    /* company + duration */
+    .exp-meta-row{display:flex;align-items:center;gap:8px;margin-bottom:12px;}
+    .exp-meta-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+    .exp-company{
+      font-family:var(--font-mono);font-size:.52rem;letter-spacing:1.5px;
+      /* brighter company text */
+      color:rgba(232,228,240,.65);
+      flex:1;
+    }
+    .exp-duration{
+      font-family:var(--font-mono);font-size:.44rem;letter-spacing:1.5px;
+      /* clear white-ish duration */
+      color:rgba(245,158,11,.7);
+      flex-shrink:0;
+    }
+
+    /* bullet points */
+    .exp-bullets{list-style:none;display:flex;flex-direction:column;gap:8px;margin-bottom:12px;}
+    .exp-bullets li{
+      font-family:var(--font-body);font-size:.84rem;
+      /* MUCH brighter — was var(--muted) which blends into background */
+      color:rgba(232,228,240,.78);
+      line-height:1.6;
+      display:flex;align-items:flex-start;gap:10px;
+    }
+    .exp-bullets li::before{
+      content:'';width:5px;height:5px;border-radius:50%;
+      background:var(--accent);flex-shrink:0;margin-top:7px;
+    }
+
+    /* skill chips */
+    .exp-skills{display:flex;flex-wrap:wrap;gap:5px;padding-top:4px;}
+    .exp-skill{
+      font-family:var(--font-mono);font-size:.4rem;letter-spacing:1.5px;text-transform:uppercase;
+      padding:3px 9px;border-radius:2px;
+      background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.25);
+      color:rgba(253,212,122,.8);
+    }
+
+    /* location tag */
+    .exp-location-tag{
+      font-family:var(--font-mono);font-size:.42rem;letter-spacing:2px;
+      color:rgba(124,58,237,.5);
+      padding:2px 8px;border:1px solid rgba(124,58,237,.18);
+      border-radius:2px;
+    }
+
   </style>
 </head>
 <body>
@@ -664,8 +896,228 @@
     <div class="proj-modal" id="projModal"><div class="proj-modal-inner"><div class="proj-modal-header"><div class="proj-modal-meta" id="modalMeta"></div><button class="proj-modal-close" onclick="closeModal()">✕</button></div><div class="proj-modal-body" id="modalBody"></div></div></div>
   </div>
 
-  <!-- FLOOR 03 -->
-  <div id="floor-experience" class="floor-page"><div class="floor-content"><div class="floor-tag-lbl">// Floor 03 — Experience</div><div class="floor-ph"><div class="floor-badge">Floor 03</div><h2><span>Experience</span></h2><p>Work · Volunteering timeline<br>Stage 09 builds this floor</p></div></div></div>
+  <!-- FLOOR 03 — EXPERIENCE — CLEAN TWO-COLUMN TIMELINE -->
+  <div id="floor-experience" class="floor-page">
+    <div class="exp-floor">
+
+      <!-- Sticky Header -->
+      <div class="exp-header">
+        <div class="exp-header-top">
+          <span class="exp-ftag">// Floor 03</span>
+          <h1 class="exp-title">Experience</h1>
+        </div>
+        <div class="exp-col-headers">
+          <div class="exp-col-hdr exp-col-hdr-work">
+            <div class="exp-hdr-dot"></div>
+            Work Experience
+          </div>
+          <div class="exp-col-hdr exp-col-hdr-vol">
+            <div class="exp-hdr-dot"></div>
+            Volunteering &amp; Leadership
+          </div>
+        </div>
+      </div>
+
+      <!-- Two column body -->
+      <div class="exp-body">
+
+        <!-- ═══ LEFT: WORK ═══ -->
+        <div class="exp-col-work">
+
+          <div class="exp-entry" data-side="left">
+            <div class="exp-entry-dot"></div>
+            <div class="exp-card">
+              <div class="exp-card-body">
+                <div class="exp-role-row">
+                  <div class="exp-role">Co-Founder</div>
+                  <span class="exp-badge exp-badge-startup">Startup · Leadership</span>
+                </div>
+                <div class="exp-meta-row">
+                  <div class="exp-meta-dot" style="background:var(--gold)"></div>
+                  <span class="exp-company">RainC</span>
+                  <span class="exp-location-tag">Remote</span>
+                  <span class="exp-duration">Oct 2024 – Jul 2025</span>
+                </div>
+                <ul class="exp-bullets">
+                  <li>Led AI-focused learning initiatives to mentor students in emerging technologies and innovation</li>
+                  <li>Designed structured mentorship programs for early-stage skill development</li>
+                  <li>Collaborated on international innovation exposure programs (India–Japan initiatives)</li>
+                  <li>Enabled access to curated learning resources from leading technology platforms</li>
+                </ul>
+                <div class="exp-skills">
+                  <span class="exp-skill">AI Concepts</span>
+                  <span class="exp-skill">Leadership</span>
+                  <span class="exp-skill">Mentorship</span>
+                  <span class="exp-skill">Entrepreneurship</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- /exp-col-work -->
+
+        <!-- ═══ RIGHT: VOLUNTEERING ═══ -->
+        <div class="exp-col-vol">
+
+          <!-- Entry 1 -->
+          <div class="exp-entry" data-side="right">
+            <div class="exp-entry-dot"></div>
+            <div class="exp-card">
+              <div class="exp-card-body">
+                <div class="exp-role-row">
+                  <div class="exp-role">Cyber Crime Intervention Officer</div>
+                  <span class="exp-badge exp-badge-vol">Volunteering</span>
+                </div>
+                <div class="exp-meta-row">
+                  <div class="exp-meta-dot" style="background:var(--cyan)"></div>
+                  <span class="exp-company">National Security Database</span>
+                  <span class="exp-duration">Jan 2025 – Present</span>
+                </div>
+                <ul class="exp-bullets">
+                  <li>Contributed to cybersecurity awareness and intervention initiatives</li>
+                  <li>Promoted cyber safety practices and digital responsibility</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <!-- Entry 2 -->
+          <div class="exp-entry" data-side="right">
+            <div class="exp-entry-dot"></div>
+            <div class="exp-card">
+              <div class="exp-card-body">
+                <div class="exp-role-row">
+                  <div class="exp-role">Member — Dean Fellow Leadership Cell</div>
+                  <span class="exp-badge exp-badge-lead">Leadership</span>
+                </div>
+                <div class="exp-meta-row">
+                  <div class="exp-meta-dot" style="background:var(--gold)"></div>
+                  <span class="exp-company">Academic Integration Team, Woxsen University</span>
+                  <span class="exp-duration">Jul 2025 – Present</span>
+                </div>
+                <ul class="exp-bullets">
+                  <li>Supported academic coordination and student engagement initiatives</li>
+                  <li>Collaborated with leadership teams to enhance student experience</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <!-- Entry 3 -->
+          <div class="exp-entry" data-side="right">
+            <div class="exp-entry-dot"></div>
+            <div class="exp-card">
+              <div class="exp-card-body">
+                <div class="exp-role-row">
+                  <div class="exp-role">Senior Executive</div>
+                  <span class="exp-badge exp-badge-lead">Leadership</span>
+                </div>
+                <div class="exp-meta-row">
+                  <div class="exp-meta-dot" style="background:var(--accent)"></div>
+                  <span class="exp-company">Woxsen Japan Centre</span>
+                  <span class="exp-duration">Apr 2025 – Present</span>
+                </div>
+                <ul class="exp-bullets">
+                  <li>Facilitated international collaboration and cultural exchange programs</li>
+                  <li>Contributed to Indo-Japan academic and innovation initiatives</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <!-- Entry 4 -->
+          <div class="exp-entry" data-side="right">
+            <div class="exp-entry-dot"></div>
+            <div class="exp-card">
+              <div class="exp-card-body">
+                <div class="exp-role-row">
+                  <div class="exp-role">AI Department Executive (HoD)</div>
+                  <span class="exp-badge exp-badge-lead">Leadership</span>
+                </div>
+                <div class="exp-meta-row">
+                  <div class="exp-meta-dot" style="background:var(--gold)"></div>
+                  <span class="exp-company">Arthaverse Club</span>
+                  <span class="exp-duration">Apr 2025 – Mar 2026</span>
+                </div>
+                <ul class="exp-bullets">
+                  <li>Led AI domain activities, workshops, and technical initiatives</li>
+                  <li>Coordinated execution of AI-based projects and events</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <!-- Entry 5 -->
+          <div class="exp-entry" data-side="right">
+            <div class="exp-entry-dot"></div>
+            <div class="exp-card">
+              <div class="exp-card-body">
+                <div class="exp-role-row">
+                  <div class="exp-role">L&amp;D Ambassador</div>
+                  <span class="exp-badge exp-badge-mentor">Leadership · Mentorship</span>
+                </div>
+                <div class="exp-meta-row">
+                  <div class="exp-meta-dot" style="background:var(--cyan)"></div>
+                  <span class="exp-company">Centre of Talent Development</span>
+                  <span class="exp-duration">Nov 2024 – Present</span>
+                </div>
+                <ul class="exp-bullets">
+                  <li>Promoted learning and development initiatives across student communities</li>
+                  <li>Supported peers in skill-building and career development</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <!-- Entry 6 -->
+          <div class="exp-entry" data-side="right">
+            <div class="exp-entry-dot"></div>
+            <div class="exp-card">
+              <div class="exp-card-body">
+                <div class="exp-role-row">
+                  <div class="exp-role">Student Ambassador</div>
+                  <span class="exp-badge exp-badge-lead">Leadership</span>
+                </div>
+                <div class="exp-meta-row">
+                  <div class="exp-meta-dot" style="background:var(--accent)"></div>
+                  <span class="exp-company">AI Research Centre, Woxsen University</span>
+                  <span class="exp-duration">Jul – Oct 2025</span>
+                </div>
+                <ul class="exp-bullets">
+                  <li>Represented the AI Research Centre in student outreach initiatives</li>
+                  <li>Assisted in organizing and promoting AI-focused events</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <!-- Entry 7 -->
+          <div class="exp-entry" data-side="right">
+            <div class="exp-entry-dot"></div>
+            <div class="exp-card">
+              <div class="exp-card-body">
+                <div class="exp-role-row">
+                  <div class="exp-role">Executive</div>
+                  <span class="exp-badge exp-badge-lead">Leadership</span>
+                </div>
+                <div class="exp-meta-row">
+                  <div class="exp-meta-dot" style="background:var(--gold)"></div>
+                  <span class="exp-company">Woxsen Tech Club</span>
+                  <span class="exp-duration">Aug 2024 – Mar 2025</span>
+                </div>
+                <ul class="exp-bullets">
+                  <li>Supported execution of technical events and workshops</li>
+                  <li>Collaborated with team members to improve student engagement</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- /exp-col-vol -->
+
+      </div><!-- /exp-body -->
+    </div><!-- /exp-floor -->
+  </div><!-- #floor-experience -->
   <!-- FLOOR 04 -->
   <div id="floor-achievements" class="floor-page"><div class="floor-content"><div class="floor-tag-lbl">// Floor 04 — Achievements</div><div class="floor-ph"><div class="floor-badge">Floor 04</div><h2><span>Achievements</span></h2><p>Certifications · Awards<br>Stage 10 builds this floor</p></div></div></div>
   <!-- FLOOR 05 -->
@@ -755,6 +1207,7 @@ function resolveToFloor(fi){
   updateDeskEscalator(fi);
   if(fi===1)setTimeout(initAboutSection,100);
   if(fi===2)setTimeout(initProjectsFloor,100);
+  if(fi===3)setTimeout(initExperienceFloor,100);
   transitioning=false;window.scrollTo({top:0,behavior:'instant'});
 }
 function updateFloorPanel(fi){document.querySelectorAll('.fdp-floor').forEach(f=>f.classList.toggle('fdp-current',parseInt(f.dataset.fi)===fi));document.querySelectorAll('.nav-links a').forEach((a,i)=>a.classList.toggle('active-nav',i+1===fi));}
@@ -849,6 +1302,41 @@ function openModal(id){
 }
 function closeModal(){document.getElementById('projModal').classList.remove('open');document.body.style.overflow='';}
 document.addEventListener('click',e=>{const m=document.getElementById('projModal');if(m&&e.target===m)closeModal();});
+
+/* ── EXPERIENCE FLOOR ── */
+function initExperienceFloor(){
+  const floor = document.getElementById('floor-experience');
+  if(!floor) return;
+  floor.scrollTop = 0;
+
+  /* Reset all entries */
+  floor.querySelectorAll('.exp-entry').forEach(e => e.classList.remove('exp-in'));
+
+  /* Staggered reveal using IntersectionObserver on the floor scroll container */
+  const entries = Array.from(floor.querySelectorAll('.exp-entry'));
+
+  /* Give each entry a CSS transition delay based on column+index for stagger */
+  const leftEntries  = floor.querySelectorAll('.exp-col-work  .exp-entry');
+  const rightEntries = floor.querySelectorAll('.exp-col-vol   .exp-entry');
+
+  leftEntries.forEach((el, i) => {
+    el.style.transitionDelay = `${i * 0.12}s`;
+  });
+  rightEntries.forEach((el, i) => {
+    el.style.transitionDelay = `${i * 0.10}s`;
+  });
+
+  const obs = new IntersectionObserver((recs) => {
+    recs.forEach(rec => {
+      if(rec.isIntersecting) {
+        rec.target.classList.add('exp-in');
+        obs.unobserve(rec.target);
+      }
+    });
+  }, { root: floor, threshold: 0.08 });
+
+  entries.forEach(e => obs.observe(e));
+}
 
 function init(){
   generateStars(180);generateCityBg();generateRoadDashes(5);initWingSplit();
