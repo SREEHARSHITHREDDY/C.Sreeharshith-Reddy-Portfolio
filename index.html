@@ -4,43 +4,6 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
   <title>C. Sree Harshith Reddy — Portfolio</title>
-  <!--
-  ================================================================
-    STAGE 06 v2 — Escalator Walk Transition + Floor Panel
-    git commit: "feat: reception desk with elevator floor selector"
-  ================================================================
-    COMPLETE REDESIGN of interior navigation:
-
-    RECEPTION LAYOUT FIX:
-      • Receptionist + speech bubble moved to TOP-LEFT area
-      • Desk moved to BOTTOM-CENTRE with no overlap
-      • Speech bubble positioned above receptionist, clear of desk
-
-    FLOOR SELECTION FLOW:
-      1. User clicks a floor button on the desk
-      2. Desk fades out
-      3. Pixel character walks right across lobby toward escalator
-      4. Escalator cinematic screen slides in from right (full viewport)
-      5. Character rides escalator upward (CSS animation)
-      6. Floor arrives: escalator fades, floor content fades in
-      7. Persistent side panel (right edge) shows building cross-section
-         with all floors listed, current floor highlighted in gold
-
-    FLOOR SIDE PANEL (visible on every floor after lobby):
-      • Fixed right strip — building silhouette
-      • Each floor labeled: G Lobby / 01 About / 02 Projects etc.
-      • Current floor highlighted gold with pulsing dot
-      • Click any floor row → triggers escalator transition to that floor
-
-    ESCALATOR TRANSITION SCREEN:
-      • Full-screen dark overlay with escalator visual
-      • Building cross-section on left showing floors
-      • Moving steps CSS animation
-      • Character sprite riding up
-      • Current floor destination shown at top
-      • Takes ~2s then resolves to floor content
-  ================================================================
-  -->
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
   <style>
@@ -56,7 +19,7 @@
     html{scroll-behavior:smooth;}
     body{background:var(--bg);color:var(--text);font-family:var(--font-body);overflow-x:hidden;}
 
-    /* ── SCROLL SCENE (stages 01-05, unchanged) ── */
+    /* ── SCROLL SCENE ── */
     #scene{height:600vh;position:relative;}
     .sticky{position:sticky;top:0;height:100vh;overflow:hidden;display:flex;align-items:flex-end;justify-content:center;}
     .sky{position:absolute;inset:0;z-index:0;background:radial-gradient(ellipse 70% 55% at 50% 0%,rgba(44,16,82,.85) 0%,transparent 70%),linear-gradient(180deg,#0d0720,#09061a 40%,#07060e 75%,#07060e);}
@@ -85,7 +48,7 @@
     .sh-chevron{width:10px;height:10px;border-right:1.5px solid var(--accent);border-bottom:1.5px solid var(--accent);transform:rotate(45deg) translateY(-4px);animation:bounce-chevron 1.6s ease-in-out infinite;}
     @keyframes bounce-chevron{0%,100%{transform:rotate(45deg) translateY(-4px);opacity:.4;}50%{transform:rotate(45deg) translateY(2px);opacity:1;}}
 
-    /* 3D BUILDING */
+    /* ── 3D BUILDING ── */
     .scene-3d{position:absolute;bottom:108px;left:50%;transform:translateX(-50%);width:380px;height:540px;perspective:900px;perspective-origin:50% 120%;z-index:8;}
     .building{position:absolute;bottom:0;left:50%;transform:translateX(-50%) scale(0.28);transform-origin:bottom center;transform-style:preserve-3d;width:340px;}
     .blk{position:relative;width:100%;opacity:0;transform:translateX(var(--tx,0px)) translateY(var(--ty,0px)) translateZ(var(--tz,0px)) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));transition:opacity .95s cubic-bezier(.22,1,.36,1),transform .95s cubic-bezier(.22,1,.36,1);}
@@ -122,7 +85,7 @@
     .entrance-glow{position:absolute;bottom:108px;left:50%;transform:translateX(-50%);z-index:13;width:110px;height:18px;background:radial-gradient(ellipse at 50% 0%,rgba(124,58,237,.55),transparent 70%);opacity:0;transition:opacity .5s;pointer-events:none;}
     .b-sill{height:8px;width:148px;margin:0 auto;background:linear-gradient(90deg,rgba(124,58,237,0),rgba(124,58,237,.45),rgba(245,158,11,.45),rgba(124,58,237,.45),rgba(124,58,237,0));box-shadow:0 0 14px 3px rgba(124,58,237,.3);}
 
-    /* CHARACTER (outdoor) */
+    /* ── CHARACTER ── */
     #character{position:absolute;bottom:108px;left:0;z-index:15;display:flex;flex-direction:column;align-items:center;transform-origin:bottom center;pointer-events:none;transition:opacity .5s;}
     .char-head{width:18px;height:19px;background:#e8c49a;border-radius:50% 50% 42% 42%;position:relative;z-index:2;flex-shrink:0;}
     .char-head::before{content:'';position:absolute;top:-8px;left:-3px;width:24px;height:13px;background:#1a0f06;border-radius:50% 50% 0 0;}
@@ -143,7 +106,7 @@
     #footCanvas{position:absolute;bottom:108px;left:0;right:0;height:40px;z-index:14;pointer-events:none;}
     .char-dist-tag{position:absolute;top:-22px;left:50%;transform:translateX(-50%);font-family:var(--font-mono);font-size:.44rem;letter-spacing:2px;color:rgba(200,180,255,.5);white-space:nowrap;pointer-events:none;}
 
-    /* OVERLAYS */
+    /* ── OVERLAYS ── */
     #flash-overlay{position:fixed;inset:0;z-index:300;background:#fff;opacity:0;pointer-events:none;transition:opacity .18s;}
     #flash-overlay.flash{opacity:.92;}
     #transition-overlay{position:fixed;inset:0;z-index:299;background:#07060e;opacity:0;pointer-events:none;transition:opacity .45s;}
@@ -152,7 +115,7 @@
     .transition-label{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:var(--font-mono);font-size:.65rem;letter-spacing:5px;color:rgba(124,58,237,.7);text-transform:uppercase;opacity:0;transition:opacity .3s;}
     #transition-overlay.dark .transition-label{opacity:1;}
 
-    /* NAV */
+    /* ── NAV ── */
     #interior-nav{position:fixed;top:0;left:0;right:0;z-index:200;height:60px;display:none;align-items:center;justify-content:space-between;padding:0 40px;background:rgba(7,6,14,.9);backdrop-filter:blur(18px);border-bottom:1px solid var(--border);opacity:0;transition:opacity .5s .4s;}
     #interior-nav.show{display:flex;opacity:1;}
     .nav-logo{font-family:var(--font-display);font-size:.85rem;letter-spacing:3px;color:var(--gold);white-space:nowrap;}
@@ -162,20 +125,63 @@
     .nav-cta{font-family:var(--font-mono);font-size:.6rem;letter-spacing:2px;color:var(--accent);text-transform:uppercase;text-decoration:none;border:1px solid var(--accent);padding:6px 16px;transition:background .2s,color .2s;cursor:pointer;}
     .nav-cta:hover{background:var(--accent);color:#fff;}
 
-    /* ── INTERIOR CONTAINER ── */
+    /* ── FLOOR DIR PANEL ── */
+    .floor-dir-panel{position:fixed;right:0;top:60px;bottom:0;width:72px;background:rgba(7,6,14,.85);backdrop-filter:blur(12px);border-left:1px solid var(--border);z-index:150;display:none;flex-direction:column;align-items:center;padding:16px 0;gap:0;}
+    .floor-dir-panel.show{display:flex;}
+    .fdp-lbl{font-family:var(--font-mono);font-size:.36rem;letter-spacing:3px;color:rgba(124,58,237,.3);text-transform:uppercase;writing-mode:vertical-rl;rotate:180deg;margin-bottom:12px;}
+    .fdp-floor{width:100%;display:flex;flex-direction:column;align-items:center;padding:8px 0;cursor:pointer;transition:background .2s;border-left:2px solid transparent;}
+    .fdp-floor:hover{background:rgba(124,58,237,.06);}
+    .fdp-floor.fdp-current{border-left-color:var(--gold);background:rgba(245,158,11,.04);}
+    .fdp-num{font-family:var(--font-display);font-size:1rem;color:rgba(124,58,237,.3);line-height:1;transition:color .3s;}
+    .fdp-floor.fdp-current .fdp-num{color:var(--gold);}
+    .fdp-name{font-family:var(--font-mono);font-size:.34rem;letter-spacing:1px;color:rgba(124,58,237,.25);text-transform:uppercase;margin-top:2px;transition:color .3s;}
+    .fdp-floor.fdp-current .fdp-name{color:var(--muted);}
+    .fdp-dot{width:5px;height:5px;border-radius:50%;background:transparent;margin-top:3px;transition:background .3s,box-shadow .3s;}
+    .fdp-floor.fdp-current .fdp-dot{background:var(--gold);box-shadow:0 0 6px rgba(245,158,11,.7);}
+    .fdp-divider{width:30px;height:1px;background:rgba(124,58,237,.1);margin:2px 0;}
+
+    /* ── ESCALATOR TRANSITION ── */
+    #esc-transition{position:fixed;inset:0;z-index:250;background:#07060e;display:flex;opacity:0;pointer-events:none;transition:opacity .4s;}
+    #esc-transition.show{opacity:1;pointer-events:all;}
+    .esc-dest-header{position:absolute;top:0;left:0;right:0;padding:28px 40px 20px;display:flex;align-items:center;gap:16px;border-bottom:1px solid var(--border);z-index:2;}
+    .esc-dest-floor{font-family:var(--font-display);font-size:3rem;color:var(--gold);letter-spacing:4px;line-height:1;}
+    .esc-dest-info{display:flex;flex-direction:column;gap:3px;}
+    .esc-dest-label{font-family:var(--font-mono);font-size:.55rem;letter-spacing:4px;color:var(--muted);text-transform:uppercase;}
+    .esc-dest-name{font-family:var(--font-display);font-size:1.8rem;letter-spacing:4px;color:var(--text);}
+    .esc-building-panel{width:200px;flex-shrink:0;border-right:1px solid var(--border);padding:100px 0 20px;display:flex;flex-direction:column;justify-content:flex-end;gap:0;background:rgba(12,10,30,.6);}
+    .esc-floor-row{display:flex;align-items:center;gap:12px;padding:10px 20px;border-bottom:1px solid rgba(124,58,237,.08);cursor:pointer;transition:background .3s;}
+    .esc-floor-row:hover{background:rgba(124,58,237,.06);}
+    .esc-floor-row.current{background:rgba(245,158,11,.06);}
+    .esc-floor-row.destination{background:rgba(245,158,11,.1);}
+    .efr-num{font-family:var(--font-display);font-size:1.1rem;color:rgba(124,58,237,.3);min-width:28px;line-height:1;transition:color .3s;}
+    .esc-floor-row.current .efr-num,.esc-floor-row.destination .efr-num{color:var(--gold);}
+    .efr-info{display:flex;flex-direction:column;gap:1px;}
+    .efr-name{font-family:var(--font-mono);font-size:.5rem;letter-spacing:2px;color:var(--muted);text-transform:uppercase;}
+    .esc-floor-row.current .efr-name,.esc-floor-row.destination .efr-name{color:var(--text);}
+    .efr-indicator{width:6px;height:6px;border-radius:50%;background:transparent;margin-left:auto;transition:background .3s;}
+    .esc-floor-row.current .efr-indicator,.esc-floor-row.destination .efr-indicator{background:var(--gold);box-shadow:0 0 8px rgba(245,158,11,.7);}
+    .esc-main{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;overflow:hidden;padding-top:80px;}
+    .esc-track{width:120px;height:320px;position:relative;background:rgba(124,58,237,.04);border:1px solid rgba(124,58,237,.2);border-radius:4px;overflow:hidden;transform:perspective(300px) rotateX(4deg);}
+    .esc-track-steps{position:absolute;inset:0;background:repeating-linear-gradient(-45deg,transparent 0 10px,rgba(124,58,237,.15) 10px 11px);animation:esc-ride .9s linear infinite;}
+    @keyframes esc-ride{0%{background-position:0 0;}100%{background-position:0 -30px;}}
+    .esc-track-rail-l{position:absolute;left:10px;top:0;bottom:0;width:4px;background:rgba(124,58,237,.3);border-radius:2px;}
+    .esc-track-rail-r{position:absolute;right:10px;top:0;bottom:0;width:4px;background:rgba(124,58,237,.3);border-radius:2px;}
+    .esc-main-rider{position:absolute;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;transition:bottom 2.2s cubic-bezier(.22,1,.36,1);z-index:2;filter:drop-shadow(0 0 8px rgba(124,58,237,.6));}
+    .emr-head{width:16px;height:16px;background:#e8c49a;border-radius:50% 50% 42% 42%;position:relative;}
+    .emr-head::before{content:'';position:absolute;top:-7px;left:-3px;width:22px;height:11px;background:#1a0f06;border-radius:50% 50% 0 0;}
+    .emr-body{width:18px;height:22px;background:linear-gradient(180deg,#1e2a4a,#162038);border-radius:2px 2px 0 0;margin-top:-1px;}
+    .emr-legs{display:flex;gap:2px;}
+    .emr-leg{width:7px;height:12px;background:#111830;border-radius:0 0 2px 2px;animation:swing-right .5s ease-in-out infinite;}
+    .emr-leg:first-child{animation-name:swing-left;}
+    .esc-counter{font-family:var(--font-display);font-size:4rem;color:rgba(124,58,237,.12);letter-spacing:6px;position:absolute;bottom:30px;left:50%;transform:translateX(-50%);transition:opacity .3s;}
+
+    /* ── INTERIOR ── */
     #interior{display:none;opacity:0;transition:opacity .6s;background:var(--bg);position:relative;min-height:100vh;}
     #interior.mounted{display:block;}
     #interior.visible{opacity:1;}
 
-    /* ══════════════════════════════════════════
-       RECEPTION SCENE (fixed layout - no overlap)
-    ══════════════════════════════════════════ */
-    #reception-scene{
-      position:relative;height:100vh;overflow:hidden;
-      background:#08060f;
-      display:flex;flex-direction:column;
-    }
-    /* Back wall */
+    /* ── RECEPTION ── */
+    #reception-scene{position:relative;height:100vh;overflow:hidden;background:#08060f;display:flex;flex-direction:column;}
     .rec-back-wall{position:absolute;top:0;left:0;right:0;height:56%;background:linear-gradient(180deg,#0c0a22,#090718);border-bottom:1px solid rgba(124,58,237,.14);}
     .rec-wall-name{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:var(--font-display);font-size:clamp(2.5rem,7vw,7rem);letter-spacing:14px;color:rgba(124,58,237,.07);white-space:nowrap;user-select:none;pointer-events:none;}
     .rec-ceiling{position:absolute;top:0;left:0;right:0;height:5px;background:repeating-linear-gradient(90deg,transparent 0 50px,rgba(200,190,255,.15) 50px 180px);z-index:2;}
@@ -192,40 +198,13 @@
     .plant-leaf:nth-child(2){border-radius:50% 50% 50% 0;transform:translateY(-5px);}
     .plant-leaf:nth-child(3){transform:translateY(-3px);}
     .plant-pot{width:26px;height:18px;background:linear-gradient(180deg,#3a2010,#221508);border-radius:0 0 5px 5px;border:1px solid rgba(245,158,11,.18);margin-top:-2px;}
-
-    /* ★ RECEPTIONIST — top-left, clear of desk */
-    .receptionist-area{
-      position:absolute;
-      top:12%;
-      left:8%;
-      z-index:6;
-      display:flex;
-      flex-direction:column;
-      align-items:flex-start;
-      gap:10px;
-      opacity:0;
-      transform:translateY(12px);
-      transition:opacity .8s,transform .8s cubic-bezier(.22,1,.36,1);
-    }
+    .receptionist-area{position:absolute;top:12%;left:8%;z-index:6;display:flex;flex-direction:column;align-items:flex-start;gap:10px;opacity:0;transform:translateY(12px);transition:opacity .8s,transform .8s cubic-bezier(.22,1,.36,1);}
     .receptionist-area.show{opacity:1;transform:translateY(0);}
-
-    /* speech bubble — sits above receptionist figure */
-    .speech-bubble{
-      background:#13102a;
-      border:1px solid rgba(124,58,237,.45);
-      border-radius:8px 8px 8px 0;
-      padding:10px 15px;
-      font-family:var(--font-mono);font-size:.6rem;letter-spacing:1px;line-height:1.75;
-      color:var(--text);max-width:290px;white-space:pre-wrap;
-      box-shadow:0 4px 20px rgba(0,0,0,.5);
-      position:relative;
-    }
+    .speech-bubble{background:#13102a;border:1px solid rgba(124,58,237,.45);border-radius:8px 8px 8px 0;padding:10px 15px;font-family:var(--font-mono);font-size:.6rem;letter-spacing:1px;line-height:1.75;color:var(--text);max-width:290px;white-space:pre-wrap;box-shadow:0 4px 20px rgba(0,0,0,.5);position:relative;}
     .speech-bubble::after{content:'';position:absolute;bottom:-7px;left:16px;width:12px;height:7px;background:rgba(124,58,237,.45);clip-path:polygon(0% 0%,100% 0%,0% 100%);}
     .bubble-speaker{font-size:.48rem;letter-spacing:3px;color:var(--gold);margin-bottom:5px;text-transform:uppercase;}
     .bubble-cursor{display:inline-block;width:5px;height:11px;background:var(--accent);opacity:.8;animation:cursor-blink .8s step-end infinite;vertical-align:middle;margin-left:1px;}
     @keyframes cursor-blink{50%{opacity:0;}}
-
-    /* pixel receptionist figure */
     .rec-figure{display:flex;flex-direction:column;align-items:center;filter:drop-shadow(0 0 10px rgba(124,58,237,.5));}
     .rec-head{width:20px;height:20px;background:#e0b890;border-radius:50% 50% 45% 45%;position:relative;z-index:2;}
     .rec-head::before{content:'';position:absolute;top:-9px;left:-4px;width:28px;height:14px;background:#2a1a0a;border-radius:50% 50% 0 0;}
@@ -233,31 +212,13 @@
     .rec-body{width:22px;height:30px;background:linear-gradient(180deg,#1e1a3e,#16143a);border-radius:3px 3px 0 0;margin-top:-1px;position:relative;}
     .rec-body::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:8px;height:8px;background:rgba(245,158,11,.22);clip-path:polygon(50% 0%,0% 100%,100% 100%);}
     .rec-name-tag{font-family:var(--font-mono);font-size:.38rem;letter-spacing:2px;color:rgba(124,58,237,.45);margin-top:4px;}
-
-    /* ★ DESK — bottom-centre, no overlap with receptionist */
-    .desk-area{
-      position:absolute;
-      bottom:5%;
-      left:50%;
-      transform:translateX(-50%) translateY(20px);
-      z-index:5;
-      display:flex;flex-direction:column;align-items:center;
-      opacity:0;
-      transition:opacity .9s .2s,transform .9s .2s cubic-bezier(.22,1,.36,1);
-      width:min(680px,90vw);
-    }
+    .desk-area{position:absolute;bottom:5%;left:50%;transform:translateX(-50%) translateY(20px);z-index:5;display:flex;flex-direction:column;align-items:center;opacity:0;transition:opacity .9s .2s,transform .9s .2s cubic-bezier(.22,1,.36,1);width:min(680px,90vw);}
     .desk-area.show{opacity:1;transform:translateX(-50%) translateY(0);}
-
     .desk-nameplate{background:linear-gradient(90deg,#12103a,#1e1650,#12103a);border:1px solid rgba(124,58,237,.5);border-bottom:none;padding:4px 24px;font-family:var(--font-mono);font-size:.48rem;letter-spacing:5px;color:var(--accent);display:flex;align-items:center;gap:10px;align-self:center;}
     .nameplate-dot{width:5px;height:5px;border-radius:50%;background:var(--gold);box-shadow:0 0 8px var(--gold);animation:blink-tip 1.4s ease-in-out infinite;}
-    @keyframes blink-tip{0%,100%{opacity:1;}50%{opacity:.15;}}
-
     .desk-top{width:100%;height:14px;background:linear-gradient(180deg,#2a1e68,#1c1450);border:1px solid rgba(124,58,237,.55);border-bottom:none;position:relative;}
     .desk-top::after{content:'';position:absolute;top:0;left:8%;right:8%;height:1px;background:linear-gradient(90deg,transparent,var(--accent),var(--gold),var(--accent),transparent);opacity:.65;}
-
     .desk-body{width:100%;background:linear-gradient(180deg,#0e0b20,#07060e);border:1px solid rgba(124,58,237,.3);border-top:none;border-radius:0 0 5px 5px;display:flex;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.7);}
-
-    /* desk left: monitor */
     .desk-left{width:110px;flex-shrink:0;background:linear-gradient(160deg,#0d0920,#130e2a);border-right:1px solid rgba(124,58,237,.18);padding:12px 10px;display:flex;flex-direction:column;gap:10px;}
     .monitor-wrap{width:64px;}
     .monitor-screen{width:64px;height:44px;background:#030308;border:1px solid rgba(124,58,237,.5);border-radius:3px 3px 0 0;position:relative;overflow:hidden;}
@@ -269,25 +230,12 @@
     .monitor-base{width:28px;height:4px;margin:0 auto;background:#1a1530;border-radius:2px;}
     .desk-phone{width:24px;height:16px;background:#0e0c1e;border:1px solid rgba(124,58,237,.2);border-radius:2px;position:relative;}
     .desk-phone::before{content:'';position:absolute;inset:3px;background:rgba(124,58,237,.1);}
-
-    /* ★ desk centre: floor selector */
     .desk-center{flex:1;padding:10px 12px;display:flex;flex-direction:column;gap:4px;}
     .desk-hdr{font-family:var(--font-mono);font-size:.44rem;letter-spacing:4px;color:var(--muted);text-transform:uppercase;display:flex;align-items:center;gap:8px;margin-bottom:2px;}
     .desk-hdr::after{content:'';flex:1;height:1px;background:rgba(124,58,237,.18);}
-
-    .floor-btn{
-      display:flex;align-items:center;gap:7px;
-      padding:5px 8px 5px 0;
-      background:rgba(124,58,237,.03);
-      border:1px solid rgba(124,58,237,.1);
-      border-left:3px solid transparent;
-      cursor:pointer;text-decoration:none;color:var(--text);
-      position:relative;overflow:hidden;
-      transition:background .2s,border-left-color .2s,transform .15s;
-    }
+    .floor-btn{display:flex;align-items:center;gap:7px;padding:5px 8px 5px 0;background:rgba(124,58,237,.03);border:1px solid rgba(124,58,237,.1);border-left:3px solid transparent;cursor:pointer;text-decoration:none;color:var(--text);position:relative;overflow:hidden;transition:background .2s,border-left-color .2s,transform .15s;}
     .floor-btn:hover{background:rgba(124,58,237,.08);border-left-color:rgba(124,58,237,.4);transform:translateX(2px);}
     .floor-btn.active{background:rgba(245,158,11,.05);border-left-color:var(--gold);}
-
     .fb-bar{position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--gold);transform:scaleY(0);transform-origin:bottom;transition:transform .3s cubic-bezier(.22,1,.36,1);}
     .floor-btn.active .fb-bar{transform:scaleY(1);}
     .fb-num{font-family:var(--font-display);font-size:1.2rem;line-height:1;color:var(--gold);min-width:28px;text-align:center;flex-shrink:0;opacity:.4;transition:opacity .2s;}
@@ -298,8 +246,6 @@
     .fb-dot{width:6px;height:6px;border-radius:50%;background:rgba(124,58,237,.2);flex-shrink:0;transition:background .3s,box-shadow .3s;}
     .floor-btn.active .fb-dot{background:var(--gold);box-shadow:0 0 8px rgba(245,158,11,.7);animation:dot-pulse 1.4s ease-in-out infinite;}
     @keyframes dot-pulse{0%,100%{box-shadow:0 0 5px rgba(245,158,11,.4);}50%{box-shadow:0 0 12px rgba(245,158,11,.85);}}
-
-    /* desk right: escalator shaft */
     .desk-right{width:95px;flex-shrink:0;background:linear-gradient(160deg,#0a0818,#0d0b1e);border-left:1px solid rgba(124,58,237,.15);display:flex;flex-direction:column;align-items:center;padding:8px 5px;gap:4px;position:relative;overflow:hidden;}
     .esc-lbl{font-family:var(--font-mono);font-size:.38rem;letter-spacing:3px;color:rgba(124,58,237,.38);text-transform:uppercase;}
     .esc-shaft{flex:1;width:60px;position:relative;background:rgba(124,58,237,.04);border:1px solid rgba(124,58,237,.14);border-radius:2px;overflow:hidden;min-height:60px;}
@@ -316,23 +262,8 @@
     .esc-rider-legs{display:flex;gap:1px;}
     .esc-rider-leg{width:4px;height:6px;background:#111830;border-radius:0 0 1px 1px;}
     .esc-readout{font-family:var(--font-display);font-size:1.1rem;color:var(--gold);letter-spacing:3px;}
-
     .desk-shadow{width:calc(100% + 40px);height:12px;background:linear-gradient(180deg,#0c0920,#050410);border:1px solid rgba(124,58,237,.18);border-top:none;border-radius:0 0 4px 4px;box-shadow:0 16px 48px rgba(0,0,0,.8);align-self:center;}
-
-    /* ══════════════════════════════════════════
-       LOBBY WALK CHARACTER (interior)
-       Separate pixel character that walks from
-       centre toward escalator entrance (right)
-    ══════════════════════════════════════════ */
-    #lobby-char{
-      position:absolute;
-      bottom:44%;
-      z-index:10;
-      display:flex;flex-direction:column;align-items:center;
-      opacity:0;
-      pointer-events:none;
-      transform-origin:bottom center;
-    }
+    #lobby-char{position:absolute;bottom:44%;z-index:10;display:flex;flex-direction:column;align-items:center;opacity:0;pointer-events:none;transform-origin:bottom center;}
     #lobby-char .lc-head{width:14px;height:14px;background:#e8c49a;border-radius:50% 50% 40% 40%;position:relative;}
     #lobby-char .lc-head::before{content:'';position:absolute;top:-6px;left:-2px;width:18px;height:10px;background:#1a0f06;border-radius:50% 50% 0 0;}
     #lobby-char .lc-body{width:16px;height:20px;background:linear-gradient(180deg,#1e2a4a,#162038);border-radius:2px 2px 0 0;margin-top:-1px;}
@@ -340,164 +271,15 @@
     #lobby-char .lc-leg{width:6px;height:12px;background:#111830;border-radius:0 0 2px 2px;transform-origin:top center;}
     #lobby-char.lc-walking .lc-leg:first-child{animation:swing-left .34s ease-in-out infinite;}
     #lobby-char.lc-walking .lc-leg:last-child{animation:swing-right .34s ease-in-out infinite;}
+    .esc-prompt{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);z-index:6;display:flex;flex-direction:column;align-items:center;gap:8px;opacity:0;transition:opacity .6s;pointer-events:none;}
+    .esc-prompt.show{opacity:1;pointer-events:auto;}
+    .esc-prompt span{font-family:var(--font-mono);font-size:.56rem;letter-spacing:4px;color:var(--muted);text-transform:uppercase;}
+    .esc-prompt-arrow{width:1px;height:28px;background:linear-gradient(180deg,var(--accent),transparent);animation:pulse-line 1.6s ease-in-out infinite;}
 
-    /* ══════════════════════════════════════════
-       ESCALATOR TRANSITION SCREEN
-       Full-viewport overlay that plays during
-       floor change. Shows:
-         • Building cross-section (left)
-         • Escalator ride (centre)
-         • Destination label (top)
-    ══════════════════════════════════════════ */
-    #esc-transition{
-      position:fixed;inset:0;z-index:250;
-      background:#07060e;
-      display:flex;
-      opacity:0;
-      pointer-events:none;
-      transition:opacity .4s;
-    }
-    #esc-transition.show{opacity:1;pointer-events:all;}
-
-    /* destination header */
-    .esc-dest-header{
-      position:absolute;top:0;left:0;right:0;
-      padding:28px 40px 20px;
-      display:flex;align-items:center;gap:16px;
-      border-bottom:1px solid var(--border);
-      z-index:2;
-    }
-    .esc-dest-floor{font-family:var(--font-display);font-size:3rem;color:var(--gold);letter-spacing:4px;line-height:1;}
-    .esc-dest-info{display:flex;flex-direction:column;gap:3px;}
-    .esc-dest-label{font-family:var(--font-mono);font-size:.55rem;letter-spacing:4px;color:var(--muted);text-transform:uppercase;}
-    .esc-dest-name{font-family:var(--font-display);font-size:1.8rem;letter-spacing:4px;color:var(--text);}
-
-    /* building cross-section (left panel) */
-    .esc-building-panel{
-      width:200px;flex-shrink:0;
-      border-right:1px solid var(--border);
-      padding:100px 0 20px;
-      display:flex;flex-direction:column;justify-content:flex-end;
-      gap:0;
-      background:rgba(12,10,30,.6);
-    }
-    .esc-floor-row{
-      display:flex;align-items:center;gap:12px;
-      padding:10px 20px;
-      border-bottom:1px solid rgba(124,58,237,.08);
-      transition:background .3s;
-      cursor:pointer;
-    }
-    .esc-floor-row:hover{background:rgba(124,58,237,.06);}
-    .esc-floor-row.current{background:rgba(245,158,11,.06);}
-    .esc-floor-row.destination{background:rgba(245,158,11,.1);}
-    .efr-num{font-family:var(--font-display);font-size:1.1rem;color:rgba(124,58,237,.3);min-width:28px;line-height:1;transition:color .3s;}
-    .esc-floor-row.current .efr-num,.esc-floor-row.destination .efr-num{color:var(--gold);}
-    .efr-info{display:flex;flex-direction:column;gap:1px;}
-    .efr-name{font-family:var(--font-mono);font-size:.5rem;letter-spacing:2px;color:var(--muted);text-transform:uppercase;}
-    .esc-floor-row.current .efr-name,.esc-floor-row.destination .efr-name{color:var(--text);}
-    .efr-indicator{width:6px;height:6px;border-radius:50%;background:transparent;margin-left:auto;transition:background .3s,box-shadow .3s;}
-    .esc-floor-row.current .efr-indicator,.esc-floor-row.destination .efr-indicator{background:var(--gold);box-shadow:0 0 8px rgba(245,158,11,.7);}
-
-    /* main escalator visual */
-    .esc-main{
-      flex:1;
-      display:flex;flex-direction:column;align-items:center;justify-content:center;
-      position:relative;overflow:hidden;
-      padding-top:80px;
-    }
-    /* escalator track — diagonal shaft */
-    .esc-track{
-      width:120px;height:320px;
-      position:relative;
-      background:rgba(124,58,237,.04);
-      border:1px solid rgba(124,58,237,.2);
-      border-radius:4px;
-      overflow:hidden;
-      transform:perspective(300px) rotateX(4deg);
-    }
-    .esc-track-steps{
-      position:absolute;inset:0;
-      background:repeating-linear-gradient(-45deg,transparent 0 10px,rgba(124,58,237,.15) 10px 11px);
-      animation:esc-ride 0.9s linear infinite;
-    }
-    @keyframes esc-ride{0%{background-position:0 0;}100%{background-position:0 -30px;}}
-    .esc-track-rail-l{position:absolute;left:10px;top:0;bottom:0;width:4px;background:rgba(124,58,237,.3);border-radius:2px;}
-    .esc-track-rail-r{position:absolute;right:10px;top:0;bottom:0;width:4px;background:rgba(124,58,237,.3);border-radius:2px;}
-
-    /* rider on escalator transition */
-    .esc-main-rider{
-      position:absolute;
-      left:50%;transform:translateX(-50%);
-      display:flex;flex-direction:column;align-items:center;
-      transition:bottom 2.2s cubic-bezier(.22,1,.36,1);
-      z-index:2;
-      filter:drop-shadow(0 0 8px rgba(124,58,237,.6));
-    }
-    .emr-head{width:16px;height:16px;background:#e8c49a;border-radius:50% 50% 42% 42%;position:relative;}
-    .emr-head::before{content:'';position:absolute;top:-7px;left:-3px;width:22px;height:11px;background:#1a0f06;border-radius:50% 50% 0 0;}
-    .emr-body{width:18px;height:22px;background:linear-gradient(180deg,#1e2a4a,#162038);border-radius:2px 2px 0 0;margin-top:-1px;}
-    .emr-legs{display:flex;gap:2px;}
-    .emr-leg{width:7px;height:12px;background:#111830;border-radius:0 0 2px 2px;animation:swing-right .5s ease-in-out infinite;}
-    .emr-leg:first-child{animation-name:swing-left;}
-
-    /* floor counter during ride */
-    .esc-counter{
-      font-family:var(--font-display);font-size:4rem;
-      color:rgba(124,58,237,.12);letter-spacing:6px;
-      position:absolute;bottom:30px;left:50%;transform:translateX(-50%);
-      transition:opacity .3s;
-    }
-
-    /* ══════════════════════════════════════════
-       FLOOR SECTIONS (actual content pages)
-    ══════════════════════════════════════════ */
-    .floor-page{
-      display:none;
-      min-height:100vh;
-      position:relative;
-    }
+    /* ── FLOOR PAGES ── */
+    .floor-page{display:none;min-height:100vh;position:relative;}
     .floor-page.active-floor{display:flex;}
-
-    /* fixed right panel — building directory */
-    .floor-dir-panel{
-      position:fixed;
-      right:0;top:60px;bottom:0;
-      width:72px;
-      background:rgba(7,6,14,.85);
-      backdrop-filter:blur(12px);
-      border-left:1px solid var(--border);
-      z-index:150;
-      display:none;
-      flex-direction:column;
-      align-items:center;
-      padding:16px 0;
-      gap:0;
-    }
-    .floor-dir-panel.show{display:flex;}
-    .fdp-lbl{font-family:var(--font-mono);font-size:.36rem;letter-spacing:3px;color:rgba(124,58,237,.3);text-transform:uppercase;writing-mode:vertical-rl;rotate:180deg;margin-bottom:12px;}
-
-    .fdp-floor{
-      width:100%;display:flex;flex-direction:column;align-items:center;
-      padding:8px 0;cursor:pointer;position:relative;
-      transition:background .2s;border-left:2px solid transparent;
-    }
-    .fdp-floor:hover{background:rgba(124,58,237,.06);}
-    .fdp-floor.fdp-current{border-left-color:var(--gold);background:rgba(245,158,11,.04);}
-    .fdp-num{font-family:var(--font-display);font-size:1rem;color:rgba(124,58,237,.3);line-height:1;transition:color .3s;}
-    .fdp-floor.fdp-current .fdp-num{color:var(--gold);}
-    .fdp-name{font-family:var(--font-mono);font-size:.34rem;letter-spacing:1px;color:rgba(124,58,237,.25);text-transform:uppercase;margin-top:2px;transition:color .3s;}
-    .fdp-floor.fdp-current .fdp-name{color:var(--muted);}
-    .fdp-dot{width:5px;height:5px;border-radius:50%;background:transparent;margin-top:3px;transition:background .3s,box-shadow .3s;}
-    .fdp-floor.fdp-current .fdp-dot{background:var(--gold);box-shadow:0 0 6px rgba(245,158,11,.7);}
-    .fdp-divider{width:30px;height:1px;background:rgba(124,58,237,.1);margin:2px 0;}
-
-    /* floor content wrapper (right-padded for panel) */
-    .floor-content{
-      flex:1;padding:80px 92px 60px 60px;
-      display:flex;flex-direction:column;align-items:center;justify-content:center;
-      min-height:100vh;
-    }
+    .floor-content{flex:1;padding:80px 92px 60px 60px;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;}
     .floor-tag-lbl{font-family:var(--font-mono);font-size:.52rem;letter-spacing:4px;color:var(--muted);text-transform:uppercase;margin-bottom:20px;}
     .floor-ph{display:flex;flex-direction:column;align-items:center;gap:20px;text-align:center;}
     .floor-ph h2{font-family:var(--font-display);font-size:clamp(2.5rem,6vw,5rem);letter-spacing:4px;line-height:1;}
@@ -505,252 +287,173 @@
     .floor-ph p{font-family:var(--font-mono);font-size:.6rem;letter-spacing:3px;color:var(--muted);text-transform:uppercase;line-height:1.8;}
     .floor-badge{display:inline-block;font-family:var(--font-mono);font-size:.5rem;letter-spacing:3px;padding:6px 18px;border:1px solid var(--border);color:var(--accent);text-transform:uppercase;}
 
-    /* ================================================================
-       STAGE 07 — ABOUT SECTION STYLES
-    ================================================================ */
-
-    /* floor-content override for about — full width, scroll within */
-    .about-floor-content{
-      align-items:flex-start;
-      justify-content:flex-start;
-      padding:0;
-      overflow-y:auto;
-      height:100vh;
-      padding-top:60px; /* clear the fixed nav */
-      scroll-behavior:smooth;
-      scrollbar-width:none;
-    }
+    /* ── ABOUT SECTION ── */
+    .about-floor-content{align-items:flex-start;justify-content:flex-start;padding:0;overflow-y:auto;height:100vh;padding-top:60px;scroll-behavior:smooth;scrollbar-width:none;}
     .about-floor-content::-webkit-scrollbar{display:none;}
-
-    .about-tag{
-      position:sticky;
-      top:60px;  /* sit below the 60px nav bar */
-      background:rgba(7,6,14,.92);
-      backdrop-filter:blur(14px);
-      padding:10px 92px 10px 60px;
-      z-index:10;
-      margin-bottom:0;
-      border-bottom:1px solid var(--border);
-      width:100%;
-    }
-
-    /* Each panel = full viewport height, feels like two rooms */
-    .about-panel{
-      min-height:100vh;
-      /* top padding = 60px nav + 44px floor tag bar + 32px breathing room */
-      padding:136px 100px 60px 60px;
-      display:flex;
-      flex-direction:column;
-      justify-content:center;
-      gap:28px;
-      position:relative;
-      opacity:0;
-      transform:translateY(30px);
-      transition:opacity .7s ease, transform .7s cubic-bezier(.22,1,.36,1);
-    }
-    .about-panel.panel-visible{
-      opacity:1;
-      transform:translateY(0);
-    }
-
-    /* Subtle left accent line */
-    .about-panel::before{
-      content:'';
-      position:absolute;
-      left:0;top:15%;bottom:15%;
-      width:2px;
-      background:linear-gradient(180deg,transparent,var(--accent),transparent);
-      opacity:.35;
-    }
-    .about-panel-b::before{
-      background:linear-gradient(180deg,transparent,var(--gold),transparent);
-    }
-
-    /* section header */
-    .about-section-header{
-      display:flex;
-      align-items:center;
-      gap:16px;
-    }
-    .about-floor-chip{
-      font-family:var(--font-mono);
-      font-size:.48rem;letter-spacing:4px;
-      color:var(--accent);text-transform:uppercase;
-      border:1px solid var(--border);
-      padding:4px 12px;
-    }
-    .about-title{
-      font-family:var(--font-display);
-      font-size:clamp(3rem,6vw,5.5rem);
-      letter-spacing:4px;line-height:1;
-      color:var(--text);
-    }
+    .about-tag{position:sticky;top:60px;background:rgba(7,6,14,.92);backdrop-filter:blur(14px);padding:10px 92px 10px 60px;z-index:10;margin-bottom:0;border-bottom:1px solid var(--border);width:100%;}
+    .about-panel{min-height:100vh;padding:136px 100px 60px 60px;display:flex;flex-direction:column;justify-content:center;gap:28px;position:relative;opacity:0;transform:translateY(30px);transition:opacity .7s ease,transform .7s cubic-bezier(.22,1,.36,1);}
+    .about-panel.panel-visible{opacity:1;transform:translateY(0);}
+    .about-panel::before{content:'';position:absolute;left:0;top:15%;bottom:15%;width:2px;background:linear-gradient(180deg,transparent,var(--accent),transparent);opacity:.35;}
+    .about-panel-b::before{background:linear-gradient(180deg,transparent,var(--gold),transparent);}
+    .about-section-header{display:flex;align-items:center;gap:16px;}
+    .about-floor-chip{font-family:var(--font-mono);font-size:.48rem;letter-spacing:4px;color:var(--accent);text-transform:uppercase;border:1px solid var(--border);padding:4px 12px;}
+    .about-title{font-family:var(--font-display);font-size:clamp(3rem,6vw,5.5rem);letter-spacing:4px;line-height:1;color:var(--text);}
     .about-title-accent{color:var(--gold);}
-
-    /* bold italic tagline */
-    .about-tagline{
-      font-family:var(--font-body);
-      font-size:clamp(1rem,2vw,1.25rem);
-      font-weight:700;
-      font-style:italic;
-      color:var(--gold);
-      line-height:1.45;
-      max-width:680px;
-      border-left:3px solid var(--gold);
-      padding-left:18px;
-    }
-
-    /* bio paragraphs */
-    .about-bio{
-      display:flex;
-      flex-direction:column;
-      gap:16px;
-      max-width:680px;
-    }
-    .about-bio-p{
-      font-family:var(--font-body);
-      font-size:.95rem;
-      line-height:1.85;
-      color:var(--muted);
-    }
-    .about-highlight{
-      color:var(--text);
-      font-weight:500;
-    }
-
-    /* stat counters */
-    .about-stats{
-      display:flex;
-      align-items:center;
-      gap:0;
-      border:1px solid var(--border);
-      background:rgba(124,58,237,.04);
-      width:fit-content;
-      margin-top:8px;
-    }
-    .stat-card{
-      display:flex;flex-direction:column;
-      align-items:center;
-      gap:4px;
-      padding:20px 32px;
-      position:relative;
-    }
-    .stat-num{
-      font-family:var(--font-display);
-      font-size:2.6rem;
-      color:var(--gold);
-      line-height:1;
-    }
-    .stat-plus{
-      font-family:var(--font-display);
-      font-size:1.4rem;
-      color:var(--accent);
-      position:absolute;
-      top:20px;
-      right:22px;
-    }
-    .stat-label{
-      font-family:var(--font-mono);
-      font-size:.44rem;letter-spacing:2.5px;
-      color:var(--muted);text-transform:uppercase;
-    }
-    .stat-divider{
-      width:1px;height:52px;
-      background:var(--border);
-      flex-shrink:0;
-    }
-
-    /* scroll cue at bottom of panel A */
-    .about-scroll-cue{
-      display:flex;flex-direction:column;align-items:flex-start;gap:6px;
-      margin-top:8px;
-      opacity:.5;
-      animation:cue-pulse 2s ease-in-out infinite;
-    }
+    .about-tagline{font-family:var(--font-body);font-size:clamp(1rem,2vw,1.25rem);font-weight:700;font-style:italic;color:var(--gold);line-height:1.45;max-width:680px;border-left:3px solid var(--gold);padding-left:18px;}
+    .about-bio{display:flex;flex-direction:column;gap:16px;max-width:680px;}
+    .about-bio-p{font-family:var(--font-body);font-size:.95rem;line-height:1.85;color:var(--muted);}
+    .about-highlight{color:var(--text);font-weight:500;}
+    .about-stats{display:flex;align-items:center;gap:0;border:1px solid var(--border);background:rgba(124,58,237,.04);width:fit-content;margin-top:8px;}
+    .stat-card{display:flex;flex-direction:column;align-items:center;gap:4px;padding:20px 32px;position:relative;}
+    .stat-num{font-family:var(--font-display);font-size:2.6rem;color:var(--gold);line-height:1;}
+    .stat-plus{font-family:var(--font-display);font-size:1.4rem;color:var(--accent);position:absolute;top:20px;right:22px;}
+    .stat-label{font-family:var(--font-mono);font-size:.44rem;letter-spacing:2.5px;color:var(--muted);text-transform:uppercase;}
+    .stat-divider{width:1px;height:52px;background:var(--border);flex-shrink:0;}
+    .about-scroll-cue{display:flex;flex-direction:column;align-items:flex-start;gap:6px;margin-top:8px;opacity:.5;animation:cue-pulse 2s ease-in-out infinite;cursor:pointer;}
     @keyframes cue-pulse{0%,100%{opacity:.3;}50%{opacity:.7;}}
-    .about-scroll-cue span{
-      font-family:var(--font-mono);font-size:.5rem;letter-spacing:3px;
-      color:var(--muted);text-transform:uppercase;
-    }
-    .about-cue-arrow{
-      width:1px;height:28px;
-      background:linear-gradient(180deg,var(--accent),transparent);
-    }
-
-    /* ── PANEL B: skills + tech ── */
-    .about-skills-grid{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:48px;
-      max-width:860px;
-    }
-    .skills-col-header{
-      font-family:var(--font-mono);
-      font-size:.52rem;letter-spacing:4px;
-      color:var(--muted);text-transform:uppercase;
-      margin-bottom:20px;
-      display:flex;align-items:center;gap:10px;
-    }
-    .skills-col-header::after{
-      content:'';flex:1;height:1px;background:var(--border);
-    }
-
-    /* skill bars */
+    .about-scroll-cue span{font-family:var(--font-mono);font-size:.5rem;letter-spacing:3px;color:var(--muted);text-transform:uppercase;}
+    .about-cue-arrow{width:1px;height:28px;background:linear-gradient(180deg,var(--accent),transparent);}
+    .about-skills-grid{display:grid;grid-template-columns:1fr 1fr;gap:48px;max-width:860px;}
+    .skills-col-header{font-family:var(--font-mono);font-size:.52rem;letter-spacing:4px;color:var(--muted);text-transform:uppercase;margin-bottom:20px;display:flex;align-items:center;gap:10px;}
+    .skills-col-header::after{content:'';flex:1;height:1px;background:var(--border);}
     .skills-col{display:flex;flex-direction:column;gap:16px;}
     .skill-row{display:flex;flex-direction:column;gap:6px;}
     .skill-meta{display:flex;justify-content:space-between;align-items:baseline;}
-    .skill-name{
-      font-family:var(--font-mono);font-size:.58rem;letter-spacing:1.5px;
-      color:var(--text);
-    }
-    .skill-pct{
-      font-family:var(--font-display);font-size:.85rem;
-      color:var(--gold);letter-spacing:1px;
-    }
-    .skill-track{
-      height:3px;
-      background:rgba(124,58,237,.15);
-      position:relative;overflow:hidden;border-radius:2px;
-    }
-    .skill-fill{
-      position:absolute;left:0;top:0;bottom:0;
-      width:0%;
-      background:linear-gradient(90deg,var(--accent),var(--gold));
-      border-radius:2px;
-      transition:width 1.2s cubic-bezier(.22,1,.36,1);
-    }
-
-    /* tech stack */
+    .skill-name{font-family:var(--font-mono);font-size:.58rem;letter-spacing:1.5px;color:var(--text);}
+    .skill-pct{font-family:var(--font-display);font-size:.85rem;color:var(--gold);letter-spacing:1px;}
+    .skill-track{height:3px;background:rgba(124,58,237,.15);position:relative;overflow:hidden;border-radius:2px;}
+    .skill-fill{position:absolute;left:0;top:0;bottom:0;width:0%;background:linear-gradient(90deg,var(--accent),var(--gold));border-radius:2px;transition:width 1.2s cubic-bezier(.22,1,.36,1);}
     .tech-col{display:flex;flex-direction:column;gap:16px;}
     .tech-category{display:flex;flex-direction:column;gap:8px;}
-    .tech-cat-label{
-      font-family:var(--font-mono);font-size:.44rem;letter-spacing:3px;
-      color:rgba(124,58,237,.5);text-transform:uppercase;
-    }
+    .tech-cat-label{font-family:var(--font-mono);font-size:.44rem;letter-spacing:3px;color:rgba(124,58,237,.5);text-transform:uppercase;}
     .tech-chips{display:flex;flex-wrap:wrap;gap:6px;}
-    .tech-chip{
-      font-family:var(--font-mono);font-size:.5rem;letter-spacing:1.5px;
-      padding:5px 12px;border-radius:2px;
-      text-transform:uppercase;
-      transition:transform .2s,box-shadow .2s;
-      cursor:default;
-    }
-    .tech-chip:hover{transform:translateY(-2px);}
+    .tech-chip{font-family:var(--font-mono);font-size:.5rem;letter-spacing:1.5px;padding:5px 12px;border-radius:2px;text-transform:uppercase;cursor:default;}
     .tc-lang{background:rgba(124,58,237,.12);border:1px solid rgba(124,58,237,.3);color:rgba(180,160,255,.85);}
-    .tc-lang:hover{box-shadow:0 4px 16px rgba(124,58,237,.2);}
     .tc-ai{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);color:rgba(245,200,100,.85);}
-    .tc-ai:hover{box-shadow:0 4px 16px rgba(245,158,11,.2);}
     .tc-web{background:rgba(6,182,212,.1);border:1px solid rgba(6,182,212,.3);color:rgba(100,220,240,.85);}
-    .tc-web:hover{box-shadow:0 4px 16px rgba(6,182,212,.2);}
     .tc-other{background:rgba(232,228,240,.06);border:1px solid rgba(232,228,240,.15);color:var(--muted);}
-    .tc-other:hover{box-shadow:0 4px 16px rgba(232,228,240,.08);}
 
-    /* responsive */
-    @media(max-width:768px){
-      .about-panel{padding:50px 80px 50px 24px;}
-      .about-skills-grid{grid-template-columns:1fr;}
-      .about-stats{flex-wrap:wrap;}
+    /* ── PROJECTS FLOOR — CINEMATIC 3D CAROUSEL ── */
+    #floor-projects{flex-direction:column;overflow:hidden;height:100vh;position:relative;background:var(--bg);}
+    .proj-hud{position:absolute;top:0;left:0;right:0;z-index:30;padding:68px 92px 0 60px;background:linear-gradient(180deg,rgba(7,6,14,1) 0%,rgba(7,6,14,.9) 55%,transparent 100%);pointer-events:none;}
+    .proj-hud-row{display:flex;align-items:baseline;gap:12px;margin-bottom:3px;}
+    .proj-ftag{font-family:var(--font-mono);font-size:.46rem;letter-spacing:4px;color:var(--muted);text-transform:uppercase;}
+    .proj-htitle{font-family:var(--font-display);font-size:clamp(2.2rem,4vw,3.8rem);letter-spacing:4px;color:var(--text);line-height:1;}
+    .proj-hsub{font-family:var(--font-body);font-size:.78rem;color:var(--muted);margin-bottom:12px;}
+    .proj-filters{display:flex;gap:7px;flex-wrap:wrap;pointer-events:all;}
+    .pf-btn{font-family:var(--font-mono);font-size:.48rem;letter-spacing:2px;text-transform:uppercase;padding:5px 15px;border:1px solid rgba(124,58,237,.22);background:rgba(7,6,14,.9);color:var(--muted);cursor:pointer;border-radius:20px;transition:all .2s;backdrop-filter:blur(6px);}
+    .pf-btn:hover{background:rgba(124,58,237,.12);color:var(--text);border-color:rgba(124,58,237,.4);}
+    .pf-btn.pf-active{background:var(--accent);border-color:var(--accent);color:#fff;box-shadow:0 0 14px rgba(124,58,237,.4);}
+    .proj-stage{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;perspective:1100px;perspective-origin:50% 52%;overflow:hidden;}
+    .proj-spotlight{position:absolute;top:0;left:50%;transform:translateX(-50%);width:600px;height:100%;background:radial-gradient(ellipse 55% 75% at 50% 40%,rgba(124,58,237,.09) 0%,transparent 70%);pointer-events:none;z-index:0;}
+    .proj-floor-ref{position:absolute;bottom:22%;left:15%;right:15%;height:1px;background:linear-gradient(90deg,transparent,rgba(124,58,237,.2),rgba(245,158,11,.15),rgba(124,58,237,.2),transparent);pointer-events:none;z-index:0;}
+
+    /* CARD states — CSS-driven 3D positions */
+    .proj-card{
+      position:absolute;width:320px;border-radius:14px;overflow:hidden;
+      border:1px solid rgba(124,58,237,.15);
+      background:linear-gradient(160deg,#120e2a,#0d0b1e);
+      cursor:pointer;
+      transition:transform .75s cubic-bezier(.22,1,.36,1),opacity .75s cubic-bezier(.22,1,.36,1),border-color .4s,box-shadow .4s;
+      transform:translateX(900px) scale(0.6) rotateY(-30deg);
+      opacity:0;pointer-events:none;z-index:1;
+      box-shadow:0 40px 100px rgba(0,0,0,.7);
     }
+    .proj-card[data-state="active"]{transform:translateX(0) scale(1) rotateY(0deg);opacity:1;pointer-events:all;z-index:10;border-color:rgba(124,58,237,.5);box-shadow:0 0 60px rgba(124,58,237,.2),0 40px 100px rgba(0,0,0,.8);}
+    .proj-card[data-state="prev"]{transform:translateX(-460px) scale(.72) rotateY(22deg);opacity:.3;pointer-events:none;z-index:5;}
+    .proj-card[data-state="prev2"]{transform:translateX(-760px) scale(.55) rotateY(30deg);opacity:0;pointer-events:none;z-index:2;}
+    .proj-card[data-state="next"]{transform:translateX(460px) scale(.72) rotateY(-22deg);opacity:.3;pointer-events:none;z-index:5;}
+    .proj-card[data-state="next2"]{transform:translateX(760px) scale(.55) rotateY(-30deg);opacity:0;pointer-events:none;z-index:2;}
+    .proj-card[data-state="far"]{transform:translateX(1100px) scale(.5) rotateY(-35deg);opacity:0;pointer-events:none;z-index:1;}
+
+    .pc-cover{width:100%;height:175px;position:relative;overflow:hidden;flex-shrink:0;}
+    .cover-enterprise{background:linear-gradient(140deg,#120742 0%,#0c1848 55%,#061640 100%);}
+    .cover-research{background:linear-gradient(140deg,#05182a 0%,#072828 50%,#051c14 100%);}
+    .cover-innovation{background:linear-gradient(140deg,#1c0a0e 0%,#281600 50%,#181000 100%);}
+    .cover-product{background:linear-gradient(140deg,#0c0820 0%,#180828 50%,#0a0e2a 100%);}
+    .cv-grid{position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(255,255,255,.02) 0 1px,transparent 1px 36px),repeating-linear-gradient(90deg,rgba(255,255,255,.02) 0 1px,transparent 1px 36px);}
+    .cv-glow{position:absolute;bottom:-20px;left:50%;transform:translateX(-50%);width:60%;height:80px;border-radius:50%;filter:blur(28px);opacity:.6;}
+    .cover-enterprise .cv-glow{background:var(--accent);}
+    .cover-research .cv-glow{background:var(--cyan);}
+    .cover-innovation .cv-glow{background:var(--gold);}
+    .cover-product .cv-glow{background:#c084fc;}
+    .cv-line{position:absolute;bottom:0;left:0;right:0;height:1px;opacity:.7;}
+    .cover-enterprise .cv-line{background:linear-gradient(90deg,transparent,var(--accent),transparent);}
+    .cover-research .cv-line{background:linear-gradient(90deg,transparent,var(--cyan),transparent);}
+    .cover-innovation .cv-line{background:linear-gradient(90deg,transparent,var(--gold),transparent);}
+    .cover-product .cv-line{background:linear-gradient(90deg,transparent,#c084fc,transparent);}
+    .cv-shape{position:absolute;top:50%;left:50%;opacity:.15;}
+    .cover-enterprise .cv-shape{width:72px;height:72px;border:2px solid var(--accent);border-radius:4px;transform:translate(-50%,-60%) rotate(12deg);}
+    .cover-research .cv-shape{width:66px;height:66px;border:2px solid var(--cyan);border-radius:50%;transform:translate(-50%,-60%);}
+    .cover-innovation .cv-shape{width:70px;height:70px;background:var(--gold);opacity:.1;clip-path:polygon(50% 0%,100% 100%,0% 100%);transform:translate(-50%,-65%);}
+    .cover-product .cv-shape{width:66px;height:66px;background:#c084fc;opacity:.1;clip-path:polygon(50% 0%,100% 50%,50% 100%,0% 50%);transform:translate(-50%,-60%);}
+    .cv-badge{position:absolute;top:12px;left:12px;font-family:var(--font-mono);font-size:.42rem;letter-spacing:3px;text-transform:uppercase;padding:3px 10px;border-radius:20px;background:rgba(7,6,14,.8);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.14);color:rgba(255,255,255,.8);}
+    .pc-body{padding:18px 20px 16px;}
+    .pc-title{font-family:var(--font-display);font-size:1.5rem;letter-spacing:2px;color:var(--text);margin-bottom:5px;line-height:1.05;}
+    .pc-tagline{font-family:var(--font-body);font-size:.78rem;color:var(--muted);line-height:1.5;margin-bottom:14px;}
+    .pc-chips-row{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:14px;}
+    .pc-chip{font-family:var(--font-mono);font-size:.38rem;letter-spacing:1px;text-transform:uppercase;padding:3px 8px;border-radius:2px;background:rgba(124,58,237,.1);border:1px solid rgba(124,58,237,.22);color:rgba(180,160,255,.75);}
+    .pc-chip-more{background:transparent;border-color:rgba(232,228,240,.1);color:var(--muted);}
+    .pc-footer{display:flex;align-items:center;justify-content:space-between;}
+    .pc-cat-pill{font-family:var(--font-mono);font-size:.42rem;letter-spacing:2px;text-transform:uppercase;padding:3px 10px;border-radius:20px;border:1px solid;}
+    .pc-cat-enterprise{color:rgba(180,160,255,.7);border-color:rgba(124,58,237,.3);}
+    .pc-cat-research{color:rgba(100,220,240,.7);border-color:rgba(6,182,212,.3);}
+    .pc-cat-innovation{color:rgba(245,200,100,.7);border-color:rgba(245,158,11,.3);}
+    .pc-cat-product{color:rgba(200,160,255,.7);border-color:rgba(192,132,252,.3);}
+    .pc-view{font-family:var(--font-mono);font-size:.48rem;letter-spacing:2px;text-transform:uppercase;color:var(--gold);border:1px solid rgba(245,158,11,.3);padding:6px 14px;border-radius:2px;background:rgba(245,158,11,.05);cursor:pointer;transition:background .2s;white-space:nowrap;}
+    .pc-view:hover{background:rgba(245,158,11,.14);}
+    .proj-nav-btn{position:absolute;top:50%;width:44px;height:44px;border-radius:50%;background:rgba(124,58,237,.12);border:1px solid rgba(124,58,237,.3);color:var(--text);cursor:pointer;z-index:20;display:flex;align-items:center;justify-content:center;font-size:1.1rem;transition:background .2s,transform .2s;transform:translateY(-50%);}
+    .proj-nav-btn:hover{background:rgba(124,58,237,.25);transform:translateY(-50%) scale(1.08);}
+    #projPrevBtn{left:28px;}
+    #projNextBtn{right:100px;}
+    .proj-dots{position:absolute;bottom:18px;left:50%;transform:translateX(-50%);display:flex;gap:8px;align-items:center;z-index:20;}
+    .proj-dot{width:6px;height:6px;border-radius:50%;background:rgba(124,58,237,.25);border:1px solid rgba(124,58,237,.3);cursor:pointer;transition:all .3s;}
+    .proj-dot.active{background:var(--gold);border-color:var(--gold);box-shadow:0 0 10px rgba(245,158,11,.6);width:20px;border-radius:3px;}
+    .proj-counter{position:absolute;bottom:46px;left:50%;transform:translateX(-50%);font-family:var(--font-mono);font-size:.46rem;letter-spacing:4px;color:rgba(124,58,237,.4);text-transform:uppercase;z-index:20;pointer-events:none;white-space:nowrap;}
+    .proj-counter strong{font-family:var(--font-display);font-size:1rem;color:rgba(124,58,237,.35);letter-spacing:2px;}
+    .proj-bar{position:absolute;bottom:0;left:0;right:0;height:2px;background:rgba(124,58,237,.08);z-index:20;}
+    .proj-bar-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--gold));transition:width .4s ease;}
+    .proj-hint{position:absolute;bottom:72px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:8px;font-family:var(--font-mono);font-size:.44rem;letter-spacing:3px;color:rgba(124,58,237,.35);text-transform:uppercase;pointer-events:none;z-index:20;transition:opacity .6s;white-space:nowrap;}
+    .proj-hint.hidden{opacity:0;}
+    .hint-arr{color:var(--gold);animation:harr .9s ease-in-out infinite;}
+    @keyframes harr{0%,100%{opacity:.3;transform:translateX(0);}50%{opacity:.9;transform:translateX(3px);}}
+
+    /* ── MODAL ── */
+    .proj-modal{position:fixed;inset:0;z-index:400;background:rgba(7,6,14,.85);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;padding:20px;}
+    .proj-modal.open{display:flex;}
+    .proj-modal-inner{background:#0f0d22;border:1px solid rgba(124,58,237,.35);border-radius:12px;width:min(780px,96vw);max-height:88vh;display:flex;flex-direction:column;overflow:hidden;}
+    .proj-modal-header{padding:24px 28px 18px;display:flex;align-items:flex-start;justify-content:space-between;border-bottom:1px solid rgba(124,58,237,.15);flex-shrink:0;}
+    .proj-modal-meta{display:flex;flex-direction:column;gap:4px;}
+    .modal-cat-year{font-family:var(--font-mono);font-size:.5rem;letter-spacing:4px;color:var(--muted);text-transform:uppercase;}
+    .modal-title{font-family:var(--font-display);font-size:clamp(1.8rem,4vw,3rem);letter-spacing:3px;color:var(--text);line-height:1.05;}
+    .modal-tagline{font-family:var(--font-body);font-size:.88rem;color:var(--muted);margin-top:4px;}
+    .proj-modal-close{background:transparent;border:1px solid rgba(124,58,237,.3);color:var(--muted);width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:.85rem;flex-shrink:0;transition:background .2s,color .2s;display:flex;align-items:center;justify-content:center;}
+    .proj-modal-close:hover{background:rgba(124,58,237,.2);color:var(--text);}
+    .proj-modal-body{overflow-y:auto;padding:24px 28px 28px;display:flex;flex-direction:column;gap:28px;scrollbar-width:thin;scrollbar-color:rgba(124,58,237,.3) transparent;}
+    .ms-block{display:flex;flex-direction:column;gap:10px;}
+    .ms-label{display:flex;align-items:center;gap:10px;font-family:var(--font-mono);font-size:.55rem;letter-spacing:3px;color:var(--gold);text-transform:uppercase;font-weight:700;}
+    .ms-label-icon{width:18px;height:18px;border:1.5px solid var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.5rem;color:var(--gold);flex-shrink:0;}
+    .ms-text{font-family:var(--font-body);font-size:.9rem;line-height:1.75;color:var(--muted);}
+    .ms-features{display:flex;flex-direction:column;gap:7px;}
+    .ms-feature{display:flex;align-items:flex-start;gap:10px;font-family:var(--font-body);font-size:.88rem;color:var(--muted);line-height:1.5;}
+    .ms-feature::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--gold);flex-shrink:0;margin-top:6px;}
+    .ms-team{display:flex;flex-direction:column;gap:10px;}
+    .ms-member{display:flex;align-items:center;gap:12px;}
+    .ms-avatar{width:36px;height:36px;border-radius:50%;background:rgba(124,58,237,.2);border:1px solid rgba(124,58,237,.4);display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:.44rem;letter-spacing:1px;color:var(--accent);flex-shrink:0;}
+    .ms-avatar.mentor-av{background:rgba(245,158,11,.15);border-color:rgba(245,158,11,.4);color:var(--gold);}
+    .ms-member-info{display:flex;flex-direction:column;gap:1px;}
+    .ms-member-name{font-family:var(--font-body);font-size:.9rem;color:var(--text);}
+    .ms-member-role{font-family:var(--font-mono);font-size:.44rem;letter-spacing:2px;color:var(--muted);text-transform:uppercase;}
+    .ms-member-role.mentor-role{color:var(--gold);}
+    .ms-team-divider{height:1px;background:rgba(124,58,237,.1);margin:4px 0;}
+    .ms-chips{display:flex;flex-wrap:wrap;gap:7px;}
+    .ms-chip{font-family:var(--font-mono);font-size:.52rem;letter-spacing:1.5px;text-transform:uppercase;padding:5px 14px;border-radius:20px;border:1px solid rgba(124,58,237,.3);background:rgba(124,58,237,.08);color:rgba(180,160,255,.85);}
+
+    /* ── OTHER FLOOR PLACEHOLDERS ── */
+    #floor-experience::before,#floor-achievements::before,#floor-contact::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
+    #floor-experience::before{background:linear-gradient(90deg,var(--accent),var(--cyan));}
+    #floor-achievements::before{background:linear-gradient(90deg,var(--gold),var(--accent));}
+    #floor-contact::before{background:linear-gradient(90deg,var(--cyan),var(--gold));}
   </style>
 </head>
 <body>
@@ -758,7 +461,6 @@
 <div id="flash-overlay"></div>
 <div id="transition-overlay"><div class="transition-label">entering the building…</div></div>
 
-<!-- NAV -->
 <nav id="interior-nav">
   <div class="nav-logo">C. SREE HARSHITH REDDY</div>
   <ul class="nav-links">
@@ -771,61 +473,29 @@
   <a class="nav-cta" onclick="goToFloor(5)">Let's Talk</a>
 </nav>
 
-<!-- FLOOR DIRECTORY PANEL (right edge, visible on all floors) -->
 <div class="floor-dir-panel" id="floorDirPanel">
   <div class="fdp-lbl">FLOORS</div>
-  <div class="fdp-floor fdp-current" data-fi="0" onclick="goToFloor(0)">
-    <div class="fdp-num">G</div><div class="fdp-name">Lobby</div><div class="fdp-dot"></div>
-  </div>
+  <div class="fdp-floor fdp-current" data-fi="0" onclick="goToFloor(0)"><div class="fdp-num">G</div><div class="fdp-name">Lobby</div><div class="fdp-dot"></div></div>
   <div class="fdp-divider"></div>
-  <div class="fdp-floor" data-fi="1" onclick="goToFloor(1)">
-    <div class="fdp-num">01</div><div class="fdp-name">About</div><div class="fdp-dot"></div>
-  </div>
+  <div class="fdp-floor" data-fi="1" onclick="goToFloor(1)"><div class="fdp-num">01</div><div class="fdp-name">About</div><div class="fdp-dot"></div></div>
   <div class="fdp-divider"></div>
-  <div class="fdp-floor" data-fi="2" onclick="goToFloor(2)">
-    <div class="fdp-num">02</div><div class="fdp-name">Projects</div><div class="fdp-dot"></div>
-  </div>
+  <div class="fdp-floor" data-fi="2" onclick="goToFloor(2)"><div class="fdp-num">02</div><div class="fdp-name">Projects</div><div class="fdp-dot"></div></div>
   <div class="fdp-divider"></div>
-  <div class="fdp-floor" data-fi="3" onclick="goToFloor(3)">
-    <div class="fdp-num">03</div><div class="fdp-name">Exp</div><div class="fdp-dot"></div>
-  </div>
+  <div class="fdp-floor" data-fi="3" onclick="goToFloor(3)"><div class="fdp-num">03</div><div class="fdp-name">Exp</div><div class="fdp-dot"></div></div>
   <div class="fdp-divider"></div>
-  <div class="fdp-floor" data-fi="4" onclick="goToFloor(4)">
-    <div class="fdp-num">04</div><div class="fdp-name">Achiev</div><div class="fdp-dot"></div>
-  </div>
+  <div class="fdp-floor" data-fi="4" onclick="goToFloor(4)"><div class="fdp-num">04</div><div class="fdp-name">Achiev</div><div class="fdp-dot"></div></div>
   <div class="fdp-divider"></div>
-  <div class="fdp-floor" data-fi="5" onclick="goToFloor(5)">
-    <div class="fdp-num">05</div><div class="fdp-name">Contact</div><div class="fdp-dot"></div>
-  </div>
+  <div class="fdp-floor" data-fi="5" onclick="goToFloor(5)"><div class="fdp-num">05</div><div class="fdp-name">Contact</div><div class="fdp-dot"></div></div>
 </div>
 
-<!-- ESCALATOR TRANSITION SCREEN -->
 <div id="esc-transition">
   <div class="esc-dest-header">
     <div class="esc-dest-floor" id="escDestFloor">01</div>
-    <div class="esc-dest-info">
-      <div class="esc-dest-label">Heading to floor</div>
-      <div class="esc-dest-name" id="escDestName">About</div>
-    </div>
+    <div class="esc-dest-info"><div class="esc-dest-label">Heading to floor</div><div class="esc-dest-name" id="escDestName">About</div></div>
   </div>
-
-  <!-- left: building directory -->
-  <div class="esc-building-panel" id="escBuildingPanel">
-    <!-- populated by JS -->
-  </div>
-
-  <!-- centre: escalator ride -->
+  <div class="esc-building-panel" id="escBuildingPanel"></div>
   <div class="esc-main">
-    <div class="esc-track">
-      <div class="esc-track-steps"></div>
-      <div class="esc-track-rail-l"></div>
-      <div class="esc-track-rail-r"></div>
-      <div class="esc-main-rider" id="escMainRider" style="bottom:10px;">
-        <div class="emr-head"></div>
-        <div class="emr-body"></div>
-        <div class="emr-legs"><div class="emr-leg"></div><div class="emr-leg"></div></div>
-      </div>
-    </div>
+    <div class="esc-track"><div class="esc-track-steps"></div><div class="esc-track-rail-l"></div><div class="esc-track-rail-r"></div><div class="esc-main-rider" id="escMainRider" style="bottom:10px;"><div class="emr-head"></div><div class="emr-body"></div><div class="emr-legs"><div class="emr-leg"></div><div class="emr-leg"></div></div></div></div>
     <div class="esc-counter" id="escCounter">G</div>
   </div>
 </div>
@@ -857,12 +527,7 @@
       </div>
     </div>
     <div class="entrance-glow" id="entranceGlow"></div>
-    <div id="character">
-      <div class="char-dist-tag" id="distTag">far away</div>
-      <div class="char-head"></div><div class="char-body"></div>
-      <div class="char-legs"><div class="char-leg left"></div><div class="char-leg right"></div></div>
-      <div class="char-shadow" id="charShadow"></div>
-    </div>
+    <div id="character"><div class="char-dist-tag" id="distTag">far away</div><div class="char-head"></div><div class="char-body"></div><div class="char-legs"><div class="char-leg left"></div><div class="char-leg right"></div></div><div class="char-shadow" id="charShadow"></div></div>
     <canvas id="footCanvas"></canvas>
     <div class="ground"><div class="pavement left"></div><div class="road"><div class="road-dashes" id="roadDashes"></div></div><div class="pavement right"></div></div>
     <div class="scroll-hud" id="scrollHud"><span class="hud-label">Scroll</span><span class="hud-value" id="hudValue">0%</span><div class="hud-bar"><div class="hud-bar-fill" id="hudFill"></div></div></div>
@@ -870,7 +535,6 @@
   </div>
 </div>
 
-<!-- INTERIOR -->
 <div id="interior">
 
   <!-- RECEPTION -->
@@ -881,39 +545,16 @@
     <div class="rec-pillar left"></div><div class="rec-pillar right"></div>
     <div class="rec-plant left"><div class="plant-leaves"><div class="plant-leaf"></div><div class="plant-leaf"></div><div class="plant-leaf"></div></div><div class="plant-pot"></div></div>
     <div class="rec-plant right"><div class="plant-leaves"><div class="plant-leaf"></div><div class="plant-leaf"></div><div class="plant-leaf"></div></div><div class="plant-pot"></div></div>
-
-    <!-- RECEPTIONIST top-left (no overlap) -->
     <div class="receptionist-area" id="recArea">
-      <div class="speech-bubble">
-        <div class="bubble-speaker">— RECEPTIONIST</div>
-        <span id="bubbleText"></span><span class="bubble-cursor" id="bubbleCursor"></span>
-      </div>
-      <div class="rec-figure">
-        <div class="rec-head"></div><div class="rec-body"></div>
-        <div class="rec-name-tag">RECEPTION</div>
-      </div>
+      <div class="speech-bubble"><div class="bubble-speaker">— RECEPTIONIST</div><span id="bubbleText"></span><span class="bubble-cursor" id="bubbleCursor"></span></div>
+      <div class="rec-figure"><div class="rec-head"></div><div class="rec-body"></div><div class="rec-name-tag">RECEPTION</div></div>
     </div>
-
-    <!-- LOBBY WALK CHARACTER -->
-    <div id="lobby-char">
-      <div class="lc-head"></div><div class="lc-body"></div>
-      <div class="lc-legs"><div class="lc-leg"></div><div class="lc-leg"></div></div>
-    </div>
-
-    <!-- DESK bottom-centre -->
+    <div id="lobby-char"><div class="lc-head"></div><div class="lc-body"></div><div class="lc-legs"><div class="lc-leg"></div><div class="lc-leg"></div></div></div>
     <div class="desk-area" id="deskArea">
       <div class="desk-nameplate"><div class="nameplate-dot"></div>RECEPTION DESK<div class="nameplate-dot"></div></div>
       <div class="desk-top"></div>
       <div class="desk-body">
-        <div class="desk-left">
-          <div class="monitor-wrap">
-            <div class="monitor-screen"><div class="monitor-text">VISITOR LOG<br>&gt; C.S.REDDY<br>&gt; WELCOME<br><span class="monitor-csr"></span></div></div>
-            <div class="monitor-stand"></div><div class="monitor-base"></div>
-          </div>
-          <div class="desk-phone"></div>
-        </div>
-
-        <!-- floor buttons -->
+        <div class="desk-left"><div class="monitor-wrap"><div class="monitor-screen"><div class="monitor-text">VISITOR LOG<br>&gt; C.S.REDDY<br>&gt; WELCOME<br><span class="monitor-csr"></span></div></div><div class="monitor-stand"></div><div class="monitor-base"></div></div><div class="desk-phone"></div></div>
         <div class="desk-center">
           <div class="desk-hdr">FLOOR DIRECTORY</div>
           <a class="floor-btn active" data-fi="0" onclick="deskFloorClick(event,0)"><div class="fb-bar"></div><div class="fb-num">G</div><div class="fb-info"><div class="fb-name">Reception</div><div class="fb-sub">Ground lobby</div></div><div class="fb-dot"></div></a>
@@ -923,286 +564,125 @@
           <a class="floor-btn" data-fi="4" onclick="deskFloorClick(event,4)"><div class="fb-bar"></div><div class="fb-num">04</div><div class="fb-info"><div class="fb-name">Achievements</div><div class="fb-sub">Certifications · Awards</div></div><div class="fb-dot"></div></a>
           <a class="floor-btn" data-fi="5" onclick="deskFloorClick(event,5)"><div class="fb-bar"></div><div class="fb-num">05</div><div class="fb-info"><div class="fb-name">Contact</div><div class="fb-sub">Let's connect</div></div><div class="fb-dot"></div></a>
         </div>
-
-        <!-- escalator shaft -->
         <div class="desk-right">
           <div class="esc-lbl">ESC</div>
-          <div class="esc-shaft" id="escShaft">
-            <div class="esc-steps"></div>
-            <div class="esc-rail-l"></div><div class="esc-rail-r"></div>
-            <div class="esc-levels">
-              <div class="esc-lvl" data-fi="5">05</div>
-              <div class="esc-lvl" data-fi="4">04</div>
-              <div class="esc-lvl" data-fi="3">03</div>
-              <div class="esc-lvl" data-fi="2">02</div>
-              <div class="esc-lvl" data-fi="1">01</div>
-              <div class="esc-lvl cur" data-fi="0">G</div>
-            </div>
-            <div class="esc-rider" id="escRider" style="top:calc(100% - 26px);">
-              <div class="esc-rider-head"></div><div class="esc-rider-body"></div>
-              <div class="esc-rider-legs"><div class="esc-rider-leg"></div><div class="esc-rider-leg"></div></div>
-            </div>
+          <div class="esc-shaft" id="escShaft"><div class="esc-steps"></div><div class="esc-rail-l"></div><div class="esc-rail-r"></div>
+            <div class="esc-levels"><div class="esc-lvl" data-fi="5">05</div><div class="esc-lvl" data-fi="4">04</div><div class="esc-lvl" data-fi="3">03</div><div class="esc-lvl" data-fi="2">02</div><div class="esc-lvl" data-fi="1">01</div><div class="esc-lvl cur" data-fi="0">G</div></div>
+            <div class="esc-rider" id="escRider" style="top:calc(100% - 26px);"><div class="esc-rider-head"></div><div class="esc-rider-body"></div><div class="esc-rider-legs"><div class="esc-rider-leg"></div><div class="esc-rider-leg"></div></div></div>
           </div>
           <div class="esc-readout" id="escReadout">G</div>
         </div>
       </div>
       <div class="desk-shadow"></div>
     </div>
-  </div><!-- #reception-scene -->
+    <div class="esc-prompt" id="escPrompt"><span>Select a floor or scroll to explore</span><div class="esc-prompt-arrow"></div></div>
+  </div>
 
-  <!-- FLOOR PAGES -->
-  <!-- ================================================================
-       FLOOR 01 — ABOUT  (Stage 07)
-       Two panels revealed by IntersectionObserver on scroll.
-       Panel A: tagline + bio + stat counters
-       Panel B: skill bars + tech stack chips
-  ================================================================ -->
+  <!-- FLOOR 01: About -->
   <div id="floor-about" class="floor-page">
     <div class="floor-content about-floor-content">
-
-      <!-- floor tag -->
       <div class="floor-tag-lbl about-tag">// Floor 01 — About</div>
-
-      <!-- PANEL A — Introduction -->
       <div class="about-panel" id="aboutPanelA">
-
-        <!-- section header -->
-        <div class="about-section-header">
-          <span class="about-floor-chip">Floor 01</span>
-          <h1 class="about-title">About <span class="about-title-accent">Me</span></h1>
-        </div>
-
-        <!-- bold italic tagline -->
-        <p class="about-tagline">
-          Turning ideas into scalable AI-driven products that solve real-world problems.
-        </p>
-
-        <!-- bio paragraphs -->
+        <div class="about-section-header"><span class="about-floor-chip">Floor 01</span><h1 class="about-title">About <span class="about-title-accent">Me</span></h1></div>
+        <p class="about-tagline">Turning ideas into scalable AI-driven products that solve real-world problems.</p>
         <div class="about-bio">
-          <p class="about-bio-p">
-            I'm a <span class="about-highlight">Computer Science undergraduate</span> specialising in
-            <span class="about-highlight">Artificial Intelligence and Machine Learning</span>,
-            driven by a passion for building real-world, impactful solutions. My work focuses on
-            applying AI, prompt engineering, and emerging technologies to solve practical problems
-            and create meaningful user experiences.
-          </p>
-          <p class="about-bio-p">
-            I have developed projects ranging from IoT-based systems like
-            <span class="about-highlight">Smart Stream</span> to AI-powered platforms such as
-            <span class="about-highlight">Shopping Matrix</span> and secure, blockchain-inspired
-            solutions like <span class="about-highlight">AI-DetectChain</span>. These experiences
-            reflect my ability to combine technical skills with problem-solving and innovation.
-          </p>
-          <p class="about-bio-p">
-            Beyond development, I bring an <span class="about-highlight">entrepreneurial mindset</span>
-            shaped by my experience as a Co-Founder and active leadership roles, where I have mentored
-            peers and contributed to building tech-driven initiatives. I am continuously exploring new
-            ideas, improving my skills, and working toward creating scalable products that make a
-            real difference.
-          </p>
+          <p class="about-bio-p">I'm a <span class="about-highlight">Computer Science undergraduate</span> specialising in <span class="about-highlight">Artificial Intelligence and Machine Learning</span>, driven by a passion for building real-world, impactful solutions. My work focuses on applying AI, prompt engineering, and emerging technologies to solve practical problems and create meaningful user experiences.</p>
+          <p class="about-bio-p">I have developed projects ranging from IoT-based systems like <span class="about-highlight">Smart Stream</span> to AI-powered platforms such as <span class="about-highlight">Shopping Matrix</span> and secure, blockchain-inspired solutions like <span class="about-highlight">AI-DetectChain</span>. These experiences reflect my ability to combine technical skills with problem-solving and innovation.</p>
+          <p class="about-bio-p">Beyond development, I bring an <span class="about-highlight">entrepreneurial mindset</span> shaped by my experience as a Co-Founder and active leadership roles, where I have mentored peers and contributed to building tech-driven initiatives. I am continuously exploring new ideas, improving my skills, and working toward creating scalable products that make a real difference.</p>
         </div>
-
-        <!-- stat counters row -->
         <div class="about-stats">
-          <div class="stat-card">
-            <div class="stat-num" data-target="3">0</div>
-            <div class="stat-plus">+</div>
-            <div class="stat-label">Projects Built</div>
-          </div>
+          <div class="stat-card"><div class="stat-num" data-target="3">0</div><div class="stat-plus">+</div><div class="stat-label">Projects Built</div></div>
           <div class="stat-divider"></div>
-          <div class="stat-card">
-            <div class="stat-num" data-target="2">0</div>
-            <div class="stat-plus">+</div>
-            <div class="stat-label">Years Experience</div>
-          </div>
+          <div class="stat-card"><div class="stat-num" data-target="2">0</div><div class="stat-plus">+</div><div class="stat-label">Years Experience</div></div>
           <div class="stat-divider"></div>
-          <div class="stat-card">
-            <div class="stat-num" data-target="5">0</div>
-            <div class="stat-plus">+</div>
-            <div class="stat-label">Technologies</div>
-          </div>
+          <div class="stat-card"><div class="stat-num" data-target="5">0</div><div class="stat-plus">+</div><div class="stat-label">Technologies</div></div>
           <div class="stat-divider"></div>
-          <div class="stat-card">
-            <div class="stat-num" data-target="1">0</div>
-            <div class="stat-plus"></div>
-            <div class="stat-label">Co-Founder</div>
-          </div>
+          <div class="stat-card"><div class="stat-num" data-target="1">0</div><div class="stat-plus"></div><div class="stat-label">Co-Founder</div></div>
         </div>
-
-        <!-- scroll cue -->
-        <div class="about-scroll-cue" id="aboutScrollCue">
-          <span>Skills &amp; Stack</span>
-          <div class="about-cue-arrow"></div>
-        </div>
-
-      </div><!-- /panel A -->
-
-      <!-- PANEL B — Skills + Tech Stack -->
+        <div class="about-scroll-cue" id="aboutScrollCue"><span>Skills &amp; Stack</span><div class="about-cue-arrow"></div></div>
+      </div>
       <div class="about-panel about-panel-b" id="aboutPanelB">
-
         <div class="about-skills-grid">
-
-          <!-- left: skill bars -->
           <div class="skills-col">
             <div class="skills-col-header">Core Skills</div>
-
-            <div class="skill-row">
-              <div class="skill-meta">
-                <span class="skill-name">Artificial Intelligence & ML</span>
-                <span class="skill-pct">88%</span>
-              </div>
-              <div class="skill-track">
-                <div class="skill-fill" data-width="88"></div>
-              </div>
-            </div>
-
-            <div class="skill-row">
-              <div class="skill-meta">
-                <span class="skill-name">Prompt Engineering</span>
-                <span class="skill-pct">85%</span>
-              </div>
-              <div class="skill-track">
-                <div class="skill-fill" data-width="85"></div>
-              </div>
-            </div>
-
-            <div class="skill-row">
-              <div class="skill-meta">
-                <span class="skill-name">Full-Stack Development</span>
-                <span class="skill-pct">78%</span>
-              </div>
-              <div class="skill-track">
-                <div class="skill-fill" data-width="78"></div>
-              </div>
-            </div>
-
-            <div class="skill-row">
-              <div class="skill-meta">
-                <span class="skill-name">IoT Systems</span>
-                <span class="skill-pct">72%</span>
-              </div>
-              <div class="skill-track">
-                <div class="skill-fill" data-width="72"></div>
-              </div>
-            </div>
-
-            <div class="skill-row">
-              <div class="skill-meta">
-                <span class="skill-name">Blockchain & Web3</span>
-                <span class="skill-pct">65%</span>
-              </div>
-              <div class="skill-track">
-                <div class="skill-fill" data-width="65"></div>
-              </div>
-            </div>
-
-            <div class="skill-row">
-              <div class="skill-meta">
-                <span class="skill-name">Product Leadership</span>
-                <span class="skill-pct">80%</span>
-              </div>
-              <div class="skill-track">
-                <div class="skill-fill" data-width="80"></div>
-              </div>
-            </div>
+            <div class="skill-row"><div class="skill-meta"><span class="skill-name">AI & Machine Learning</span><span class="skill-pct">88%</span></div><div class="skill-track"><div class="skill-fill" data-width="88"></div></div></div>
+            <div class="skill-row"><div class="skill-meta"><span class="skill-name">Prompt Engineering</span><span class="skill-pct">85%</span></div><div class="skill-track"><div class="skill-fill" data-width="85"></div></div></div>
+            <div class="skill-row"><div class="skill-meta"><span class="skill-name">Full-Stack Development</span><span class="skill-pct">78%</span></div><div class="skill-track"><div class="skill-fill" data-width="78"></div></div></div>
+            <div class="skill-row"><div class="skill-meta"><span class="skill-name">IoT Systems</span><span class="skill-pct">72%</span></div><div class="skill-track"><div class="skill-fill" data-width="72"></div></div></div>
+            <div class="skill-row"><div class="skill-meta"><span class="skill-name">Blockchain & Web3</span><span class="skill-pct">65%</span></div><div class="skill-track"><div class="skill-fill" data-width="65"></div></div></div>
+            <div class="skill-row"><div class="skill-meta"><span class="skill-name">Product Leadership</span><span class="skill-pct">80%</span></div><div class="skill-track"><div class="skill-fill" data-width="80"></div></div></div>
           </div>
-
-          <!-- right: tech stack -->
           <div class="tech-col">
             <div class="skills-col-header">Tech Stack</div>
-
-            <div class="tech-category">
-              <div class="tech-cat-label">Languages</div>
-              <div class="tech-chips">
-                <span class="tech-chip tc-lang">Python</span>
-                <span class="tech-chip tc-lang">JavaScript</span>
-                <span class="tech-chip tc-lang">C++</span>
-                <span class="tech-chip tc-lang">SQL</span>
-              </div>
-            </div>
-
-            <div class="tech-category">
-              <div class="tech-cat-label">AI / ML</div>
-              <div class="tech-chips">
-                <span class="tech-chip tc-ai">TensorFlow</span>
-                <span class="tech-chip tc-ai">Machine Learning</span>
-                <span class="tech-chip tc-ai">Data Analytics</span>
-                <span class="tech-chip tc-ai">LLMs</span>
-              </div>
-            </div>
-
-            <div class="tech-category">
-              <div class="tech-cat-label">Web & Cloud</div>
-              <div class="tech-chips">
-                <span class="tech-chip tc-web">React</span>
-                <span class="tech-chip tc-web">Node.js</span>
-                <span class="tech-chip tc-web">Cloud Deploy</span>
-                <span class="tech-chip tc-web">Firebase</span>
-              </div>
-            </div>
-
-            <div class="tech-category">
-              <div class="tech-cat-label">Other</div>
-              <div class="tech-chips">
-                <span class="tech-chip tc-other">IoT</span>
-                <span class="tech-chip tc-other">Blockchain</span>
-                <span class="tech-chip tc-other">SHA-256</span>
-                <span class="tech-chip tc-other">Git</span>
-              </div>
-            </div>
+            <div class="tech-category"><div class="tech-cat-label">Languages</div><div class="tech-chips"><span class="tech-chip tc-lang">Python</span><span class="tech-chip tc-lang">JavaScript</span><span class="tech-chip tc-lang">C++</span><span class="tech-chip tc-lang">SQL</span></div></div>
+            <div class="tech-category"><div class="tech-cat-label">AI / ML</div><div class="tech-chips"><span class="tech-chip tc-ai">TensorFlow</span><span class="tech-chip tc-ai">Machine Learning</span><span class="tech-chip tc-ai">Data Analytics</span><span class="tech-chip tc-ai">LLMs</span></div></div>
+            <div class="tech-category"><div class="tech-cat-label">Web & Cloud</div><div class="tech-chips"><span class="tech-chip tc-web">React</span><span class="tech-chip tc-web">Node.js</span><span class="tech-chip tc-web">Cloud Deploy</span><span class="tech-chip tc-web">Firebase</span></div></div>
+            <div class="tech-category"><div class="tech-cat-label">Other</div><div class="tech-chips"><span class="tech-chip tc-other">IoT</span><span class="tech-chip tc-other">Blockchain</span><span class="tech-chip tc-other">SHA-256</span><span class="tech-chip tc-other">Git</span></div></div>
           </div>
-
-        </div><!-- /grid -->
-
-      </div><!-- /panel B -->
-
-    </div><!-- /floor-content -->
-  </div><!-- #floor-about -->
+        </div>
+      </div>
+    </div>
   </div>
+
+  <!-- FLOOR 02: Projects — CINEMATIC 3D CAROUSEL -->
   <div id="floor-projects" class="floor-page">
-    <div class="floor-content">
-      <div class="floor-tag-lbl">// Floor 02 — Projects</div>
-      <div class="floor-ph"><div class="floor-badge">Floor 02</div><h2><span>Projects</span></h2><p>Category filter · Horizontal scroll<br>Stage 08 builds this floor</p></div>
+    <div class="proj-hud">
+      <div class="proj-hud-row"><span class="proj-ftag">// Floor 02</span><h1 class="proj-htitle">Projects</h1></div>
+      <p class="proj-hsub">7 projects · Enterprise · Research · Innovation · Product</p>
+      <div class="proj-filters" id="projFilters">
+        <button class="pf-btn pf-active" data-cat="all">All</button>
+        <button class="pf-btn" data-cat="enterprise">Enterprise</button>
+        <button class="pf-btn" data-cat="research">Research</button>
+        <button class="pf-btn" data-cat="innovation">Innovation</button>
+        <button class="pf-btn" data-cat="product">Product</button>
+      </div>
     </div>
-  </div>
-  <div id="floor-experience" class="floor-page">
-    <div class="floor-content">
-      <div class="floor-tag-lbl">// Floor 03 — Experience</div>
-      <div class="floor-ph"><div class="floor-badge">Floor 03</div><h2><span>Experience</span></h2><p>Work · Volunteering timeline<br>Stage 09 builds this floor</p></div>
+    <div class="proj-stage" id="projStage">
+      <div class="proj-spotlight"></div>
+      <div class="proj-floor-ref"></div>
+      <!-- C1 -->
+      <div class="proj-card" data-cat="enterprise" data-idx="0" data-state="active"><div class="pc-cover cover-enterprise"><div class="cv-grid"></div><div class="cv-shape"></div><div class="cv-glow"></div><div class="cv-line"></div><span class="cv-badge">Enterprise · 2025</span></div><div class="pc-body"><div class="pc-title">Shopping Matrix</div><div class="pc-tagline">AI-driven multi-vendor e-commerce intelligence platform</div><div class="pc-chips-row"><span class="pc-chip">Python</span><span class="pc-chip">ML</span><span class="pc-chip">React</span><span class="pc-chip pc-chip-more">+3</span></div><div class="pc-footer"><span class="pc-cat-pill pc-cat-enterprise">Enterprise</span><button class="pc-view" onclick="openModal(1)">View Details ↗</button></div></div></div>
+      <!-- C2 -->
+      <div class="proj-card" data-cat="research" data-idx="1" data-state="next"><div class="pc-cover cover-research"><div class="cv-grid"></div><div class="cv-shape"></div><div class="cv-glow"></div><div class="cv-line"></div><span class="cv-badge">Research · 2025</span></div><div class="pc-body"><div class="pc-title">AI-DetectChain</div><div class="pc-tagline">Blockchain-inspired supply chain integrity framework</div><div class="pc-chips-row"><span class="pc-chip">Python</span><span class="pc-chip">SHA-256</span><span class="pc-chip pc-chip-more">+3</span></div><div class="pc-footer"><span class="pc-cat-pill pc-cat-research">Research</span><button class="pc-view" onclick="openModal(2)">View Details ↗</button></div></div></div>
+      <!-- C3 -->
+      <div class="proj-card" data-cat="research" data-idx="2" data-state="next2"><div class="pc-cover cover-research"><div class="cv-grid"></div><div class="cv-shape"></div><div class="cv-glow"></div><div class="cv-line"></div><span class="cv-badge">Research · 2025</span></div><div class="pc-body"><div class="pc-title">AI Safety Filter</div><div class="pc-tagline">Modular AI content moderation and safety system</div><div class="pc-chips-row"><span class="pc-chip">Python</span><span class="pc-chip">AI Safety</span><span class="pc-chip pc-chip-more">+2</span></div><div class="pc-footer"><span class="pc-cat-pill pc-cat-research">Research</span><button class="pc-view" onclick="openModal(3)">View Details ↗</button></div></div></div>
+      <!-- C4 -->
+      <div class="proj-card" data-cat="innovation" data-idx="3" data-state="far"><div class="pc-cover cover-innovation"><div class="cv-grid"></div><div class="cv-shape"></div><div class="cv-glow"></div><div class="cv-line"></div><span class="cv-badge">Innovation · 2025</span></div><div class="pc-body"><div class="pc-title">TopicSpin</div><div class="pc-tagline">AI-powered structured reasoning and content generation</div><div class="pc-chips-row"><span class="pc-chip">Python</span><span class="pc-chip">NLP</span><span class="pc-chip">Prompting</span></div><div class="pc-footer"><span class="pc-cat-pill pc-cat-innovation">Innovation</span><button class="pc-view" onclick="openModal(4)">View Details ↗</button></div></div></div>
+      <!-- C5 -->
+      <div class="proj-card" data-cat="enterprise" data-idx="4" data-state="far"><div class="pc-cover cover-enterprise"><div class="cv-grid"></div><div class="cv-shape"></div><div class="cv-glow"></div><div class="cv-line"></div><span class="cv-badge">Enterprise · 2025</span></div><div class="pc-body"><div class="pc-title">Peer Grading</div><div class="pc-tagline">Full-stack collaborative academic evaluation system</div><div class="pc-chips-row"><span class="pc-chip">React</span><span class="pc-chip">TypeScript</span><span class="pc-chip pc-chip-more">+3</span></div><div class="pc-footer"><span class="pc-cat-pill pc-cat-enterprise">Enterprise</span><button class="pc-view" onclick="openModal(5)">View Details ↗</button></div></div></div>
+      <!-- C6 -->
+      <div class="proj-card" data-cat="research" data-idx="5" data-state="far"><div class="pc-cover cover-research"><div class="cv-grid"></div><div class="cv-shape"></div><div class="cv-glow"></div><div class="cv-line"></div><span class="cv-badge">Research · 2024</span></div><div class="pc-body"><div class="pc-title">Smart Stream</div><div class="pc-tagline">IoT-based smart water monitoring & leakage detection</div><div class="pc-chips-row"><span class="pc-chip">IoT</span><span class="pc-chip">Embedded</span><span class="pc-chip pc-chip-more">+3</span></div><div class="pc-footer"><span class="pc-cat-pill pc-cat-research">Research</span><button class="pc-view" onclick="openModal(6)">View Details ↗</button></div></div></div>
+      <!-- C7 -->
+      <div class="proj-card" data-cat="product" data-idx="6" data-state="far"><div class="pc-cover cover-product"><div class="cv-grid"></div><div class="cv-shape"></div><div class="cv-glow"></div><div class="cv-line"></div><span class="cv-badge">Product · 2025</span></div><div class="pc-body"><div class="pc-title">SyncMates</div><div class="pc-tagline">Collaborative calendar-based scheduling platform</div><div class="pc-chips-row"><span class="pc-chip">React</span><span class="pc-chip">Node.js</span><span class="pc-chip">Calendar APIs</span></div><div class="pc-footer"><span class="pc-cat-pill pc-cat-product">Product</span><button class="pc-view" onclick="openModal(7)">View Details ↗</button></div></div></div>
     </div>
-  </div>
-  <div id="floor-achievements" class="floor-page">
-    <div class="floor-content">
-      <div class="floor-tag-lbl">// Floor 04 — Achievements</div>
-      <div class="floor-ph"><div class="floor-badge">Floor 04</div><h2><span>Achievements</span></h2><p>Certifications · Awards<br>Stage 10 builds this floor</p></div>
-    </div>
-  </div>
-  <div id="floor-contact" class="floor-page">
-    <div class="floor-content">
-      <div class="floor-tag-lbl">// Floor 05 — Contact</div>
-      <div class="floor-ph"><div class="floor-badge">Floor 05</div><h2>Let's <span>Talk</span></h2><p>Contact form · Social links<br>Stage 11 builds this floor</p></div>
-    </div>
+    <button class="proj-nav-btn" id="projPrevBtn" onclick="projAdvance(-1)">←</button>
+    <button class="proj-nav-btn" id="projNextBtn" onclick="projAdvance(1)">→</button>
+    <div class="proj-dots" id="projDots"><div class="proj-dot active" onclick="projGoTo(0)"></div><div class="proj-dot" onclick="projGoTo(1)"></div><div class="proj-dot" onclick="projGoTo(2)"></div><div class="proj-dot" onclick="projGoTo(3)"></div><div class="proj-dot" onclick="projGoTo(4)"></div><div class="proj-dot" onclick="projGoTo(5)"></div><div class="proj-dot" onclick="projGoTo(6)"></div></div>
+    <div class="proj-counter"><span id="projCountTxt"><strong>01</strong> / 07</span></div>
+    <div class="proj-bar"><div class="proj-bar-fill" id="projBarFill" style="width:0%"></div></div>
+    <div class="proj-hint" id="projHint"><span class="hint-arr" style="display:inline-block;transform:scaleX(-1)">→</span>&nbsp;scroll or arrow keys&nbsp;<span class="hint-arr">→</span></div>
+    <div class="proj-modal" id="projModal"><div class="proj-modal-inner"><div class="proj-modal-header"><div class="proj-modal-meta" id="modalMeta"></div><button class="proj-modal-close" onclick="closeModal()">✕</button></div><div class="proj-modal-body" id="modalBody"></div></div></div>
   </div>
 
-</div><!-- #interior -->
+  <!-- FLOOR 03 -->
+  <div id="floor-experience" class="floor-page"><div class="floor-content"><div class="floor-tag-lbl">// Floor 03 — Experience</div><div class="floor-ph"><div class="floor-badge">Floor 03</div><h2><span>Experience</span></h2><p>Work · Volunteering timeline<br>Stage 09 builds this floor</p></div></div></div>
+  <!-- FLOOR 04 -->
+  <div id="floor-achievements" class="floor-page"><div class="floor-content"><div class="floor-tag-lbl">// Floor 04 — Achievements</div><div class="floor-ph"><div class="floor-badge">Floor 04</div><h2><span>Achievements</span></h2><p>Certifications · Awards<br>Stage 10 builds this floor</p></div></div></div>
+  <!-- FLOOR 05 -->
+  <div id="floor-contact" class="floor-page"><div class="floor-content"><div class="floor-tag-lbl">// Floor 05 — Contact</div><div class="floor-ph"><div class="floor-badge">Floor 05</div><h2>Let's <span>Talk</span></h2><p>Stage 11 builds this floor</p></div></div></div>
+
+</div>
 
 <script>
-/* ================================================================
-   STAGE 06 v2 JavaScript
-   Outdoor stages 01-03 unchanged. New interior nav system.
-================================================================ */
-
-/* generators */
+/* ── OUTDOOR SCENE ── */
 function generateStars(c=180){const w=document.getElementById('starsWrap'),f=document.createDocumentFragment();for(let i=0;i<c;i++){const s=document.createElement('div');s.className='star';const sz=Math.random()*2+.8,x=Math.random()*100,y=Math.random()*100,d=(Math.random()*3+2).toFixed(1),dl=(Math.random()*4).toFixed(1);s.style.cssText=`width:${sz}px;height:${sz}px;left:${x}%;top:${y}%;--d:${d}s;--dl:${dl}s;`;f.appendChild(s);}w.appendChild(f);}
 function generateCityBg(){const c=document.getElementById('cityBg'),f=document.createDocumentFragment();[[18,60],[28,95],[22,75],[35,130],[20,55],[30,110],[18,65],[42,155],[25,80],[30,100],[20,70],[36,125],[24,85],[28,95],[18,50],[40,140],[22,70],[26,90],[32,115],[20,60],[28,95],[18,55],[34,120],[22,75]].forEach(([w,h])=>{const el=document.createElement('div');el.className='cb';el.style.cssText=`width:${w}px;height:${h}px;`;f.appendChild(el);});c.appendChild(f);}
 function generateRoadDashes(n=5){const c=document.getElementById('roadDashes');for(let i=0;i<n;i++){const d=document.createElement('div');d.className='rd';c.appendChild(d);}}
-
 const scene=document.getElementById('scene'),cityBg=document.getElementById('cityBg'),scrollHud=document.getElementById('scrollHud'),hudValue=document.getElementById('hudValue'),hudFill=document.getElementById('hudFill'),scrollHint=document.getElementById('scrollHint'),building=document.getElementById('building'),doorL=document.getElementById('doorL'),doorR=document.getElementById('doorR'),welcomeText=document.getElementById('welcomeText'),groundGlow=document.getElementById('groundGlow'),entranceGlow=document.getElementById('entranceGlow'),blocks=Array.from({length:10},(_,i)=>document.getElementById(`blk${i}`)),character=document.getElementById('character'),charShadow=document.getElementById('charShadow'),distTag=document.getElementById('distTag'),footCanvas=document.getElementById('footCanvas'),footCtx=footCanvas.getContext('2d');
 const flashOverlay=document.getElementById('flash-overlay'),transitionOverlay=document.getElementById('transition-overlay'),interior=document.getElementById('interior'),interiorNav=document.getElementById('interior-nav');
 const THRESHOLDS=[.38,.34,.30,.25,.22,.18,.15,.12,.07,.04],DELAYS=[0,40,70,55,55,70,35,70,15,0];
 let doorsOpen=false,prevProgress=0,isWalking=false,walkStopTimer=null,lastFootX=-999,entryTriggered=false;
 const dustParticles=[];
-
 function onScroll(){
   if(entryTriggered)return;
   const sceneTop=scene.offsetTop,progress=Math.max(0,Math.min(1,(window.scrollY-sceneTop)/(scene.offsetHeight-window.innerHeight)));
@@ -1222,247 +702,153 @@ function onScroll(){
   prevProgress=progress;
   if(progress>=.92)triggerEntry();
 }
-
-function updateCharacter(p){const vw=window.innerWidth,vh=window.innerHeight,wt=Math.max(0,Math.min(1,(p-.04)/.78)),we=wt*wt*(3-2*wt),cx=vw*.05+we*(vw*.5-vw*.05),cs=.45+we*.60;charShadow.style.width=`${22+(1-we)*28}px`;let op=1;if(p<.04)op=0;else if(p<.08)op=(p-.04)/.04;else if(p>.85)op=Math.max(0,1-(p-.85)/.07);character.style.opacity=op.toFixed(3);character.style.left=`${cx}px`;character.style.transform=`translateX(-50%) scale(${cs.toFixed(3)})`;const dp=Math.round(we*100);distTag.textContent=dp<95?(dp<10?'far away':dp<40?'approaching':dp<75?'almost there':'entering...'):'';if(isWalking&&op>.2&&Math.abs(cx-lastFootX)>28){spawnDust(cx,vh-108);lastFootX=cx;}}
+function updateCharacter(p){const vw=window.innerWidth,wt=Math.max(0,Math.min(1,(p-.04)/.78)),we=wt*wt*(3-2*wt),cx=vw*.05+we*(vw*.5-vw*.05),cs=.45+we*.60;charShadow.style.width=`${22+(1-we)*28}px`;let op=1;if(p<.04)op=0;else if(p<.08)op=(p-.04)/.04;else if(p>.85)op=Math.max(0,1-(p-.85)/.07);character.style.opacity=op.toFixed(3);character.style.left=`${cx}px`;character.style.transform=`translateX(-50%) scale(${cs.toFixed(3)})`;const dp=Math.round(we*100);distTag.textContent=dp<95?(dp<10?'far away':dp<40?'approaching':dp<75?'almost there':'entering...'):'';if(isWalking&&op>.2&&Math.abs(cx-lastFootX)>28){spawnDust(cx,window.innerHeight-108);lastFootX=cx;}}
 function startWalking(){if(!isWalking){isWalking=true;character.classList.add('walking');}if(walkStopTimer){clearTimeout(walkStopTimer);walkStopTimer=null;}}
 function scheduleStopWalking(){if(walkStopTimer)return;walkStopTimer=setTimeout(()=>{isWalking=false;character.classList.remove('walking');walkStopTimer=null;},180);}
 function spawnDust(x,gy){const n=3+Math.floor(Math.random()*3);for(let i=0;i<n;i++)dustParticles.push({x:x+(Math.random()-.5)*14,y:gy-4,vx:(Math.random()-.5)*.8,vy:-(Math.random()*.8+.2),r:Math.random()*3+1,life:1,decay:.04+Math.random()*.03});}
 function animateDust(){if(footCanvas.width!==window.innerWidth){footCanvas.width=window.innerWidth;footCanvas.height=40;}footCtx.clearRect(0,0,footCanvas.width,footCanvas.height);for(let i=dustParticles.length-1;i>=0;i--){const p=dustParticles[i];p.x+=p.vx;p.y+=p.vy;p.life-=p.decay;if(p.life<=0){dustParticles.splice(i,1);continue;}footCtx.beginPath();footCtx.arc(p.x,p.y,p.r*p.life,0,Math.PI*2);footCtx.fillStyle=`rgba(124,58,237,${(p.life*.3).toFixed(2)})`;footCtx.fill();}requestAnimationFrame(animateDust);}
-
 function triggerEntry(){
   if(entryTriggered)return;entryTriggered=true;
   document.body.style.overflow='hidden';
   flashOverlay.classList.add('flash');
-  setTimeout(()=>{
-    flashOverlay.classList.remove('flash');
-    transitionOverlay.classList.add('dark');
-    setTimeout(()=>{
-      interior.classList.add('mounted');
-      window.scrollTo({top:0,behavior:'instant'});
-      scene.style.display='none';
-      document.body.style.overflow='';
-      setTimeout(()=>{
-        interior.classList.add('visible');
-        setTimeout(()=>{
-          interiorNav.classList.add('show');
-          setTimeout(()=>{
-            transitionOverlay.classList.remove('dark');transitionOverlay.classList.add('clear');
-            initReception();
-          },300);
+  setTimeout(()=>{flashOverlay.classList.remove('flash');transitionOverlay.classList.add('dark');
+    setTimeout(()=>{interior.classList.add('mounted');window.scrollTo({top:0,behavior:'instant'});scene.style.display='none';document.body.style.overflow='';
+      setTimeout(()=>{interior.classList.add('visible');
+        setTimeout(()=>{interiorNav.classList.add('show');
+          setTimeout(()=>{transitionOverlay.classList.remove('dark');transitionOverlay.classList.add('clear');initReception();},300);
         },300);
       },200);
     },420);
   },220);
 }
-
-/* ================================================================
-   FLOOR DATA
-================================================================ */
-const FLOORS = [
-  {num:'G',  name:'Reception',    sub:'Ground lobby',            pageId:null},
-  {num:'01', name:'About',        sub:'Bio · Skills · Stats',    pageId:'floor-about'},
-  {num:'02', name:'Projects',     sub:'Enterprise · Research',   pageId:'floor-projects'},
-  {num:'03', name:'Experience',   sub:'Work · Volunteering',     pageId:'floor-experience'},
-  {num:'04', name:'Achievements', sub:'Certifications · Awards', pageId:'floor-achievements'},
-  {num:'05', name:'Contact',      sub:"Let's connect",           pageId:'floor-contact'},
-];
-
-let currentFloor = 0;  /* 0 = reception/lobby */
-let transitioning = false;
-
-/* ── DESK FLOOR BUTTON CLICK ── */
-function deskFloorClick(e, fi) {
-  e.preventDefault();
-  if(fi === 0 || transitioning) return; /* G = already here */
-  goToFloor(fi);
-}
-
-/* ── GLOBAL NAVIGATE TO FLOOR ── */
-function goToFloor(fi) {
-  if(fi === currentFloor || transitioning) return;
-  if(currentFloor === 0) {
-    /* From lobby: walk to escalator then ride */
-    lobbyWalkThenEscalate(fi);
-  } else {
-    /* Already on a floor: straight escalator transition */
-    escalateTo(fi);
-  }
-}
-
-/* ── STEP 1: lobby walk character walks right toward escalator ── */
-function lobbyWalkThenEscalate(targetFloor) {
-  transitioning = true;
-  const lc  = document.getElementById('lobby-char');
-  const vw  = window.innerWidth;
-
-  /* show character at lobby centre */
-  lc.style.left  = '50%';
-  lc.style.transform = 'translateX(-50%)';
-  lc.style.opacity = '1';
-  lc.classList.add('lc-walking');
-
-  /* fade desk and receptionist */
-  document.getElementById('deskArea').style.transition = 'opacity .5s';
-  document.getElementById('deskArea').style.opacity = '0';
-  document.getElementById('recArea').style.transition = 'opacity .5s';
-  document.getElementById('recArea').style.opacity = '0';
-
-  /* animate character walking right (~1.2s) */
-  let pos = 50; /* starts at 50% */
-  const walkInterval = setInterval(() => {
-    pos += 1.2;
-    lc.style.left  = pos + '%';
-    lc.style.transform = 'translateX(0)';
-    if(pos >= 88) {
-      clearInterval(walkInterval);
-      lc.classList.remove('lc-walking');
-      lc.style.opacity = '0';
-      setTimeout(()=> escalateTo(targetFloor), 200);
-    }
-  }, 20);
-}
-
-/* ── STEP 2: escalator transition screen ── */
-function escalateTo(targetFloor) {
-  const escTrans  = document.getElementById('esc-transition');
-  const escPanel  = document.getElementById('escBuildingPanel');
-  const escDestF  = document.getElementById('escDestFloor');
-  const escDestN  = document.getElementById('escDestName');
-  const escRider  = document.getElementById('escMainRider');
-  const escCount  = document.getElementById('escCounter');
-  const floor     = FLOORS[targetFloor];
-
-  /* build the building panel */
-  escPanel.innerHTML = '';
-  [...FLOORS].reverse().forEach((f, ri) => {
-    const fi = FLOORS.length - 1 - ri;
-    const row = document.createElement('div');
-    row.className = 'esc-floor-row' + (fi===currentFloor?' current':'') + (fi===targetFloor?' destination':'');
-    row.innerHTML = `<div class="efr-num">${f.num}</div><div class="efr-info"><div class="efr-name">${f.name}</div></div><div class="efr-indicator"></div>`;
-    row.onclick = ()=>{ if(!transitioning)goToFloor(fi); };
-    escPanel.appendChild(row);
-  });
-
-  /* set destination header */
-  escDestF.textContent = floor.num;
-  escDestN.textContent = floor.name;
-
-  /* rider starts at bottom */
-  escRider.style.bottom = '10px';
-  escCount.textContent = FLOORS[currentFloor].num;
-
-  /* show transition screen */
-  escTrans.classList.add('show');
-
-  /* animate rider upward (maps target floor to track height) */
-  setTimeout(()=>{
-    const trackH = 280; /* approx track height */
-    const riderH = 36;
-    const frac   = targetFloor / (FLOORS.length - 1);
-    const dest   = Math.round(frac * (trackH - riderH));
-    escRider.style.bottom = dest + 'px';
-
-    /* count up floors as rider moves */
-    let counted = currentFloor;
-    const dir   = targetFloor > currentFloor ? 1 : -1;
-    const countInterval = setInterval(()=>{
-      counted += dir;
-      escCount.textContent = FLOORS[Math.max(0,Math.min(FLOORS.length-1,counted))].num;
-      if(counted === targetFloor) clearInterval(countInterval);
-    }, 2200 / (Math.abs(targetFloor-currentFloor) || 1));
-
-  }, 100);
-
-  /* after 2.4s → resolve to floor */
-  setTimeout(()=>{
-    escTrans.classList.remove('show');
-    currentFloor = targetFloor;
-    resolveToFloor(targetFloor);
-  }, 2600);
-}
-
-/* ── STEP 3: show target floor content ── */
-function resolveToFloor(fi) {
-  /* hide all floor pages */
-  document.querySelectorAll('.floor-page').forEach(p=>{p.classList.remove('active-floor');p.style.display='none';});
-  document.getElementById('reception-scene').style.display = 'none';
-
-  if(fi === 0) {
-    /* back to lobby */
-    document.getElementById('reception-scene').style.display = 'block';
-    document.getElementById('deskArea').style.opacity = '1';
-    document.getElementById('recArea').style.opacity = '1';
-    document.getElementById('lobby-char').style.opacity = '0';
-  } else {
-    const page = document.getElementById(FLOORS[fi].pageId);
-    if(page){ page.style.display='flex'; page.classList.add('active-floor'); }
-  }
-
-  /* update floor directory panel */
-  updateFloorPanel(fi);
-
-  /* show directory panel (only on non-lobby floors) */
-  const fdp = document.getElementById('floorDirPanel');
-  if(fi > 0){ fdp.classList.add('show'); }
-  if(fi===1) setTimeout(initAboutSection, 100);
-  else { fdp.classList.remove('show'); }
-
-  /* update desk mini escalator */
-  updateDeskEscalator(fi);
-
-  transitioning = false;
-  window.scrollTo({top:0,behavior:'instant'});
-}
-
-function updateFloorPanel(fi){
-  document.querySelectorAll('.fdp-floor').forEach(f=>{
-    f.classList.toggle('fdp-current', parseInt(f.dataset.fi)===fi);
-  });
-  document.querySelectorAll('.nav-links a').forEach((a,i)=>{
-    a.classList.toggle('active-nav', i+1===fi);
-  });
-}
-
-function updateDeskEscalator(fi){
-  /* update desk shaft labels */
-  document.querySelectorAll('.esc-lvl').forEach(l=>{
-    l.classList.toggle('cur', parseInt(l.dataset.fi)===fi);
-  });
-  /* move rider */
-  const shaft  = document.getElementById('escShaft');
-  const rider  = document.getElementById('escRider');
-  const readout= document.getElementById('escReadout');
-  const shH    = shaft.offsetHeight || 100;
-  const rH     = 26;
-  const usable = shH - rH - 10;
-  const topPx  = 5 + usable * (1 - fi/(FLOORS.length-1));
-  rider.style.top = Math.round(topPx)+'px';
-  readout.textContent = FLOORS[fi].num;
-  /* desk floor buttons */
-  document.querySelectorAll('.floor-btn').forEach(b=>{
-    b.classList.toggle('active', parseInt(b.dataset.fi)===fi);
-  });
-}
-
-/* ── RECEPTION INIT ── */
-function initReception(){
-  setTimeout(()=>{
-    document.getElementById('deskArea').classList.add('show');
-    document.getElementById('recArea').classList.add('show');
-  },400);
-  setTimeout(()=>runTypewriter(),900);
-}
-
-function runTypewriter(){
-  const textEl=document.getElementById('bubbleText'),curEl=document.getElementById('bubbleCursor');
-  const lines=['Good day! Welcome to\nC. Sree Harshith Reddy\'s Empire.','Select a floor below\nto begin your visit.'];
-  let li=0,ci=0,ft='';
-  function next(){if(li>=lines.length){curEl.style.display='none';return;}const ln=lines[li];if(ci<ln.length){ft+=ln[ci];textEl.textContent=ft;ci++;setTimeout(next,36);}else{ft+='\n';ci=0;li++;setTimeout(next,700);}}
-  next();
-}
-
 function initWingSplit(){const wL=document.getElementById('wingL'),wR=document.getElementById('wingR');wL.style.cssText+='transform:translateX(-55px);transition:transform 1.1s cubic-bezier(.22,1,.36,1);';wR.style.cssText+='transform:translateX(55px);transition:transform 1.1s cubic-bezier(.22,1,.36,1);';new MutationObserver(()=>{const on=document.getElementById('blk6').classList.contains('vis');wL.style.transform=on?'translateX(0)':'translateX(-55px)';wR.style.transform=on?'translateX(0)':'translateX(55px)';}).observe(document.getElementById('blk6'),{attributes:true,attributeFilter:['class']});}
 function startWindowFlicker(){setInterval(()=>{document.querySelectorAll('.win.l1,.win.l2,.win.l3').forEach(w=>{if(Math.random()>.91){w.style.opacity='.22';setTimeout(()=>{w.style.opacity='';},100+Math.random()*200);}});},850);}
+
+/* ── FLOOR SYSTEM ── */
+const FLOORS=[{num:'G',name:'Reception',sub:'Ground lobby',pageId:null},{num:'01',name:'About',sub:'Bio · Skills · Stats',pageId:'floor-about'},{num:'02',name:'Projects',sub:'Enterprise · Research',pageId:'floor-projects'},{num:'03',name:'Experience',sub:'Work · Volunteering',pageId:'floor-experience'},{num:'04',name:'Achievements',sub:'Certifications · Awards',pageId:'floor-achievements'},{num:'05',name:'Contact',sub:"Let's connect",pageId:'floor-contact'}];
+let currentFloor=0,transitioning=false;
+function deskFloorClick(e,fi){e.preventDefault();if(fi===0||transitioning)return;goToFloor(fi);}
+function goToFloor(fi){if(fi===currentFloor||transitioning)return;if(currentFloor===0){lobbyWalkThenEscalate(fi);}else{escalateTo(fi);}}
+function lobbyWalkThenEscalate(targetFloor){
+  transitioning=true;const lc=document.getElementById('lobby-char');const vw=window.innerWidth;
+  lc.style.left='50%';lc.style.transform='translateX(-50%)';lc.style.opacity='1';lc.classList.add('lc-walking');
+  document.getElementById('deskArea').style.transition='opacity .5s';document.getElementById('deskArea').style.opacity='0';
+  document.getElementById('recArea').style.transition='opacity .5s';document.getElementById('recArea').style.opacity='0';
+  let pos=50;const walkInterval=setInterval(()=>{pos+=1.2;lc.style.left=pos+'%';lc.style.transform='translateX(0)';if(pos>=88){clearInterval(walkInterval);lc.classList.remove('lc-walking');lc.style.opacity='0';setTimeout(()=>escalateTo(targetFloor),200);}},20);
+}
+function escalateTo(targetFloor){
+  const escTrans=document.getElementById('esc-transition'),escPanel=document.getElementById('escBuildingPanel'),escDestF=document.getElementById('escDestFloor'),escDestN=document.getElementById('escDestName'),escRider=document.getElementById('escMainRider'),escCount=document.getElementById('escCounter'),floor=FLOORS[targetFloor];
+  escPanel.innerHTML='';
+  [...FLOORS].reverse().forEach((f,ri)=>{const fi=FLOORS.length-1-ri;const row=document.createElement('div');row.className='esc-floor-row'+(fi===currentFloor?' current':'')+(fi===targetFloor?' destination':'');row.innerHTML=`<div class="efr-num">${f.num}</div><div class="efr-info"><div class="efr-name">${f.name}</div></div><div class="efr-indicator"></div>`;row.onclick=()=>{if(!transitioning)goToFloor(fi);};escPanel.appendChild(row);});
+  escDestF.textContent=floor.num;escDestN.textContent=floor.name;escRider.style.bottom='10px';escCount.textContent=FLOORS[currentFloor].num;
+  escTrans.classList.add('show');
+  setTimeout(()=>{const trackH=280,riderH=36,frac=targetFloor/(FLOORS.length-1),dest=Math.round(frac*(trackH-riderH));escRider.style.bottom=dest+'px';let counted=currentFloor;const dir=targetFloor>currentFloor?1:-1;const ci=setInterval(()=>{counted+=dir;escCount.textContent=FLOORS[Math.max(0,Math.min(FLOORS.length-1,counted))].num;if(counted===targetFloor)clearInterval(ci);},2200/(Math.abs(targetFloor-currentFloor)||1));},100);
+  setTimeout(()=>{escTrans.classList.remove('show');currentFloor=targetFloor;resolveToFloor(targetFloor);},2600);
+}
+function resolveToFloor(fi){
+  document.querySelectorAll('.floor-page').forEach(p=>{p.classList.remove('active-floor');p.style.display='none';});
+  document.getElementById('reception-scene').style.display='none';
+  if(fi===0){document.getElementById('reception-scene').style.display='block';document.getElementById('deskArea').style.opacity='1';document.getElementById('recArea').style.opacity='1';document.getElementById('lobby-char').style.opacity='0';}
+  else{const page=document.getElementById(FLOORS[fi].pageId);if(page){page.style.display='flex';page.classList.add('active-floor');}}
+  updateFloorPanel(fi);
+  const fdp=document.getElementById('floorDirPanel');if(fi>0){fdp.classList.add('show');}else{fdp.classList.remove('show');}
+  updateDeskEscalator(fi);
+  if(fi===1)setTimeout(initAboutSection,100);
+  if(fi===2)setTimeout(initProjectsFloor,100);
+  transitioning=false;window.scrollTo({top:0,behavior:'instant'});
+}
+function updateFloorPanel(fi){document.querySelectorAll('.fdp-floor').forEach(f=>f.classList.toggle('fdp-current',parseInt(f.dataset.fi)===fi));document.querySelectorAll('.nav-links a').forEach((a,i)=>a.classList.toggle('active-nav',i+1===fi));}
+function updateDeskEscalator(fi){document.querySelectorAll('.esc-lvl').forEach(l=>l.classList.toggle('cur',parseInt(l.dataset.fi)===fi));const shaft=document.getElementById('escShaft'),rider=document.getElementById('escRider'),readout=document.getElementById('escReadout');const shH=shaft.offsetHeight||100,rH=26,usable=shH-rH-10,topPx=5+usable*(1-fi/(FLOORS.length-1));rider.style.top=Math.round(topPx)+'px';readout.textContent=FLOORS[fi].num;document.querySelectorAll('.floor-btn').forEach(b=>b.classList.toggle('active',parseInt(b.dataset.fi)===fi));}
+
+/* ── RECEPTION ── */
+function initReception(){setTimeout(()=>{document.getElementById('deskArea').classList.add('show');document.getElementById('recArea').classList.add('show');},400);setTimeout(()=>runTypewriter(),900);}
+function runTypewriter(){const textEl=document.getElementById('bubbleText'),curEl=document.getElementById('bubbleCursor');const lines=['Good day! Welcome to\nC. Sree Harshith Reddy\'s Empire.','Select a floor from the panel\nor scroll down to begin.'];let li=0,ci=0,ft='';function next(){if(li>=lines.length){curEl.style.display='none';setTimeout(()=>document.getElementById('escPrompt').classList.add('show'),600);return;}const ln=lines[li];if(ci<ln.length){ft+=ln[ci];textEl.textContent=ft;ci++;setTimeout(next,36);}else{ft+='\n';ci=0;li++;setTimeout(next,700);}}next();}
+
+/* ── ABOUT ── */
+function initAboutSection(){
+  const contentEl=document.querySelector('.about-floor-content'),panelA=document.getElementById('aboutPanelA'),panelB=document.getElementById('aboutPanelB');
+  panelA.classList.remove('panel-visible');panelB.classList.remove('panel-visible');
+  document.querySelectorAll('.skill-fill').forEach(b=>b.style.width='0%');
+  document.querySelectorAll('.stat-num').forEach(n=>{n.textContent='0';});
+  if(contentEl)contentEl.scrollTop=0;
+  requestAnimationFrame(()=>{panelA.classList.add('panel-visible');setTimeout(()=>animateStats(),400);});
+  if(!contentEl)return;
+  const obs=new IntersectionObserver((entries)=>{entries.forEach(entry=>{if(entry.isIntersecting){panelB.classList.add('panel-visible');setTimeout(()=>animateSkillBars(),200);obs.disconnect();}});},{root:contentEl,threshold:0.15});
+  obs.observe(panelB);
+  const cue=document.getElementById('aboutScrollCue');if(cue){cue.style.cursor='pointer';cue.onclick=()=>panelB.scrollIntoView({behavior:'smooth',block:'start'});}
+}
+function animateStats(){document.querySelectorAll('.stat-num').forEach(el=>{const target=parseInt(el.dataset.target,10);let current=0;const step=Math.max(1,Math.ceil(target/40));const timer=setInterval(()=>{current=Math.min(current+step,target);el.textContent=current;if(current>=target)clearInterval(timer);},35);});}
+function animateSkillBars(){document.querySelectorAll('.skill-fill').forEach(bar=>{setTimeout(()=>{bar.style.width=bar.dataset.width+'%';},50);});}
+
+/* ── PROJECTS CAROUSEL ── */
+const PROJECTS=[
+  {id:1,cat:'enterprise',year:2025,title:'Shopping Matrix',tagline:'AI-driven multi-vendor e-commerce intelligence platform',about:'Shopping Matrix is an AI-powered multi-vendor e-commerce intelligence platform that analyzes large-scale sales trends, customer behavior, and inventory performance. It provides predictive insights and strategic recommendations to help vendors optimize pricing and maximize revenue.',features:['AI-based demand forecasting and trend prediction','Customer behavior and product analytics','Dynamic pricing and discount optimization','Vendor performance dashboards','Inventory optimization engine'],impact:'Improves vendor profitability and operational efficiency through data-driven decision-making and reduced inventory mismanagement.',team:[{init:'CSHR',name:'C. Sree Harshith Reddy',role:'Lead / Developer'},{init:'HSSR',name:'Ch. Hemanth Sri Sai Raja',role:'Team Member'},{init:'KSP',name:'Krishna Sankeerth Pagoti',role:'Team Member'},{init:'DP',name:'D. Pragnya',role:'Team Member'}],mentor:{init:'SBP',name:'Dr. S. Bhanu Prakash',role:'Mentor'},techImpl:'Built predictive ML models and a decision-support engine to process multi-vendor datasets. Designed scalable architecture for structured commerce data and optimization insights.',stack:['Python','Machine Learning','Data Analytics','React','Node.js','Cloud Deployment']},
+  {id:2,cat:'research',year:2025,title:'AI-DetectChain',tagline:'Blockchain-inspired AI-powered supply chain integrity framework',about:'AI-DetectChain is a blockchain-inspired framework that enhances supply chain transparency using hash chaining and anomaly detection. It identifies tampered, duplicate, or missing transaction records in datasets.',features:['SHA-256 hash-based chaining','AI-driven anomaly detection','Duplicate & missing record validation','Transparent supply chain simulation','Cybersecurity verification layer'],impact:'Strengthens data integrity and digital trust in supply chain systems aligned with secure infrastructure practices.',team:[{init:'CSHR',name:'C. Sree Harshith Reddy',role:'Lead / Developer'},{init:'KSP',name:'Krishna Sankeerth Pagoti',role:'Team Member'},{init:'MRP',name:'M. Ruthwika Prakash',role:'Team Member'},{init:'MSY',name:'M. Sai Yaswanth',role:'Team Member'},{init:'GSV',name:'G. Sai Vaibhav',role:'Team Member'}],mentor:{init:'MG',name:'Prof. Meher Gayatri',role:'Mentor'},techImpl:'Implemented blockchain-style hashing architecture with rule-based anomaly detection to validate transactions and detect inconsistencies.',stack:['Python','SHA-256 Hashing','Data Structures','Cybersecurity Concepts','Simulation']},
+  {id:3,cat:'research',year:2025,title:'AI Safety Filter',tagline:'Modular AI content moderation and safety system',about:'AI Safety Filter is a modular system designed to detect harmful or unsafe inputs using contextual validation and risk classification techniques.',features:['Context-aware input validation','Risk classification and severity tagging','Multi-layer filtering architecture','Modular moderation pipeline','Compliance-focused design'],impact:'Enhances AI reliability and ensures safe, policy-compliant outputs.',team:[{init:'CSHR',name:'C. Sree Harshith Reddy',role:'Lead / Developer'},{init:'RG',name:'Rithvik Gattu',role:'Team Member'},{init:'GST',name:'Gaddam Sai Teja',role:'Team Member'},{init:'MSY',name:'M. Sai Yaswanth',role:'Team Member'},{init:'GSV',name:'G. Sai Vaibhav',role:'Team Member'}],mentor:{init:'VT',name:'Prof. Vaishali Thakur',role:'Mentor'},techImpl:'Designed a layered moderation pipeline combining validation logic and contextual classification for safe AI responses.',stack:['Python','AI Safety Principles','Content Moderation','Rule-Based Systems']},
+  {id:4,cat:'innovation',year:2025,title:'TopicSpin',tagline:'AI-powered structured reasoning and content generation system',about:'TopicSpin is an AI-based reasoning system that converts broad topics into structured, presentation-ready content using contextual analysis.',features:['Topic segmentation and refinement','Structured summaries and outlines','Context-aware reasoning','Automated content generation','Logical flow optimization'],impact:'Reduces manual effort in structuring content and improves clarity in presentations.',team:[{init:'CSHR',name:'C. Sree Harshith Reddy',role:'Developer'}],mentor:{init:'JG',name:'Joshua Gnanaselvan',role:'Mentor'},techImpl:'Built a reasoning pipeline using contextual analysis and segmentation to transform raw topics into structured outputs.',stack:['Python','NLP Concepts','Prompt Engineering','Structured Reasoning']},
+  {id:5,cat:'enterprise',year:2025,title:'Peer Grading Platform',tagline:'Full-stack collaborative academic evaluation system',about:'Peer Grading Platform is a full-stack system designed to streamline student evaluation workflows with structured grading and analytics.',features:['Role-based authentication','Section-wise grading system','Duplicate submission detection','Automated student management','Real-time analytics dashboard'],impact:'Improves grading transparency, efficiency, and accuracy in academic environments.',team:[{init:'CSHR',name:'C. Sree Harshith Reddy',role:'Developer'}],mentor:{init:'JG',name:'Joshua Gnanaselvan',role:'Mentor'},techImpl:'Developed using React and TypeScript with a cloud backend supporting authentication, grading workflows, and analytics.',stack:['React','TypeScript','Node.js','Cloud Backend','Authentication Systems']},
+  {id:6,cat:'research',year:2024,title:'Smart Stream',tagline:'IoT-based smart water monitoring and leakage detection system',about:'Smart Stream is an IoT-enabled system that monitors water usage in real time and detects leakages using sensor data and analytics.',features:['Real-time flow and pressure monitoring','Leakage detection system','Cloud dashboard visualization','Historical usage analytics','Sustainability insights'],impact:'Promotes efficient water usage and enables early leakage detection.',team:[{init:'CSHR',name:'C. Sree Harshith Reddy',role:'Developer'},{init:'RG',name:'Rithvik Gattu',role:'Team Member'},{init:'GST',name:'Gaddam Sai Teja',role:'Team Member'},{init:'YAA',name:'Y. Akhil Abhinay',role:'Team Member'}],mentor:{init:'SBP',name:'Dr. S. Bhanu Prakash',role:'Mentor'},techImpl:'Integrated IoT sensors with microcontrollers and cloud-based systems for real-time monitoring and analytics.',stack:['IoT Sensors','Microcontroller','Embedded Systems','Cloud Dashboard','Data Visualization']},
+  {id:7,cat:'product',year:2025,title:'SyncMates',tagline:'Collaborative calendar-based scheduling platform',about:'SyncMates is a collaborative scheduling platform that helps users manage events, connect with friends, and avoid conflicts using a unified system.',features:['Shared calendar system','Friend-based collaboration','Conflict detection algorithms','Unified planning interface','Productivity-focused tools'],impact:'Enhances coordination and productivity through centralized scheduling.',team:[{init:'CSHR',name:'C. Sree Harshith Reddy',role:'Developer'}],mentor:null,techImpl:'Built an interactive system with calendar sync logic and event conflict detection.',stack:['React','JavaScript','Node.js','Calendar APIs','Cloud Backend']}
+];
+
+let projIndex=0,projFiltered=[0,1,2,3,4,5,6],projHinted=false;
+
+function initProjectsFloor(){
+  projFiltered=[0,1,2,3,4,5,6];projIndex=0;
+  updateCarousel();buildDots();
+  const stage=document.getElementById('projStage');
+  if(!stage)return;
+  stage.onwheel=e=>{e.stopPropagation();hideHint();if(e.deltaY>8||e.deltaX>8)projAdvance(1);if(e.deltaY<-8||e.deltaX<-8)projAdvance(-1);};
+  let tx0=0;
+  stage.ontouchstart=e=>{tx0=e.touches[0].clientX;};
+  stage.ontouchmove=e=>{e.preventDefault();};
+  stage.ontouchend=e=>{const dx=tx0-e.changedTouches[0].clientX;if(Math.abs(dx)>40){hideHint();projAdvance(dx>0?1:-1);}};
+  if(document._projKey)document.removeEventListener('keydown',document._projKey);
+  document._projKey=e=>{const fp=document.getElementById('floor-projects');if(!fp||!fp.classList.contains('active-floor'))return;if(e.key==='ArrowRight'||e.key==='ArrowDown'){e.preventDefault();hideHint();projAdvance(1);}if(e.key==='ArrowLeft'||e.key==='ArrowUp'){e.preventDefault();hideHint();projAdvance(-1);}};
+  document.addEventListener('keydown',document._projKey);
+  document.querySelectorAll('.pf-btn').forEach(btn=>{btn.onclick=()=>{document.querySelectorAll('.pf-btn').forEach(b=>b.classList.remove('pf-active'));btn.classList.add('pf-active');const cat=btn.dataset.cat;const allCards=document.querySelectorAll('#floor-projects .proj-card');projFiltered=[];allCards.forEach((c,i)=>{if(cat==='all'||c.dataset.cat===cat)projFiltered.push(i);});projIndex=0;updateCarousel();buildDots();};});
+}
+
+function projAdvance(dir){const len=projFiltered.length;if(len===0)return;projIndex=(projIndex+dir+len)%len;updateCarousel();}
+function projGoTo(pos){if(pos<0||pos>=projFiltered.length)return;projIndex=pos;updateCarousel();}
+
+function updateCarousel(){
+  const allCards=Array.from(document.querySelectorAll('#floor-projects .proj-card'));
+  const len=projFiltered.length;
+  allCards.forEach((card,i)=>{
+    const fi=projFiltered.indexOf(i);
+    if(fi===-1){card.dataset.state='far';return;}
+    let rel=fi-projIndex;
+    if(rel>Math.floor(len/2))rel-=len;
+    if(rel<-Math.floor(len/2))rel+=len;
+    if(rel===0)card.dataset.state='active';
+    else if(rel===-1)card.dataset.state='prev';
+    else if(rel===-2)card.dataset.state='prev2';
+    else if(rel===1)card.dataset.state='next';
+    else if(rel===2)card.dataset.state='next2';
+    else card.dataset.state='far';
+  });
+  document.querySelectorAll('.proj-dot').forEach((dot,i)=>dot.classList.toggle('active',i===projIndex));
+  const ct=document.getElementById('projCountTxt');if(ct){const n=String(projIndex+1).padStart(2,'0'),t=String(projFiltered.length).padStart(2,'0');ct.innerHTML=`<strong>${n}</strong> / ${t}`;}
+  const bar=document.getElementById('projBarFill');if(bar&&projFiltered.length>1)bar.style.width=((projIndex/(projFiltered.length-1))*100).toFixed(1)+'%';
+}
+
+function buildDots(){const dotsEl=document.getElementById('projDots');if(!dotsEl)return;dotsEl.innerHTML='';projFiltered.forEach((_,i)=>{const d=document.createElement('div');d.className='proj-dot'+(i===projIndex?' active':'');d.onclick=()=>projGoTo(i);dotsEl.appendChild(d);});}
+function hideHint(){if(projHinted)return;projHinted=true;const h=document.getElementById('projHint');if(h)h.classList.add('hidden');}
+
+function openModal(id){
+  const p=PROJECTS.find(x=>x.id===id);if(!p)return;
+  const cat=p.cat.charAt(0).toUpperCase()+p.cat.slice(1);
+  document.getElementById('modalMeta').innerHTML=`<div class="modal-cat-year">${cat} · ${p.year}</div><div class="modal-title">${p.title}</div><div class="modal-tagline">${p.tagline}</div>`;
+  const teamRows=p.team.map(m=>`<div class="ms-member"><div class="ms-avatar">${m.init}</div><div class="ms-member-info"><div class="ms-member-name">${m.name}</div><div class="ms-member-role">${m.role}</div></div></div>`).join('');
+  const mentorRow=p.mentor?`<div class="ms-team-divider"></div><div class="ms-member"><div class="ms-avatar mentor-av">${p.mentor.init}</div><div class="ms-member-info"><div class="ms-member-name">${p.mentor.name}</div><div class="ms-member-role mentor-role">${p.mentor.role}</div></div></div>`:'';
+  const feats=p.features.map(f=>`<div class="ms-feature">${f}</div>`).join('');
+  const chips=p.stack.map(s=>`<span class="ms-chip">${s}</span>`).join('');
+  document.getElementById('modalBody').innerHTML=`<div class="ms-block"><div class="ms-label"><div class="ms-label-icon">◎</div>About</div><p class="ms-text">${p.about}</p></div><div class="ms-block"><div class="ms-label"><div class="ms-label-icon">★</div>Key Features</div><div class="ms-features">${feats}</div></div><div class="ms-block"><div class="ms-label"><div class="ms-label-icon">⚡</div>Impact</div><p class="ms-text">${p.impact}</p></div><div class="ms-block"><div class="ms-label"><div class="ms-label-icon">◈</div>Team</div><div class="ms-team">${teamRows}${mentorRow}</div></div><div class="ms-block"><div class="ms-label"><div class="ms-label-icon">⚙</div>Technical Implementation</div><p class="ms-text">${p.techImpl}</p></div><div class="ms-block"><div class="ms-label"><div class="ms-label-icon">◧</div>Tech Stack</div><div class="ms-chips">${chips}</div></div>`;
+  document.getElementById('projModal').classList.add('open');document.body.style.overflow='hidden';
+}
+function closeModal(){document.getElementById('projModal').classList.remove('open');document.body.style.overflow='';}
+document.addEventListener('click',e=>{const m=document.getElementById('projModal');if(m&&e.target===m)closeModal();});
 
 function init(){
   generateStars(180);generateCityBg();generateRoadDashes(5);initWingSplit();
@@ -1471,76 +857,6 @@ function init(){
   window.addEventListener('scroll',onScroll,{passive:true});
   onScroll();startWindowFlicker();animateDust();
 }
-
-/* ================================================================
-   STAGE 07 — ABOUT SECTION JS
-   initAboutSection() called from resolveToFloor() when fi===1
-================================================================ */
-
-function initAboutSection(){
-  const contentEl  = document.querySelector('.about-floor-content');
-  const panelA     = document.getElementById('aboutPanelA');
-  const panelB     = document.getElementById('aboutPanelB');
-  const scrollCue  = document.getElementById('aboutScrollCue');
-
-  /* Reset state for re-entry */
-  panelA.classList.remove('panel-visible');
-  panelB.classList.remove('panel-visible');
-  document.querySelectorAll('.skill-fill').forEach(b=>b.style.width='0%');
-  document.querySelectorAll('.stat-num').forEach(n=>{ n.textContent='0'; });
-  if(contentEl) contentEl.scrollTop = 0;
-
-  /* Panel A reveals immediately */
-  requestAnimationFrame(()=>{
-    panelA.classList.add('panel-visible');
-    /* Animate stat counters */
-    setTimeout(()=>animateStats(), 400);
-  });
-
-  /* Panel B reveals when user scrolls down within the about content */
-  if(!contentEl) return;
-  const obs = new IntersectionObserver((entries)=>{
-    entries.forEach(entry=>{
-      if(entry.isIntersecting){
-        panelB.classList.add('panel-visible');
-        /* Animate skill bars */
-        setTimeout(()=>animateSkillBars(), 200);
-        obs.disconnect();
-      }
-    });
-  },{root:contentEl, threshold:0.15});
-  obs.observe(panelB);
-
-  /* Scroll cue click → scroll to panel B */
-  if(scrollCue){
-    scrollCue.style.cursor='pointer';
-    scrollCue.onclick=()=>{
-      panelB.scrollIntoView({behavior:'smooth',block:'start'});
-    };
-  }
-}
-
-function animateStats(){
-  document.querySelectorAll('.stat-num').forEach(el=>{
-    const target = parseInt(el.dataset.target, 10);
-    let current  = 0;
-    const step   = Math.max(1, Math.ceil(target / 40));
-    const timer  = setInterval(()=>{
-      current = Math.min(current + step, target);
-      el.textContent = current;
-      if(current >= target) clearInterval(timer);
-    }, 35);
-  });
-}
-
-function animateSkillBars(){
-  document.querySelectorAll('.skill-fill').forEach(bar=>{
-    const w = bar.dataset.width;
-    /* small delay so transition is visible */
-    setTimeout(()=>{ bar.style.width = w + '%'; }, 50);
-  });
-}
-
 document.addEventListener('DOMContentLoaded',init);
 </script>
 </body>
