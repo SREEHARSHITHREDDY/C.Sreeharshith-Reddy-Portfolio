@@ -774,6 +774,246 @@
     .floor-add-fab.fab-show{display:flex;}
     .floor-add-fab:hover{background:rgba(124,58,237,.12);box-shadow:0 0 20px rgba(124,58,237,.2);}
     .fab-plus{font-size:.9rem;color:var(--gold);}
+
+    /* ════════════════════════════════════════
+       FLOOR 05 — CONTACT
+    ════════════════════════════════════════ */
+    #floor-contact{
+      flex-direction:column;overflow-y:auto;height:100vh;
+      scrollbar-width:none;background:var(--bg);
+    }
+    #floor-contact::-webkit-scrollbar{display:none;}
+
+    .contact-floor{
+      min-height:100vh;display:flex;flex-direction:column;
+      position:relative;overflow:hidden;
+    }
+
+    /* ambient background */
+    .contact-ambient{
+      position:absolute;inset:0;pointer-events:none;z-index:0;
+      background:
+        radial-gradient(ellipse 60% 50% at 50% 100%,rgba(124,58,237,.07) 0%,transparent 70%),
+        radial-gradient(ellipse 40% 40% at 20% 60%,rgba(245,158,11,.04) 0%,transparent 60%),
+        radial-gradient(ellipse 35% 35% at 80% 30%,rgba(6,182,212,.04) 0%,transparent 60%);
+    }
+    .contact-grid-bg{
+      position:absolute;inset:0;pointer-events:none;z-index:0;
+      background:
+        repeating-linear-gradient(0deg,rgba(124,58,237,.025) 0 1px,transparent 1px 80px),
+        repeating-linear-gradient(90deg,rgba(124,58,237,.025) 0 1px,transparent 1px 80px);
+    }
+
+    /* header */
+    .contact-header{
+      position:relative;z-index:2;
+      padding:68px 92px 0 60px;
+    }
+    .contact-ftag{font-family:var(--font-mono);font-size:.48rem;letter-spacing:4px;color:var(--muted);text-transform:uppercase;display:block;margin-bottom:6px;}
+    .contact-title{font-family:var(--font-display);font-size:clamp(3rem,7vw,6rem);letter-spacing:4px;color:var(--text);line-height:1;margin-bottom:16px;}
+    .contact-title span{color:var(--gold);}
+
+    /* availability badge */
+    .contact-status{
+      display:inline-flex;align-items:center;gap:10px;
+      background:rgba(6,182,212,.08);border:1px solid rgba(6,182,212,.3);
+      border-radius:24px;padding:8px 18px;margin-bottom:28px;
+    }
+    .contact-status-dot{
+      width:8px;height:8px;border-radius:50%;
+      background:var(--cyan);
+      box-shadow:0 0 0 3px rgba(6,182,212,.2);
+      animation:status-pulse 2s ease-in-out infinite;
+      flex-shrink:0;
+    }
+    @keyframes status-pulse{
+      0%,100%{box-shadow:0 0 0 3px rgba(6,182,212,.2);}
+      50%{box-shadow:0 0 0 6px rgba(6,182,212,.08);}
+    }
+    .contact-status-text{font-family:var(--font-mono);font-size:.52rem;letter-spacing:2px;color:rgba(100,220,240,.85);text-transform:uppercase;}
+    .contact-status-badges{display:flex;gap:8px;margin-left:4px;}
+    .contact-status-pill{font-family:var(--font-mono);font-size:.42rem;letter-spacing:1.5px;text-transform:uppercase;padding:2px 10px;border-radius:20px;background:rgba(6,182,212,.12);border:1px solid rgba(6,182,212,.25);color:rgba(100,220,240,.75);}
+
+    /* main content grid */
+    .contact-grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:40px;
+      padding:0 92px 80px 60px;
+      position:relative;z-index:2;
+      flex:1;
+    }
+
+    /* ── LEFT: info + social ── */
+    .contact-left{display:flex;flex-direction:column;gap:28px;}
+
+    /* tagline */
+    .contact-tagline{
+      font-family:var(--font-display);
+      font-size:clamp(1.6rem,3vw,2.4rem);
+      letter-spacing:2px;color:var(--text);
+      line-height:1.25;
+      border-left:3px solid var(--gold);
+      padding-left:20px;
+    }
+
+    /* info cards */
+    .contact-info-list{display:flex;flex-direction:column;gap:10px;}
+    .contact-info-item{
+      display:flex;align-items:center;gap:14px;
+      padding:12px 16px;
+      background:rgba(124,58,237,.04);
+      border:1px solid rgba(124,58,237,.13);
+      border-radius:8px;
+      transition:border-color .25s,background .25s;
+    }
+    .contact-info-item:hover{background:rgba(124,58,237,.08);border-color:rgba(124,58,237,.3);}
+    .contact-info-icon{
+      width:34px;height:34px;border-radius:8px;flex-shrink:0;
+      display:flex;align-items:center;justify-content:center;
+      font-size:1rem;
+    }
+    .cii-email{background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.25);}
+    .cii-phone{background:rgba(6,182,212,.1);border:1px solid rgba(6,182,212,.22);}
+    .cii-location{background:rgba(124,58,237,.12);border:1px solid rgba(124,58,237,.25);}
+    .contact-info-text{display:flex;flex-direction:column;gap:2px;}
+    .contact-info-label{font-family:var(--font-mono);font-size:.4rem;letter-spacing:3px;color:var(--muted);text-transform:uppercase;}
+    .contact-info-value{font-family:var(--font-mono);font-size:.56rem;letter-spacing:1px;color:#f0ecff;}
+    .contact-info-link{font-family:var(--font-mono);font-size:.56rem;letter-spacing:1px;color:var(--gold);text-decoration:none;transition:color .2s;}
+    .contact-info-link:hover{color:#fff;}
+
+    /* social links */
+    .contact-social-section{display:flex;flex-direction:column;gap:12px;}
+    .contact-social-label{font-family:var(--font-mono);font-size:.48rem;letter-spacing:4px;color:var(--muted);text-transform:uppercase;display:flex;align-items:center;gap:10px;}
+    .contact-social-label::after{content:'';flex:1;height:1px;background:rgba(124,58,237,.15);}
+    .contact-social-cards{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+    .social-card{
+      display:flex;align-items:center;gap:12px;
+      padding:14px 16px;
+      border-radius:10px;
+      border:1px solid rgba(124,58,237,.15);
+      background:rgba(124,58,237,.04);
+      text-decoration:none;
+      position:relative;overflow:hidden;
+      transition:transform .25s,border-color .25s,box-shadow .25s;
+    }
+    .social-card::before{
+      content:'';position:absolute;inset:0;
+      opacity:0;transition:opacity .3s;
+    }
+    .social-card:hover{transform:translateY(-3px);}
+    .social-linkedin{border-color:rgba(10,102,194,.3);}
+    .social-linkedin::before{background:linear-gradient(135deg,rgba(10,102,194,.1),transparent);}
+    .social-linkedin:hover{border-color:rgba(10,102,194,.6);box-shadow:0 8px 24px rgba(10,102,194,.15);}
+    .social-github{border-color:rgba(232,228,240,.1);}
+    .social-github::before{background:linear-gradient(135deg,rgba(232,228,240,.06),transparent);}
+    .social-github:hover{border-color:rgba(232,228,240,.3);box-shadow:0 8px 24px rgba(232,228,240,.06);}
+    .social-card::before{opacity:1;}
+    .social-icon{
+      width:36px;height:36px;border-radius:8px;
+      display:flex;align-items:center;justify-content:center;
+      flex-shrink:0;font-size:1.1rem;font-weight:700;
+      position:relative;z-index:1;
+    }
+    .social-linkedin .social-icon{background:rgba(10,102,194,.2);color:#0a66c2;}
+    .social-github   .social-icon{background:rgba(232,228,240,.1);color:#e8e4f0;}
+    .social-info{display:flex;flex-direction:column;gap:2px;position:relative;z-index:1;}
+    .social-name{font-family:var(--font-mono);font-size:.52rem;letter-spacing:2px;color:#f0ecff;text-transform:uppercase;}
+    .social-handle{font-family:var(--font-mono);font-size:.42rem;letter-spacing:1px;color:var(--muted);}
+    .social-arrow{margin-left:auto;font-size:.7rem;color:var(--muted);position:relative;z-index:1;transition:transform .2s,color .2s;}
+    .social-card:hover .social-arrow{transform:translateX(3px) translateY(-3px);color:var(--gold);}
+
+    /* ── RIGHT: contact form ── */
+    .contact-right{display:flex;flex-direction:column;gap:20px;}
+    .contact-form-box{
+      background:linear-gradient(145deg,#131028,#0e0c20);
+      border:1px solid rgba(124,58,237,.2);
+      border-radius:14px;padding:28px;
+      display:flex;flex-direction:column;gap:18px;
+      position:relative;overflow:hidden;
+    }
+    .contact-form-box::before{
+      content:'';position:absolute;top:0;left:0;right:0;height:2px;
+      background:linear-gradient(90deg,var(--accent),var(--gold),var(--cyan));
+    }
+    .contact-form-title{font-family:var(--font-display);font-size:1.4rem;letter-spacing:3px;color:var(--text);}
+    .contact-form-sub{font-family:var(--font-mono);font-size:.48rem;letter-spacing:2px;color:var(--muted);}
+    .cf-field{display:flex;flex-direction:column;gap:5px;}
+    .cf-label{font-family:var(--font-mono);font-size:.44rem;letter-spacing:3px;color:var(--muted);text-transform:uppercase;}
+    .cf-input,.cf-textarea{
+      background:rgba(124,58,237,.06);
+      border:1px solid rgba(124,58,237,.2);
+      border-radius:6px;padding:10px 14px;
+      font-family:var(--font-mono);font-size:.6rem;letter-spacing:1px;
+      color:var(--text);width:100%;outline:none;
+      transition:border-color .2s,box-shadow .2s;
+    }
+    .cf-input:focus,.cf-textarea:focus{border-color:rgba(124,58,237,.55);box-shadow:0 0 0 3px rgba(124,58,237,.1);}
+    .cf-input::placeholder,.cf-textarea::placeholder{color:rgba(124,58,237,.3);}
+    .cf-textarea{resize:vertical;min-height:100px;}
+    /* channel choice */
+    .cf-channels{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+    .cf-channel{
+      display:flex;align-items:center;gap:10px;
+      padding:12px 14px;border-radius:8px;
+      border:1px solid rgba(124,58,237,.15);
+      background:rgba(124,58,237,.04);
+      cursor:pointer;transition:all .2s;
+      text-decoration:none;
+    }
+    .cf-channel:hover,.cf-channel.cf-channel-active{
+      border-color:rgba(124,58,237,.4);
+      background:rgba(124,58,237,.1);
+    }
+    .cf-channel-icon{font-size:1.1rem;flex-shrink:0;}
+    .cf-channel-info{display:flex;flex-direction:column;gap:2px;}
+    .cf-channel-name{font-family:var(--font-mono);font-size:.52rem;letter-spacing:2px;color:#f0ecff;text-transform:uppercase;}
+    .cf-channel-sub{font-family:var(--font-mono);font-size:.42rem;letter-spacing:1px;color:var(--muted);}
+    /* submit button */
+    .cf-actions{display:flex;gap:12px;align-items:center;}
+    .cf-send-btn{
+      font-family:var(--font-mono);font-size:.55rem;letter-spacing:3px;text-transform:uppercase;
+      padding:12px 28px;background:var(--accent);border:none;border-radius:6px;
+      color:#fff;cursor:pointer;flex:1;
+      transition:background .2s,box-shadow .2s,transform .15s;
+    }
+    .cf-send-btn:hover{background:#6d28d9;box-shadow:0 0 24px rgba(124,58,237,.5);transform:translateY(-1px);}
+    .cf-send-btn:active{transform:translateY(0);}
+    .cf-alt-link{
+      font-family:var(--font-mono);font-size:.48rem;letter-spacing:2px;text-transform:uppercase;
+      color:var(--muted);text-decoration:none;padding:12px 18px;border:1px solid rgba(124,58,237,.2);border-radius:6px;
+      transition:color .2s,border-color .2s;white-space:nowrap;
+    }
+    .cf-alt-link:hover{color:var(--text);border-color:rgba(124,58,237,.4);}
+
+    /* closing tagline at bottom */
+    .contact-closing{
+      grid-column:1/-1;
+      display:flex;flex-direction:column;align-items:center;
+      gap:12px;padding:20px 0 10px;
+      position:relative;z-index:2;
+    }
+    .contact-closing-line{width:80px;height:1px;background:linear-gradient(90deg,transparent,var(--border),transparent);}
+    .contact-closing-tagline{
+      font-family:var(--font-display);
+      font-size:clamp(1.4rem,3vw,2.2rem);
+      letter-spacing:4px;
+      color:rgba(232,228,240,.35);
+      text-align:center;
+      transition:color .4s;
+    }
+    .contact-closing-tagline:hover{color:var(--gold);}
+    .contact-closing-name{font-family:var(--font-mono);font-size:.48rem;letter-spacing:4px;color:rgba(124,58,237,.35);text-transform:uppercase;}
+
+    /* success state */
+    .cf-success{
+      display:none;flex-direction:column;align-items:center;gap:12px;
+      padding:20px;text-align:center;
+    }
+    .cf-success.show{display:flex;}
+    .cf-success-icon{font-size:2.5rem;}
+    .cf-success-text{font-family:var(--font-display);font-size:1.4rem;letter-spacing:3px;color:var(--gold);}
+    .cf-success-sub{font-family:var(--font-mono);font-size:.5rem;letter-spacing:2px;color:var(--muted);}
   </style>
 </head>
 <body>
@@ -1531,7 +1771,167 @@
   </button>
 
   <!-- FLOOR 05 -->
-  <div id="floor-contact" class="floor-page"><div class="floor-content"><div class="floor-tag-lbl">// Floor 05 — Contact</div><div class="floor-ph"><div class="floor-badge">Floor 05</div><h2>Let's <span>Talk</span></h2><p>Stage 11 builds this floor</p></div></div></div>
+  <!-- FLOOR 05 — CONTACT -->
+  <div id="floor-contact" class="floor-page">
+    <div class="contact-floor">
+      <div class="contact-ambient"></div>
+      <div class="contact-grid-bg"></div>
+
+      <!-- Header -->
+      <div class="contact-header">
+        <span class="contact-ftag">// Floor 05 — Contact</span>
+        <h1 class="contact-title">Let's <span>Talk</span></h1>
+        <div class="contact-status">
+          <div class="contact-status-dot"></div>
+          <span class="contact-status-text">Available</span>
+          <div class="contact-status-badges">
+            <span class="contact-status-pill">Open to Opportunities</span>
+            <span class="contact-status-pill">Open to Collabs</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main grid -->
+      <div class="contact-grid">
+
+        <!-- LEFT: info + socials -->
+        <div class="contact-left">
+
+          <div class="contact-tagline">
+            "Let's build something<br>that matters."
+          </div>
+
+          <div class="contact-info-list">
+            <div class="contact-info-item">
+              <div class="contact-info-icon cii-email">📧</div>
+              <div class="contact-info-text">
+                <span class="contact-info-label">Email</span>
+                <a class="contact-info-link" href="mailto:reddyharshith20@gmail.com">reddyharshith20@gmail.com</a>
+              </div>
+            </div>
+            <div class="contact-info-item">
+              <div class="contact-info-icon cii-phone">📱</div>
+              <div class="contact-info-text">
+                <span class="contact-info-label">Phone</span>
+                <span class="contact-info-value">+91 93989 39257</span>
+              </div>
+            </div>
+            <div class="contact-info-item">
+              <div class="contact-info-icon cii-location">📍</div>
+              <div class="contact-info-text">
+                <span class="contact-info-label">Location</span>
+                <span class="contact-info-value">Hyderabad, India</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="contact-social-section">
+            <div class="contact-social-label">Connect</div>
+            <div class="contact-social-cards">
+              <a class="social-card social-linkedin" href="https://www.linkedin.com/in/sreeharshithreddychoudavaram/" target="_blank">
+                <div class="social-icon">in</div>
+                <div class="social-info">
+                  <span class="social-name">LinkedIn</span>
+                  <span class="social-handle">sreeharshithreddychoudavaram</span>
+                </div>
+                <span class="social-arrow">↗</span>
+              </a>
+              <a class="social-card social-github" href="https://github.com/SREEHARSHITHREDDY" target="_blank">
+                <div class="social-icon" style="font-size:.85rem;">GH</div>
+                <div class="social-info">
+                  <span class="social-name">GitHub</span>
+                  <span class="social-handle">SREEHARSHITHREDDY</span>
+                </div>
+                <span class="social-arrow">↗</span>
+              </a>
+            </div>
+          </div>
+
+          <!-- Status message -->
+          <div style="font-family:var(--font-mono);font-size:.52rem;letter-spacing:1.5px;color:rgba(232,228,240,.5);line-height:1.8;padding:16px 20px;background:rgba(6,182,212,.04);border:1px solid rgba(6,182,212,.12);border-radius:8px;border-left:3px solid var(--cyan);">
+            Currently open to internship and collaboration opportunities.
+            Feel free to reach out — I respond within 24 hours.
+          </div>
+
+        </div><!-- /contact-left -->
+
+        <!-- RIGHT: contact form -->
+        <div class="contact-right">
+          <div class="contact-form-box">
+            <div class="contact-form-title">Send a Message</div>
+            <div class="contact-form-sub">Choose how you'd like to connect</div>
+
+            <!-- channel picker -->
+            <div class="cf-field">
+              <label class="cf-label">Connect via</label>
+              <div class="cf-channels">
+                <div class="cf-channel cf-channel-active" id="cfChannelEmail" onclick="selectChannel('email')">
+                  <span class="cf-channel-icon">📧</span>
+                  <div class="cf-channel-info">
+                    <span class="cf-channel-name">Email</span>
+                    <span class="cf-channel-sub">Opens mail client</span>
+                  </div>
+                </div>
+                <a class="cf-channel" href="https://www.linkedin.com/in/sreeharshithreddychoudavaram/" target="_blank">
+                  <span class="cf-channel-icon">💼</span>
+                  <div class="cf-channel-info">
+                    <span class="cf-channel-name">LinkedIn</span>
+                    <span class="cf-channel-sub">Direct message</span>
+                  </div>
+                </a>
+              </div>
+            </div>
+
+            <!-- form fields (shown for email channel) -->
+            <div id="cfEmailForm">
+              <div style="display:flex;flex-direction:column;gap:14px;">
+                <div class="cf-field">
+                  <label class="cf-label">Your Name</label>
+                  <input class="cf-input" id="cfName" placeholder="John Doe"/>
+                </div>
+                <div class="cf-field">
+                  <label class="cf-label">Your Email</label>
+                  <input class="cf-input" id="cfEmail" placeholder="you@example.com" type="email"/>
+                </div>
+                <div class="cf-field">
+                  <label class="cf-label">Subject</label>
+                  <input class="cf-input" id="cfSubject" placeholder="Internship Opportunity / Collaboration / General"/>
+                </div>
+                <div class="cf-field">
+                  <label class="cf-label">Message</label>
+                  <textarea class="cf-textarea" id="cfMessage" placeholder="Hi Harshith, I'd like to connect about..."></textarea>
+                </div>
+              </div>
+            </div>
+
+            <!-- actions -->
+            <div class="cf-actions" id="cfActions">
+              <button class="cf-send-btn" onclick="sendContactEmail()">Send Message →</button>
+              <a class="cf-alt-link" href="mailto:reddyharshith20@gmail.com">Direct Email ↗</a>
+            </div>
+
+            <!-- success state -->
+            <div class="cf-success" id="cfSuccess">
+              <div class="cf-success-icon">✦</div>
+              <div class="cf-success-text">Message Ready</div>
+              <div class="cf-success-sub">Your email client will open with the message pre-filled.<br>Just hit send!</div>
+              <button onclick="resetContactForm()" style="font-family:var(--font-mono);font-size:.48rem;letter-spacing:2px;text-transform:uppercase;padding:8px 20px;border:1px solid rgba(124,58,237,.3);background:transparent;color:var(--muted);cursor:pointer;border-radius:4px;margin-top:8px;transition:color .2s,border-color .2s;" onmouseover="this.style.color='var(--text)';this.style.borderColor='rgba(124,58,237,.6)'" onmouseout="this.style.color='';this.style.borderColor=''">Send Another</button>
+            </div>
+
+          </div><!-- /contact-form-box -->
+        </div><!-- /contact-right -->
+
+        <!-- Closing tagline -->
+        <div class="contact-closing">
+          <div class="contact-closing-line"></div>
+          <div class="contact-closing-tagline">Let's build something that matters.</div>
+          <div class="contact-closing-name">C. Sree Harshith Reddy · Hyderabad, India · 2025</div>
+        </div>
+
+      </div><!-- /contact-grid -->
+    </div><!-- /contact-floor -->
+  </div><!-- #floor-contact -->
+
 
 </div>
 
@@ -1879,6 +2279,42 @@ function submitAddAch(){
 }
 
 /* toast notification */
+/* ── CONTACT FLOOR ── */
+let cfChannel = 'email';
+
+function selectChannel(ch){
+  cfChannel = ch;
+  document.getElementById('cfChannelEmail').classList.toggle('cf-channel-active', ch==='email');
+  document.getElementById('cfEmailForm').style.display = ch==='email' ? 'block' : 'none';
+  document.getElementById('cfActions').style.display   = ch==='email' ? 'flex'  : 'none';
+}
+
+function sendContactEmail(){
+  const name    = (document.getElementById('cfName')?.value||'').trim();
+  const email   = (document.getElementById('cfEmail')?.value||'').trim();
+  const subject = (document.getElementById('cfSubject')?.value||'').trim() || 'Reaching out via portfolio';
+  const message = (document.getElementById('cfMessage')?.value||'').trim();
+  if(!name||!message){showToast('Please fill in your name and message.');return;}
+  const body = encodeURIComponent(
+    `Hi Harshith,\n\n${message}\n\n---\nFrom: ${name}${email ? '\nEmail: '+email : ''}`
+  );
+  const subj = encodeURIComponent(subject);
+  window.location.href = `mailto:reddyharshith20@gmail.com?subject=${subj}&body=${body}`;
+  /* show success */
+  document.getElementById('cfSuccess').classList.add('show');
+  document.getElementById('cfEmailForm').style.display = 'none';
+  document.getElementById('cfActions').style.display   = 'none';
+}
+
+function resetContactForm(){
+  ['cfName','cfEmail','cfSubject','cfMessage'].forEach(id=>{
+    const el=document.getElementById(id);if(el)el.value='';
+  });
+  document.getElementById('cfSuccess').classList.remove('show');
+  document.getElementById('cfEmailForm').style.display = 'block';
+  document.getElementById('cfActions').style.display   = 'flex';
+}
+
 function showToast(msg){
   let t=document.getElementById('addToast');
   if(!t){t=document.createElement('div');t.id='addToast';t.style.cssText='position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:rgba(124,58,237,.95);color:#fff;font-family:var(--font-mono);font-size:.55rem;letter-spacing:2px;padding:10px 24px;border-radius:24px;z-index:600;opacity:0;transition:opacity .3s;pointer-events:none;backdrop-filter:blur(8px);';document.body.appendChild(t);}
