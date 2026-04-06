@@ -1014,11 +1014,257 @@
     .cf-success-icon{font-size:2.5rem;}
     .cf-success-text{font-family:var(--font-display);font-size:1.4rem;letter-spacing:3px;color:var(--gold);}
     .cf-success-sub{font-family:var(--font-mono);font-size:.5rem;letter-spacing:2px;color:var(--muted);}
+
+    /* ═══════════════════════════════════════
+       STAGE 12 — POLISH & FIXES
+    ═══════════════════════════════════════ */
+
+    /* Global font size bump */
+    body{ font-size:16px; }
+    .about-bio-p{ font-size:1rem !important; }
+    .exp-bullets li{ font-size:.9rem !important; }
+    .ach-card-desc{ font-size:.9rem !important; }
+    .contact-info-value,.contact-info-link{ font-size:.65rem !important; }
+    .social-handle{ font-size:.5rem !important; }
+    .cert-title{ font-size:.62rem !important; }
+    .cf-input,.cf-textarea{ font-size:.7rem !important; }
+    .proj-htitle{ font-size:clamp(3rem,5vw,4.5rem) !important; }
+    .about-title{ font-size:clamp(3.5rem,7vw,6rem) !important; }
+    .exp-title{ font-size:clamp(3rem,5vw,4.5rem) !important; }
+    .ach-title{ font-size:clamp(3rem,5vw,4.5rem) !important; }
+    .contact-title{ font-size:clamp(3.5rem,8vw,7rem) !important; }
+    .exp-role{ font-size:1.25rem !important; }
+    .exp-company{ font-size:.6rem !important; }
+    .exp-duration{ font-size:.52rem !important; }
+    .ach-card-title{ font-size:1.1rem !important; }
+    .ach-card-issuer{ font-size:.54rem !important; }
+    .pc-title{ font-size:1.6rem !important; }
+    .pc-tagline{ font-size:.88rem !important; }
+
+    /* Fix flash overlay - make it dark not white */
+    #flash-overlay{ background:#07060e !important; }
+
+    /* webkit backdrop-filter prefix for Safari */
+    #interior-nav,-webkit-backdrop-filter:blur(18px){}
+    .add-modal,.proj-nav-btn,.floor-add-fab{
+      -webkit-backdrop-filter:blur(10px);
+    }
+    #interior-nav{-webkit-backdrop-filter:blur(18px);}
+    .exp-header{-webkit-backdrop-filter:blur(18px);}
+    .ach-header{-webkit-backdrop-filter:blur(18px);}
+    .contact-header{-webkit-backdrop-filter:blur(18px);}
+    .proj-hud .pf-btn{-webkit-backdrop-filter:blur(6px);}
+
+    /* ── NAME PROMPT OVERLAY ── */
+    #namePrompt{
+      position:fixed;inset:0;z-index:500;
+      background:rgba(7,6,14,.97);
+      display:flex;align-items:center;justify-content:center;
+      flex-direction:column;gap:28px;
+      padding:40px;
+      -webkit-backdrop-filter:blur(20px);
+      backdrop-filter:blur(20px);
+    }
+    #namePrompt.hidden{display:none;}
+    .np-label{
+      font-family:var(--font-mono);font-size:.7rem;
+      letter-spacing:5px;color:var(--muted);text-transform:uppercase;
+      text-align:center;
+    }
+    .np-title{
+      font-family:var(--font-display);
+      font-size:clamp(2.5rem,6vw,4.5rem);
+      letter-spacing:5px;color:var(--text);
+      text-align:center;line-height:1.1;
+    }
+    .np-title span{color:var(--gold);}
+    .np-input-wrap{
+      display:flex;align-items:center;gap:0;
+      width:min(420px,90vw);
+      border:1px solid rgba(124,58,237,.4);
+      border-radius:8px;overflow:hidden;
+      background:rgba(124,58,237,.06);
+    }
+    .np-input{
+      flex:1;background:transparent;border:none;outline:none;
+      font-family:var(--font-display);font-size:1.6rem;letter-spacing:4px;
+      color:var(--text);padding:14px 20px;
+    }
+    .np-input::placeholder{color:rgba(124,58,237,.3);font-size:1.2rem;}
+    .np-enter-btn{
+      background:var(--accent);border:none;
+      font-family:var(--font-mono);font-size:.6rem;letter-spacing:3px;
+      text-transform:uppercase;color:#fff;padding:14px 20px;cursor:pointer;
+      transition:background .2s;white-space:nowrap;
+    }
+    .np-enter-btn:hover{background:#6d28d9;}
+    .np-skip{
+      font-family:var(--font-mono);font-size:.52rem;letter-spacing:3px;
+      color:rgba(124,58,237,.35);text-transform:uppercase;
+      cursor:pointer;transition:color .2s;background:transparent;
+      border:none;
+    }
+    .np-skip:hover{color:var(--muted);}
+    /* decorative lines on name prompt */
+    .np-deco{
+      display:flex;align-items:center;gap:16px;
+      font-family:var(--font-mono);font-size:.48rem;letter-spacing:3px;
+      color:rgba(124,58,237,.2);
+    }
+    .np-deco-line{width:60px;height:1px;background:rgba(124,58,237,.2);}
+
+    /* ── HELICOPTER ANIMATION ── */
+    #helicopter{
+      position:absolute;
+      top:-120px;
+      right:18%;
+      z-index:20;
+      display:flex;flex-direction:column;align-items:center;
+      pointer-events:none;
+      animation:heli-arrive 3.5s cubic-bezier(.22,1,.36,1) forwards;
+      animation-delay:.3s;
+      opacity:0;
+    }
+    @keyframes heli-arrive{
+      0%  {top:-120px;right:5%;opacity:0;transform:rotate(-8deg) scale(.6);}
+      30% {opacity:1;}
+      70% {top:22%;right:18%;transform:rotate(2deg) scale(1);}
+      85% {top:20%;right:18%;transform:rotate(0deg) scale(1);}
+      100%{top:21%;right:18%;transform:rotate(0deg) scale(1);opacity:1;}
+    }
+    /* helicopter hover after landing */
+    #helicopter.heli-hover{
+      animation:heli-hover-idle 3s ease-in-out infinite;
+    }
+    @keyframes heli-hover-idle{
+      0%,100%{transform:translateY(0) rotate(0deg);}
+      30%{transform:translateY(-8px) rotate(1deg);}
+      70%{transform:translateY(-4px) rotate(-1deg);}
+    }
+    /* helicopter body */
+    .heli-body{
+      position:relative;
+      width:80px;height:30px;
+      background:linear-gradient(135deg,#1e1a3e,#2a2060);
+      border-radius:40px 60px 20px 20px;
+      border:1px solid rgba(124,58,237,.5);
+      box-shadow:0 0 20px rgba(124,58,237,.3);
+    }
+    /* cockpit */
+    .heli-body::before{
+      content:'';position:absolute;
+      left:10px;top:4px;
+      width:28px;height:18px;
+      background:rgba(6,182,212,.25);
+      border-radius:50% 50% 30% 30%;
+      border:1px solid rgba(6,182,212,.4);
+    }
+    /* tail */
+    .heli-body::after{
+      content:'';position:absolute;
+      right:-32px;top:8px;
+      width:34px;height:6px;
+      background:linear-gradient(90deg,#1e1a3e,#141030);
+      border-radius:0 4px 4px 0;
+      border:1px solid rgba(124,58,237,.3);
+      border-left:none;
+    }
+    /* main rotor */
+    .heli-rotor{
+      width:130px;height:4px;
+      background:linear-gradient(90deg,transparent 0%,rgba(124,58,237,.6) 20%,rgba(245,158,11,.8) 50%,rgba(124,58,237,.6) 80%,transparent 100%);
+      border-radius:2px;
+      margin-bottom:2px;
+      animation:rotor-spin 0.12s linear infinite;
+      transform-origin:center;
+    }
+    @keyframes rotor-spin{
+      0%{transform:scaleX(1) rotate(0deg);}
+      25%{transform:scaleX(.3) rotate(0deg);}
+      50%{transform:scaleX(1) rotate(0deg);}
+      75%{transform:scaleX(.3) rotate(0deg);}
+      100%{transform:scaleX(1) rotate(0deg);}
+    }
+    /* tail rotor */
+    .heli-tail-rotor{
+      position:absolute;right:-28px;top:3px;
+      width:4px;height:16px;
+      background:rgba(124,58,237,.5);
+      border-radius:2px;
+      animation:tail-rotor-spin .08s linear infinite;
+      transform-origin:center;
+    }
+    @keyframes tail-rotor-spin{
+      0%{transform:scaleY(1);}
+      50%{transform:scaleY(.1);}
+      100%{transform:scaleY(1);}
+    }
+    /* landing light */
+    .heli-light{
+      position:absolute;bottom:-2px;left:20px;
+      width:6px;height:6px;border-radius:50%;
+      background:var(--gold);
+      box-shadow:0 0 12px 4px rgba(245,158,11,.6),0 8px 20px rgba(245,158,11,.3);
+      animation:light-blink .8s ease-in-out infinite;
+    }
+    @keyframes light-blink{0%,100%{opacity:1;}50%{opacity:.3;}}
+    /* downwash dust below helicopter */
+    .heli-downwash{
+      width:70px;height:8px;
+      background:radial-gradient(ellipse at 50% 0%,rgba(124,58,237,.25),transparent 70%);
+      margin-top:4px;
+      animation:downwash 1s ease-in-out infinite;
+    }
+    @keyframes downwash{0%,100%{transform:scaleX(.8);opacity:.5;}50%{transform:scaleX(1.2);opacity:.9;}}
+
+    /* ── RECEPTION PERSON AT DESK ── */
+    /* The receptionist sits behind the desk and greets by name */
+    .greeting-bubble{
+      position:absolute;
+      top:10%;left:6%;
+      background:#13102a;
+      border:1px solid rgba(124,58,237,.45);
+      border-radius:10px 10px 10px 0;
+      padding:12px 18px;
+      font-family:var(--font-mono);font-size:.68rem;
+      letter-spacing:1px;line-height:1.8;
+      color:var(--text);max-width:320px;
+      box-shadow:0 4px 20px rgba(0,0,0,.5);
+      z-index:7;
+      opacity:0;
+      transform:translateY(8px);
+      transition:opacity .5s,transform .5s;
+    }
+    .greeting-bubble.show{opacity:1;transform:translateY(0);}
+    .greeting-bubble::after{content:'';position:absolute;bottom:-8px;left:16px;width:14px;height:8px;background:rgba(124,58,237,.45);clip-path:polygon(0% 0%,100% 0%,0% 100%);}
+    .greeting-visitor-name{color:var(--gold);font-weight:700;}
+    .greeting-cursor{display:inline-block;width:6px;height:13px;background:var(--accent);opacity:.8;animation:cursor-blink .8s step-end infinite;vertical-align:middle;margin-left:2px;}
+    @keyframes cursor-blink{50%{opacity:0;}}
+
+    /* ── LINK noopener (just add rel inline) ── */
+    /* All target="_blank" links get rel added in JS */
+
+  </style>
+</head>
+<body>
   </style>
 </head>
 <body>
 
 <div id="flash-overlay"></div>
+
+<!-- NAME PROMPT -->
+<div id="namePrompt" class="hidden">
+  <div class="np-deco"><div class="np-deco-line"></div>Welcome<div class="np-deco-line"></div></div>
+  <h1 class="np-title">Enter the <span>Empire</span></h1>
+  <p class="np-label">What should we call you?</p>
+  <div class="np-input-wrap">
+    <input class="np-input" id="visitorNameInput" placeholder="Your name..." maxlength="28"
+           onkeydown="if(event.key==='Enter')submitVisitorName()"/>
+    <button class="np-enter-btn" onclick="submitVisitorName()">Enter →</button>
+  </div>
+  <button class="np-skip" onclick="submitVisitorName(true)">Skip →</button>
+</div>
 <div id="transition-overlay"><div class="transition-label">entering the building…</div></div>
 
 <nav id="interior-nav">
@@ -1087,6 +1333,15 @@
       </div>
     </div>
     <div class="entrance-glow" id="entranceGlow"></div>
+    <!-- HELICOPTER -->
+    <div id="helicopter">
+      <div class="heli-rotor"></div>
+      <div class="heli-body">
+        <div class="heli-tail-rotor"></div>
+        <div class="heli-light"></div>
+      </div>
+      <div class="heli-downwash"></div>
+    </div>
     <div id="character"><div class="char-dist-tag" id="distTag">far away</div><div class="char-head"></div><div class="char-body"></div><div class="char-legs"><div class="char-leg left"></div><div class="char-leg right"></div></div><div class="char-shadow" id="charShadow"></div></div>
     <canvas id="footCanvas"></canvas>
     <div class="ground"><div class="pavement left"></div><div class="road"><div class="road-dashes" id="roadDashes"></div></div><div class="pavement right"></div></div>
@@ -1106,7 +1361,10 @@
     <div class="rec-plant left"><div class="plant-leaves"><div class="plant-leaf"></div><div class="plant-leaf"></div><div class="plant-leaf"></div></div><div class="plant-pot"></div></div>
     <div class="rec-plant right"><div class="plant-leaves"><div class="plant-leaf"></div><div class="plant-leaf"></div><div class="plant-leaf"></div></div><div class="plant-pot"></div></div>
     <div class="receptionist-area" id="recArea">
-      <div class="speech-bubble"><div class="bubble-speaker">— RECEPTIONIST</div><span id="bubbleText"></span><span class="bubble-cursor" id="bubbleCursor"></span></div>
+      <div class="greeting-bubble" id="greetingBubble">
+        <div class="bubble-speaker">— RECEPTIONIST</div>
+        <span id="bubbleText"></span><span class="greeting-cursor" id="bubbleCursor"></span>
+      </div>
       <div class="rec-figure"><div class="rec-head"></div><div class="rec-body"></div><div class="rec-name-tag">RECEPTION</div></div>
     </div>
     <div id="lobby-char"><div class="lc-head"></div><div class="lc-body"></div><div class="lc-legs"><div class="lc-leg"></div><div class="lc-leg"></div></div></div>
@@ -1972,16 +2230,24 @@ function animateDust(){if(footCanvas.width!==window.innerWidth){footCanvas.width
 function triggerEntry(){
   if(entryTriggered)return;entryTriggered=true;
   document.body.style.overflow='hidden';
-  flashOverlay.classList.add('flash');
-  setTimeout(()=>{flashOverlay.classList.remove('flash');transitionOverlay.classList.add('dark');
-    setTimeout(()=>{interior.classList.add('mounted');window.scrollTo({top:0,behavior:'instant'});scene.style.display='none';document.body.style.overflow='';
-      setTimeout(()=>{interior.classList.add('visible');
-        setTimeout(()=>{interiorNav.classList.add('show');
-          setTimeout(()=>{transitionOverlay.classList.remove('dark');transitionOverlay.classList.add('clear');initReception();},300);
+  transitionOverlay.classList.add('dark');
+  setTimeout(()=>{
+    interior.classList.add('mounted');
+    window.scrollTo({top:0,behavior:'instant'});
+    scene.style.display='none';
+    document.body.style.overflow='';
+    setTimeout(()=>{
+      interior.classList.add('visible');
+      setTimeout(()=>{
+        interiorNav.classList.add('show');
+        setTimeout(()=>{
+          transitionOverlay.classList.remove('dark');
+          transitionOverlay.classList.add('clear');
+          initReception();
         },300);
-      },200);
-    },420);
-  },220);
+      },300);
+    },200);
+  },500);
 }
 function initWingSplit(){const wL=document.getElementById('wingL'),wR=document.getElementById('wingR');wL.style.cssText+='transform:translateX(-55px);transition:transform 1.1s cubic-bezier(.22,1,.36,1);';wR.style.cssText+='transform:translateX(55px);transition:transform 1.1s cubic-bezier(.22,1,.36,1);';new MutationObserver(()=>{const on=document.getElementById('blk6').classList.contains('vis');wL.style.transform=on?'translateX(0)':'translateX(-55px)';wR.style.transform=on?'translateX(0)':'translateX(55px)';}).observe(document.getElementById('blk6'),{attributes:true,attributeFilter:['class']});}
 function startWindowFlicker(){setInterval(()=>{document.querySelectorAll('.win.l1,.win.l2,.win.l3').forEach(w=>{if(Math.random()>.91){w.style.opacity='.22';setTimeout(()=>{w.style.opacity='';},100+Math.random()*200);}});},850);}
@@ -2279,7 +2545,86 @@ function submitAddAch(){
 }
 
 /* toast notification */
-/* ── CONTACT FLOOR ── */
+/* ── NAME PROMPT ── */
+let visitorName = '';
+
+function askVisitorName(callback){ callback(); } /* no-op - name asked on load */
+
+function initNamePrompt(){
+  const prompt = document.getElementById('namePrompt');
+  if(!prompt) return;
+  /* Lock page scroll until name entered */
+  document.body.style.overflow = 'hidden';
+  prompt.classList.remove('hidden');
+  setTimeout(()=>{
+    const inp = document.getElementById('visitorNameInput');
+    if(inp) inp.focus();
+  }, 300);
+}
+
+function submitVisitorName(skip){
+  visitorName = skip ? '' : (document.getElementById('visitorNameInput')?.value||'').trim();
+  const prompt = document.getElementById('namePrompt');
+  if(prompt){
+    prompt.style.opacity = '0';
+    prompt.style.transition = 'opacity .5s';
+    setTimeout(()=>{ prompt.classList.add('hidden'); }, 500);
+  }
+  /* Restore scroll so user can scroll into the building */
+  document.body.style.overflow = '';
+}
+
+/* ── HELICOPTER ── */
+function startHelicopter(){
+  const heli = document.getElementById('helicopter');
+  if(!heli) return;
+  /* animation already starts via CSS — add hover class after arrival */
+  setTimeout(()=>{ heli.classList.add('heli-hover'); }, 4000);
+  /* fade out helicopter when scroll starts */
+  window.addEventListener('scroll', function fadeHeli(){
+    if(window.scrollY > 80){ heli.style.opacity='0'; heli.style.transition='opacity 1s'; window.removeEventListener('scroll',fadeHeli); }
+  },{passive:true});
+}
+
+/* ── RECEPTIONIST GREETING ── */
+function initReception(){
+  setTimeout(()=>{
+    document.getElementById('deskArea').classList.add('show');
+    document.getElementById('recArea').classList.add('show');
+  },400);
+  setTimeout(()=>{
+    document.getElementById('greetingBubble').classList.add('show');
+    runPersonalisedGreeting();
+  },900);
+  setTimeout(()=>document.getElementById('escPrompt')?.classList.add('show'),4500);
+}
+
+function runPersonalisedGreeting(){
+  const textEl = document.getElementById('bubbleText');
+  const curEl  = document.getElementById('bubbleCursor');
+  const name   = visitorName ? `, ${visitorName}` : '';
+  const lines  = [
+    `Good day${name}! Welcome to\nC. Sree Harshith Reddy's Empire.`,
+    `I'm your guide for today.`,
+    `Select a floor from the panel\nor scroll down to begin.`
+  ];
+  let li=0,ci=0,ft='';
+  function next(){
+    if(li>=lines.length){ curEl.style.display='none'; return; }
+    const ln=lines[li];
+    if(ci<ln.length){ ft+=ln[ci]; textEl.textContent=ft; ci++; setTimeout(next,36); }
+    else{ ft+='\n'; ci=0; li++; setTimeout(next,700); }
+  }
+  next();
+}
+
+/* ── FIX: add rel=noopener to all target="_blank" links ── */
+function fixExternalLinks(){
+  document.querySelectorAll('a[target="_blank"]').forEach(a=>{
+    if(!a.rel.includes('noopener')) a.rel='noopener noreferrer';
+  });
+}
+
 let cfChannel = 'email';
 
 function selectChannel(ch){
@@ -2322,12 +2667,16 @@ function showToast(msg){
   setTimeout(()=>t.style.opacity='0',2400);
 }
 
+
 function init(){
   generateStars(180);generateCityBg();generateRoadDashes(5);initWingSplit();
   footCanvas.width=window.innerWidth;footCanvas.height=40;
   window.addEventListener('resize',()=>{footCanvas.width=window.innerWidth;footCanvas.height=40;});
   window.addEventListener('scroll',onScroll,{passive:true});
   onScroll();startWindowFlicker();animateDust();
+  startHelicopter();
+  fixExternalLinks();
+  initNamePrompt();
 }
 document.addEventListener('DOMContentLoaded',init);
 </script>
