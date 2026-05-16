@@ -1,61 +1,51 @@
 /**
- * ═══════════════════════════════════════════════
  * reception.js — Lobby / Ground Floor Logic
- * Receptionist typewriter · Personalised greeting
- * C. Sree Harshith Reddy's Empire
- * ═══════════════════════════════════════════════
+ * GSAP-powered · C. Sree Harshith Reddy's Empire
  */
 
-/* ── NAME PROMPT ── */
 let visitorName = '';
 
 function initNamePrompt() {
   const prompt = document.getElementById('namePrompt');
   if (!prompt) return;
-  document.body.style.overflow = 'hidden'; // lock scroll until name entered
+  document.body.style.overflow = 'hidden';
   prompt.classList.remove('hidden');
-  setTimeout(() => {
-    const inp = document.getElementById('visitorNameInput');
-    if (inp) inp.focus();
-  }, 300);
+
+  if (window.EmpireAnim?.namePromptIn) {
+    EmpireAnim.namePromptIn();
+  } else {
+    setTimeout(() => { document.getElementById('visitorNameInput')?.focus(); }, 300);
+  }
 }
 
 function submitVisitorName(skip) {
   visitorName = skip ? '' : (document.getElementById('visitorNameInput')?.value || '').trim();
-  const prompt = document.getElementById('namePrompt');
-  if (prompt) {
-    prompt.style.opacity    = '0';
-    prompt.style.transition = 'opacity .5s';
-    setTimeout(() => { prompt.classList.add('hidden'); }, 500);
+  document.body.style.overflow = '';
+
+  if (window.EmpireAnim?.namePromptOut) {
+    EmpireAnim.namePromptOut(() => document.getElementById('namePrompt').classList.add('hidden'));
+  } else {
+    const p = document.getElementById('namePrompt');
+    if (p) { p.style.opacity = '0'; p.style.transition = 'opacity .5s'; setTimeout(() => p.classList.add('hidden'), 500); }
   }
-  document.body.style.overflow = ''; // restore scroll
 }
 
-/* ── RECEPTION INIT ── */
 function initReception() {
-  // Show desk + receptionist
-  setTimeout(() => {
-    const deskArea = document.getElementById('deskArea');
-    const recArea  = document.getElementById('recArea');
-    if (deskArea) deskArea.classList.add('show');
-    if (recArea)  recArea.classList.add('show');
-  }, 400);
-
-  // Start personalised greeting
-  setTimeout(() => {
-    const bubble = document.getElementById('greetingBubble');
-    if (bubble) bubble.classList.add('show');
-    runPersonalisedGreeting();
-  }, 900);
-
-  // Show escalator prompt after greeting finishes
-  setTimeout(() => {
-    const esc = document.getElementById('escPrompt');
-    if (esc) esc.classList.add('show');
-  }, 4500);
+  if (window.EmpireAnim?.receptionIn) {
+    EmpireAnim.receptionIn();
+    setTimeout(() => { EmpireAnim.greetingBubbleIn?.(); runPersonalisedGreeting(); }, 900);
+    setTimeout(() => {
+      const esc = document.getElementById('escPrompt');
+      if (esc) gsap.fromTo(esc, { opacity:0, y:10 }, { opacity:1, y:0, duration:.6, ease:'empireOut', onComplete:()=>esc.classList.add('show') });
+    }, 4500);
+    setTimeout(() => EmpireAnim.ambientLoops?.(), 1500);
+  } else {
+    setTimeout(() => { document.getElementById('deskArea')?.classList.add('show'); document.getElementById('recArea')?.classList.add('show'); }, 400);
+    setTimeout(() => { document.getElementById('greetingBubble')?.classList.add('show'); runPersonalisedGreeting(); }, 900);
+    setTimeout(() => document.getElementById('escPrompt')?.classList.add('show'), 4500);
+  }
 }
 
-/* ── PERSONALISED TYPEWRITER GREETING ── */
 function runPersonalisedGreeting() {
   const textEl = document.getElementById('bubbleText');
   const curEl  = document.getElementById('bubbleCursor');
@@ -69,47 +59,31 @@ function runPersonalisedGreeting() {
   ];
 
   let li = 0, ci = 0, fullText = '';
-
   function next() {
-    if (li >= lines.length) {
-      if (curEl) curEl.style.display = 'none';
-      return;
-    }
+    if (li >= lines.length) { if (curEl) curEl.style.display = 'none'; return; }
     const ln = lines[li];
-    if (ci < ln.length) {
-      fullText += ln[ci];
-      textEl.textContent = fullText;
-      ci++;
-      setTimeout(next, 36);
-    } else {
-      fullText += '\n';
-      ci = 0;
-      li++;
-      setTimeout(next, 700);
-    }
+    if (ci < ln.length) { fullText += ln[ci]; textEl.textContent = fullText; ci++; setTimeout(next, 36); }
+    else { fullText += '\n'; ci = 0; li++; setTimeout(next, 700); }
   }
   next();
 }
 
-/* ── TOAST ── */
 function showToast(msg) {
   let t = document.getElementById('addToast');
-  if (!t) {
-    t = document.createElement('div');
-    t.id = 'addToast';
-    document.body.appendChild(t);
+  if (!t) { t = document.createElement('div'); t.id = 'addToast'; document.body.appendChild(t); }
+  t.textContent = msg;
+  if (window.gsap) {
+    gsap.fromTo(t, { opacity:0, y:10 }, { opacity:1, y:0, duration:.3, ease:'empireOut',
+      onComplete: () => gsap.to(t, { opacity:0, y:-8, duration:.4, delay:2, ease:'empireSoft' })
+    });
+  } else {
+    t.style.opacity = '1';
+    setTimeout(() => { t.style.opacity = '0'; }, 2400);
   }
-  t.textContent  = msg;
-  t.style.opacity = '1';
-  setTimeout(() => { t.style.opacity = '0'; }, 2400);
 }
 
-/* ── EXPOSE ── */
-window.initNamePrompt        = initNamePrompt;
-window.submitVisitorName     = submitVisitorName;
-window.initReception         = initReception;
-window.showToast             = showToast;
-Object.defineProperty(window, 'visitorName', {
-  get: () => visitorName,
-  set: v => { visitorName = v; }
-});
+window.initNamePrompt    = initNamePrompt;
+window.submitVisitorName = submitVisitorName;
+window.initReception     = initReception;
+window.showToast         = showToast;
+Object.defineProperty(window, 'visitorName', { get: () => visitorName, set: v => { visitorName = v; } });
