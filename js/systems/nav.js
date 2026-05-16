@@ -38,32 +38,22 @@ function goToFloor(fi) {
 /* ── LOBBY WALK SEQUENCE ── */
 function lobbyWalkThenEscalate(targetFloor) {
   transitioning = true;
-  const lc      = document.getElementById('lobby-char');
-  const deskArea = document.getElementById('deskArea');
-  const recArea  = document.getElementById('recArea');
-
-  lc.style.left      = '50%';
-  lc.style.transform = 'translateX(-50%)';
-  lc.style.opacity   = '1';
-  lc.classList.add('lc-walking');
-
-  deskArea.style.transition = 'opacity .5s';
-  deskArea.style.opacity    = '0';
-  recArea.style.transition  = 'opacity .5s';
-  recArea.style.opacity     = '0';
-
-  let pos = 50;
-  const walkInterval = setInterval(() => {
-    pos += 1.2;
-    lc.style.left      = pos + '%';
-    lc.style.transform = 'translateX(0)';
-    if (pos >= 88) {
-      clearInterval(walkInterval);
-      lc.classList.remove('lc-walking');
-      lc.style.opacity = '0';
-      setTimeout(() => escalateTo(targetFloor), 200);
-    }
-  }, 20);
+  if (window.EmpireAnim?.lobbyWalk) {
+    EmpireAnim.lobbyWalk(() => escalateTo(targetFloor));
+  } else {
+    const lc = document.getElementById('lobby-char');
+    const deskArea = document.getElementById('deskArea');
+    const recArea  = document.getElementById('recArea');
+    lc.style.left = '50%'; lc.style.transform = 'translateX(-50%)'; lc.style.opacity = '1';
+    lc.classList.add('lc-walking');
+    deskArea.style.transition = 'opacity .5s'; deskArea.style.opacity = '0';
+    if (recArea) { recArea.style.transition = 'opacity .5s'; recArea.style.opacity = '0'; }
+    let pos = 50;
+    const wi = setInterval(() => {
+      pos += 1.2; lc.style.left = pos + '%'; lc.style.transform = 'translateX(0)';
+      if (pos >= 88) { clearInterval(wi); lc.classList.remove('lc-walking'); lc.style.opacity = '0'; setTimeout(() => escalateTo(targetFloor), 200); }
+    }, 20);
+  }
 }
 
 /* ── ESCALATOR TRANSITION ── */
@@ -163,19 +153,28 @@ function resolveToFloor(fi) {
 
   updateDeskEscalator(fi);
 
+  // GSAP floor page enter wipe
+  if (fi > 0) {
+    const page = document.getElementById(FLOORS[fi].pageId);
+    if (page && window.EmpireAnim?.floorEnter) EmpireAnim.floorEnter(page);
+  }
+
   // Floor init hooks
   if (fi === 1 && typeof initAboutSection === 'function')       setTimeout(initAboutSection, 100);
   if (fi === 2 && typeof initProjectsFloor === 'function')      setTimeout(initProjectsFloor, 100);
   if (fi === 3 && typeof initExperienceFloor === 'function')    setTimeout(initExperienceFloor, 100);
   if (fi === 4 && typeof initAchievementsFloor === 'function')  setTimeout(initAchievementsFloor, 100);
 
-  // FAB visibility
+  // FAB visibility + GSAP entrance
   const fabProjects = document.getElementById('fabProjects');
   const fabExp      = document.getElementById('fabExp');
   const fabAch      = document.getElementById('fabAch');
-  if (fabProjects) fabProjects.classList.toggle('fab-visible', fi === 2);
-  if (fabExp)      fabExp.classList.toggle('fab-visible',      fi === 3);
-  if (fabAch)      fabAch.classList.toggle('fab-visible',      fi === 4);
+  [fabProjects, fabExp, fabAch].forEach(f => { if (f) f.classList.remove('fab-visible'); });
+  const activeFab = fi === 2 ? fabProjects : fi === 3 ? fabExp : fi === 4 ? fabAch : null;
+  if (activeFab) {
+    activeFab.classList.add('fab-visible');
+    if (window.EmpireAnim?.fabIn) EmpireAnim.fabIn(activeFab);
+  }
 
   transitioning = false;
   window.scrollTo({ top: 0, behavior: 'instant' });
@@ -215,11 +214,19 @@ function updateDeskEscalator(fi) {
 /* ── ADD MODAL HELPERS ── */
 function openAddModal(id) {
   const el = document.getElementById(id);
-  if (el) { el.classList.add('open'); document.body.style.overflow = 'hidden'; }
+  if (!el) return;
+  el.classList.add('open');
+  document.body.style.overflow = 'hidden';
+  if (window.EmpireAnim?.modalOpen) EmpireAnim.modalOpen(el);
 }
 function closeAddModal(id) {
   const el = document.getElementById(id);
-  if (el) { el.classList.remove('open'); document.body.style.overflow = ''; }
+  if (!el) return;
+  if (window.EmpireAnim?.modalClose) {
+    EmpireAnim.modalClose(el, () => { el.classList.remove('open'); document.body.style.overflow = ''; });
+  } else {
+    el.classList.remove('open'); document.body.style.overflow = '';
+  }
 }
 
 // Close modal on backdrop click
