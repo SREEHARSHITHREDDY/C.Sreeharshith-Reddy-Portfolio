@@ -1,0 +1,110 @@
+/*
+  ═══════════════════════════════════════════════
+  TOKENS.CSS — Design System Variables & Reset
+  C. Sree Harshith Reddy's Empire
+  ═══════════════════════════════════════════════
+*/
+
+/* ── DESIGN TOKENS ── */
+:root {
+  /* Core palette */
+  --bg:     #07060e;
+  --accent: #7c3aed;
+  --gold:   #f59e0b;
+  --cyan:   #06b6d4;
+  --text:   #e8e4f0;
+  --muted:  rgba(232,228,240,.42);
+  --border: rgba(124,58,237,.22);
+
+  /* Fonts */
+  --font-display: 'Bebas Neue', sans-serif;
+  --font-mono:    'Space Mono', monospace;
+  --font-body:    'DM Sans', sans-serif;
+
+  /* Spacing scale */
+  --sp-xs:  4px;
+  --sp-sm:  8px;
+  --sp-md:  16px;
+  --sp-lg:  24px;
+  --sp-xl:  40px;
+  --sp-2xl: 60px;
+  --sp-3xl: 92px;
+
+  /* Z-index scale */
+  --z-world:      0;
+  --z-floor:      10;
+  --z-ground:     12;
+  --z-char:       15;
+  --z-nav:        150;
+  --z-dir-panel:  150;
+  --z-esc:        250;
+  --z-overlay:    299;
+  --z-flash:      300;
+  --z-modal:      400;
+  --z-prompt:     500;
+
+  /* Transition presets */
+  --ease-out-expo: cubic-bezier(.22,1,.36,1);
+  --ease-in-out:   cubic-bezier(.4,0,.2,1);
+  --dur-fast:      .18s;
+  --dur-mid:       .45s;
+  --dur-slow:      .75s;
+  --dur-cinematic: .95s;
+}
+
+/* ── RESET ── */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 16px;
+  overflow-x: hidden;
+}
+
+/* ── GLOBAL FONT SIZE OVERRIDES (Stage 12 polish) ── */
+.about-bio-p          { font-size: 1rem    !important; }
+.exp-bullets li       { font-size: .9rem   !important; }
+.ach-card-desc        { font-size: .9rem   !important; }
+.contact-info-value,
+.contact-info-link    { font-size: .65rem  !important; }
+.social-handle        { font-size: .5rem   !important; }
+.cert-title           { font-size: .62rem  !important; }
+.cf-input,
+.cf-textarea          { font-size: .7rem   !important; }
+.proj-htitle          { font-size: clamp(3rem,5vw,4.5rem) !important; }
+.about-title          { font-size: clamp(3.5rem,7vw,6rem) !important; }
+.exp-title            { font-size: clamp(3rem,5vw,4.5rem) !important; }
+.ach-title            { font-size: clamp(3rem,5vw,4.5rem) !important; }
+.contact-title        { font-size: clamp(3.5rem,8vw,7rem) !important; }
+.exp-role             { font-size: 1.25rem !important; }
+.exp-company          { font-size: .6rem   !important; }
+.exp-duration         { font-size: .52rem  !important; }
+.ach-card-title       { font-size: 1.1rem  !important; }
+.ach-card-issuer      { font-size: .54rem  !important; }
+.pc-title             { font-size: 1.6rem  !important; }
+.pc-tagline           { font-size: .88rem  !important; }
+
+/* ── WEBKIT BACKDROP-FILTER PREFIXES ── */
+#interior-nav      { -webkit-backdrop-filter: blur(18px); }
+.exp-header        { -webkit-backdrop-filter: blur(18px); }
+.ach-header        { -webkit-backdrop-filter: blur(18px); }
+.contact-header    { -webkit-backdrop-filter: blur(18px); }
+.add-modal,
+.proj-nav-btn,
+.floor-add-fab     { -webkit-backdrop-filter: blur(10px); }
+.proj-hud .pf-btn  { -webkit-backdrop-filter: blur(6px); }
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(124,58,237,.3); border-radius: 2px; }
