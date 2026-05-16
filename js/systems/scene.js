@@ -282,27 +282,43 @@ function triggerEntry() {
   const interiorNav       = document.getElementById('interior-nav');
 
   document.body.style.overflow = 'hidden';
-  transitionOverlay.classList.add('dark');
 
-  setTimeout(() => {
-    interior.classList.add('mounted');
-    window.scrollTo({ top: 0, behavior: 'instant' });
-    scene.style.display = 'none';
-    document.body.style.overflow = '';
-
+  if (window.EmpireAnim?.entryTransition) {
+    EmpireAnim.entryTransition(
+      // midpoint — swap scene → interior
+      () => {
+        interior.classList.add('mounted');
+        window.scrollTo({ top: 0, behavior: 'instant' });
+        scene.style.display = 'none';
+        document.body.style.overflow = '';
+        interior.classList.add('visible');
+      },
+      // complete — reveal nav and start reception
+      () => {
+        EmpireAnim.navIn();
+        if (typeof initReception === 'function') initReception();
+      }
+    );
+  } else {
+    transitionOverlay.classList.add('dark');
     setTimeout(() => {
-      interior.classList.add('visible');
+      interior.classList.add('mounted');
+      window.scrollTo({ top: 0, behavior: 'instant' });
+      scene.style.display = 'none';
+      document.body.style.overflow = '';
       setTimeout(() => {
-        interiorNav.classList.add('show');
+        interior.classList.add('visible');
         setTimeout(() => {
-          transitionOverlay.classList.remove('dark');
-          transitionOverlay.classList.add('clear');
-          // Reception init called from reception.js
-          if (typeof initReception === 'function') initReception();
+          interiorNav.classList.add('show');
+          setTimeout(() => {
+            transitionOverlay.classList.remove('dark');
+            transitionOverlay.classList.add('clear');
+            if (typeof initReception === 'function') initReception();
+          }, 300);
         }, 300);
-      }, 300);
-    }, 200);
-  }, 500);
+      }, 200);
+    }, 500);
+  }
 }
 
 /* ── EXPORT FOR INIT ── */
