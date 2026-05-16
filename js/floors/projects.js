@@ -253,7 +253,7 @@ function updateCarousel() {
     if (rel >  Math.floor(len / 2)) rel -= len;
     if (rel < -Math.floor(len / 2)) rel += len;
 
-    if      (rel ===  0) card.dataset.state = 'active';
+    if      (rel ===  0) { const wasActive = card.dataset.state === 'active'; card.dataset.state = 'active'; if (!wasActive && window.EmpireAnim?.carouselActive) EmpireAnim.carouselActive(card); }
     else if (rel === -1) card.dataset.state = 'prev';
     else if (rel === -2) card.dataset.state = 'prev2';
     else if (rel ===  1) card.dataset.state = 'next';
@@ -360,13 +360,19 @@ function openModal(id) {
       <div class="ms-chips">${chips}</div>
     </div>`;
 
-  document.getElementById('projModal').classList.add('open');
+  const modal = document.getElementById('projModal');
+  modal.classList.add('open');
   document.body.style.overflow = 'hidden';
+  if (window.EmpireAnim?.modalOpen) EmpireAnim.modalOpen(modal);
 }
 
 function closeModal() {
-  document.getElementById('projModal').classList.remove('open');
-  document.body.style.overflow = '';
+  const modal = document.getElementById('projModal');
+  if (window.EmpireAnim?.modalClose) {
+    EmpireAnim.modalClose(modal, () => { modal.classList.remove('open'); document.body.style.overflow = ''; });
+  } else {
+    modal.classList.remove('open'); document.body.style.overflow = '';
+  }
 }
 document.addEventListener('click', e => {
   const m = document.getElementById('projModal');
