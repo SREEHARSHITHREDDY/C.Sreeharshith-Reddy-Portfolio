@@ -28,9 +28,15 @@ function submitVisitorName(skip) {
     const p = document.getElementById('namePrompt');
     if (p) { p.style.opacity = '0'; p.style.transition = 'opacity .5s'; setTimeout(() => p.classList.add('hidden'), 500); }
   }
+
+  // Update holo display with visitor name if it is already mounted
+  if (window.updateHoloName) updateHoloName(visitorName);
 }
 
 function initReception() {
+  // Boot holographic display
+  if (window.initHoloDisplay) initHoloDisplay();
+
   if (window.EmpireAnim?.receptionIn) {
     EmpireAnim.receptionIn();
     setTimeout(() => { EmpireAnim.greetingBubbleIn?.(); runPersonalisedGreeting(); }, 900);
