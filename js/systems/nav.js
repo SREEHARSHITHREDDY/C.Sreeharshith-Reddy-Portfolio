@@ -176,6 +176,9 @@ function resolveToFloor(fi) {
     if (window.EmpireAnim?.fabIn) EmpireAnim.fabIn(activeFab);
   }
 
+  // Trigger floor dialogue cloud
+  if (window.triggerFloorDialogue) triggerFloorDialogue(fi);
+
   transitioning = false;
   window.scrollTo({ top: 0, behavior: 'instant' });
 }
