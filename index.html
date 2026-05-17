@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
   <title>C. Sree Harshith Reddy — Portfolio</title>
   <meta name="description" content="C. Sree Harshith Reddy — CS undergraduate specialising in AI/ML, Co-Founder of RainC. Portfolio of projects, experience, and achievements."/>
 
@@ -39,6 +39,8 @@
   <link rel="stylesheet" href="css/floors/projects.css"/>
   <!-- 8. Floors 03/04/05 -->
   <link rel="stylesheet" href="css/floors/experience-ach-contact.css"/>
+  <!-- Responsive + performance CSS — load last to override -->
+  <link rel="stylesheet" href="css/systems/responsive.css"/>
 </head>
 <body>
 
@@ -802,6 +804,9 @@
      JS MODULES — load order matters
      All modules must be loaded before init()
 ══════════════════════════════════════════ -->
+<!-- Performance + mobile layer — runs immediately -->
+<script src="js/systems/performance.js"></script>
+
 <!-- Holographic display component -->
 <script src="js/components/holodisplay.js"></script>
 
