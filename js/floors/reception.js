@@ -37,6 +37,9 @@ function initReception() {
   // Boot holographic display
   if (window.initHoloDisplay) initHoloDisplay();
 
+  // Init dialogue system
+  if (window.initDialogueSystem) initDialogueSystem();
+
   if (window.EmpireAnim?.receptionIn) {
     EmpireAnim.receptionIn();
     setTimeout(() => { EmpireAnim.greetingBubbleIn?.(); runPersonalisedGreeting(); }, 900);
@@ -45,6 +48,9 @@ function initReception() {
       if (esc) gsap.fromTo(esc, { opacity:0, y:10 }, { opacity:1, y:0, duration:.6, ease:'empireOut', onComplete:()=>esc.classList.add('show') });
     }, 4500);
     setTimeout(() => EmpireAnim.ambientLoops?.(), 1500);
+
+    // Reception floor dialogue
+    if (window.triggerFloorDialogue) triggerFloorDialogue(0);
   } else {
     setTimeout(() => { document.getElementById('deskArea')?.classList.add('show'); document.getElementById('recArea')?.classList.add('show'); }, 400);
     setTimeout(() => { document.getElementById('greetingBubble')?.classList.add('show'); runPersonalisedGreeting(); }, 900);
