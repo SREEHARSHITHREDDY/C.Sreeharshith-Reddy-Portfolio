@@ -39,6 +39,7 @@ const dustParticles = [];
 
 /* ── GENERATORS ── */
 function generateStars(count = 180) {
+  count = window._starCount || count; // mobile override
   const wrap = document.getElementById('starsWrap');
   const frag = document.createDocumentFragment();
   for (let i = 0; i < count; i++) {
@@ -213,6 +214,7 @@ function spawnDust(x, gy) {
 }
 
 function animateDust() {
+  if (window._skipDust) return; // mobile skip
   if (footCanvas.width !== window.innerWidth) {
     footCanvas.width  = window.innerWidth;
     footCanvas.height = 40;
@@ -232,6 +234,7 @@ function animateDust() {
 
 /* ── WINDOW LIGHTING FLICKER ── */
 function startWindowFlicker() {
+  const _fi = window._flickerInterval || 850;
   setInterval(() => {
     document.querySelectorAll('.win.l1,.win.l2,.win.l3').forEach(w => {
       if (Math.random() > .91) {
@@ -239,7 +242,7 @@ function startWindowFlicker() {
         setTimeout(() => { w.style.opacity = ''; }, 100 + Math.random() * 200);
       }
     });
-  }, 850);
+  }, _fi);
 }
 
 /* ── WING SPLIT ANIMATION ── */
@@ -257,6 +260,7 @@ function initWingSplit() {
 
 /* ── HELICOPTER ── */
 function startHelicopter() {
+  if (window._skipHeli) return; // mobile skip
   const heli = document.getElementById('helicopter');
   if (!heli) return;
   // CSS animation handles arrival — add hover class after 4s
