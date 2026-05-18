@@ -454,41 +454,25 @@
     left: 16px !important;
   }
   
-  /* Interaction zone vertical position */
+  /* Interaction zone — GSAP-animatable, no transform offset */
   .rec-interaction-zone {
     bottom: 36% !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important; /* override base, GSAP will animate left directly */
   }
   
   /* ════════════════════════════════════════════════
-     7. ABOUT PAGE — alignment fixes
+     7. ABOUT PAGE — alignment (handled in about.css)
   ════════════════════════════════════════════════ */
-  
-  /* Floor tag was overlapping title — fix spacing */
-  .about-floor-content {
-    padding-top: 52px !important; /* exact nav height */
-  }
+  /* About tag text style */
   .about-tag {
-    top: 52px !important;
-    padding: 12px 60px !important;
-    font-size: .54rem !important;
-    letter-spacing: 5px !important;
-    color: rgba(180,165,255,.6) !important;
-    /* Don't overlap "ABOUT ME" watermark */
-    background: rgba(7,6,14,.97) !important;
-    z-index: 20 !important;
+    font-size: .5rem !important;
+    letter-spacing: 4px !important;
+    color: rgba(180,165,255,.55) !important;
   }
-  .about-panel {
-    padding-top: 100px !important; /* clear the sticky tag */
-  }
-  
-  /* "ABOUT ME" background watermark — less intrusive */
+  /* Watermark behind reception — subtle */
   .rec-wall-name {
     color: rgba(124,58,237,.04) !important;
-  }
-  
-  /* About title — ensure it's not behind the tag */
-  .about-section-header {
-    position: relative; z-index: 5;
   }
   
   /* ════════════════════════════════════════════════
