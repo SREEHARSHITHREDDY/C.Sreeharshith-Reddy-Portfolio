@@ -28,16 +28,23 @@ function deskFloorClick(e, fi) {
 
 function goToFloor(fi) {
   if (fi === currentFloor || transitioning) return;
+
+  // Safety: always clear esc-transition overlay before navigating
+  const escEl = document.getElementById('esc-transition');
+  if (escEl) escEl.classList.remove('show');
+
   if (currentFloor === 0) {
     lobbyWalkThenEscalate(fi);
   } else if (window.hallwayTo && window.HallwaySystem?.available()) {
-    // Desktop: hallway corridor walk
     transitioning = true;
     const handled = hallwayTo(fi, currentFloor, FLOORS, () => {
       currentFloor = fi;
       resolveToFloor(fi);
     });
-    if (!handled) escalateTo(fi); // fallback
+    if (!handled) {
+      transitioning = false;
+      escalateTo(fi);
+    }
   } else {
     escalateTo(fi);
   }
@@ -140,6 +147,7 @@ function escalateTo(targetFloor) {
   escDestF.textContent = floor.num;
   escDestN.textContent = floor.name;
   escRider.style.bottom = '10px';
+  if (escVisitorRider) escVisitorRider.style.bottom = '10px';
   escCount.textContent  = FLOORS[currentFloor].num;
 
   // Show overlay
@@ -185,12 +193,21 @@ function resolveToFloor(fi) {
   document.getElementById('reception-scene').style.display = 'none';
 
   if (fi === 0) {
-    // Back to lobby
-    document.getElementById('reception-scene').style.display = 'block';
-    document.getElementById('deskArea').style.opacity    = '1';
-    const recArea = document.getElementById('recArea');
-    if (recArea) recArea.style.opacity = '1';
-    document.getElementById('lobby-char').style.opacity = '0';
+    // Back to lobby — restore all reception elements
+    const recScene = document.getElementById('reception-scene');
+    if (recScene) recScene.style.display = 'block';
+    const deskArea = document.getElementById('deskArea');
+    if (deskArea) { deskArea.style.opacity='1'; deskArea.style.transform=''; }
+    const recArea  = document.getElementById('recArea');
+    if (recArea)  { recArea.style.opacity='1'; recArea.style.transform=''; }
+    const holoMount = document.getElementById('holoMount');
+    if (holoMount) holoMount.style.opacity='1';
+    const recInteraction = document.getElementById('recInteraction');
+    if (recInteraction) { recInteraction.style.opacity='1'; recInteraction.style.transform=''; }
+    const escPrompt = document.getElementById('escPrompt');
+    if (escPrompt) escPrompt.classList.add('show');
+    const lc = document.getElementById('lobby-char');
+    if (lc) lc.style.opacity = '0';
   } else {
     const page = document.getElementById(FLOORS[fi].pageId);
     if (page) {
