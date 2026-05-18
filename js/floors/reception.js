@@ -54,6 +54,9 @@ function initReception() {
 
     // Reception floor dialogue
     if (window.triggerFloorDialogue) triggerFloorDialogue(0);
+
+    // Show interaction zone
+    setTimeout(() => initInteractionZone(), 1200);
   } else {
     setTimeout(() => { document.getElementById('deskArea')?.classList.add('show'); document.getElementById('recArea')?.classList.add('show'); }, 400);
     setTimeout(() => { document.getElementById('greetingBubble')?.classList.add('show'); runPersonalisedGreeting(); }, 900);
@@ -94,6 +97,59 @@ function showToast(msg) {
   } else {
     t.style.opacity = '1';
     setTimeout(() => { t.style.opacity = '0'; }, 2400);
+  }
+}
+
+/* ── INTERACTION ZONE ── */
+function initInteractionZone() {
+  const zone      = document.getElementById('recInteraction');
+  const hostBubble = document.getElementById('recHostBubble');
+  const hostText  = document.getElementById('recHostBubbleText');
+  const hostCursor= document.getElementById('recHostCursor');
+  const visitorBubble = document.getElementById('recVisitorBubble');
+  const visitorLabel  = document.getElementById('recVisitorLabel');
+  const visitorName_  = document.getElementById('recVisitorBubbleName');
+  const handshake     = document.getElementById('recHandshake');
+
+  if (!zone) return;
+  zone.classList.add('show');
+
+  // Update visitor name
+  const vName = (typeof visitorName !== 'undefined' && visitorName) ? visitorName : 'Visitor';
+  if (visitorLabel)  { visitorLabel.textContent  = vName; visitorLabel.classList.add('show'); }
+  if (visitorName_)  visitorName_.textContent = `— ${vName}`;
+
+  // Typewriter for host bubble
+  const lines = [
+    `Hi ${vName}!`,
+    `Welcome to my Empire.`,
+    `Let me show you around.`
+  ];
+  if (hostText && hostCursor) {
+    let li = 0, ci = 0, full = '';
+    hostCursor.style.display = 'inline-block';
+    function tick() {
+      if (li >= lines.length) { hostCursor.style.display='none'; return; }
+      const ln = lines[li];
+      if (ci < ln.length) { full += ln[ci]; hostText.textContent = full; ci++; setTimeout(tick, 42); }
+      else { full += '
+'; ci=0; li++; setTimeout(tick, 600); }
+    }
+    setTimeout(tick, 400);
+  }
+
+  // Show visitor bubble + handshake after host finishes
+  setTimeout(() => {
+    if (visitorBubble) visitorBubble.classList.add('show');
+    if (handshake)     handshake.classList.add('show');
+  }, 3500);
+
+  // GSAP entrance if available
+  if (window.gsap) {
+    const host    = document.getElementById('recHostFigure');
+    const visitor = document.getElementById('recVisitorFigure');
+    gsap.fromTo(host,    { opacity:0, x:-30 }, { opacity:1, x:0, duration:.7, ease:'empireOut' });
+    gsap.fromTo(visitor, { opacity:0, x:30  }, { opacity:1, x:0, duration:.7, ease:'empireOut', delay:.2 });
   }
 }
 
