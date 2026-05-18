@@ -329,26 +329,97 @@
     display: block;
   }
   
-  /* ── INTERACTION GESTURE — handshake arc ── */
+  /* ── INTERACTION GESTURE — CSS pixel handshake ── */
   .rec-handshake {
     position: absolute;
-    bottom: 28px;
+    bottom: 38px;
     left: 50%; transform: translateX(-50%);
-    width: 60px; height: 24px;
+    width: 120px; height: 28px;
     z-index: 8;
     opacity: 0;
-    transition: opacity .5s 2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
   }
   .rec-handshake.show { opacity: 1; }
+  
+  /* Host arm — extends right */
   .rec-handshake::before {
-    content: '🤝';
-    font-size: 1.4rem;
-    position: absolute; left: 50%; transform: translateX(-50%);
-    animation: handshake-bob .8s ease-in-out infinite;
+    content: '';
+    width: 44px; height: 10px;
+    background: linear-gradient(90deg, #1e2a4a, #2a3860);
+    border-radius: 5px 2px 2px 5px;
+    border: 1px solid rgba(124,58,237,.3);
+    position: absolute;
+    left: 4px;
+    animation: arm-pulse .9s ease-in-out infinite;
+    transform-origin: left center;
+  }
+  
+  /* Visitor arm — extends left */
+  .rec-handshake::after {
+    content: '';
+    width: 44px; height: 10px;
+    background: linear-gradient(270deg, #1e3a2a, #2a5040);
+    border-radius: 2px 5px 5px 2px;
+    border: 1px solid rgba(6,182,212,.3);
+    position: absolute;
+    right: 4px;
+    animation: arm-pulse .9s ease-in-out infinite .15s;
+    transform-origin: right center;
+  }
+  
+  /* Clasped hands in center */
+  .rec-handshake-center {
+    width: 32px; height: 22px;
+    position: relative; z-index: 2;
+    display: flex; align-items: center; justify-content: center;
+    animation: handshake-bob .9s ease-in-out infinite;
+  }
+  /* Left hand */
+  .rec-handshake-center::before {
+    content: '';
+    position: absolute; left: 0;
+    width: 14px; height: 18px;
+    background: #e8c49a;
+    border-radius: 3px 1px 3px 3px;
+    border: 1px solid rgba(245,158,11,.4);
+    box-shadow: 0 0 8px rgba(245,158,11,.4);
+  }
+  /* Right hand */
+  .rec-handshake-center::after {
+    content: '';
+    position: absolute; right: 0;
+    width: 14px; height: 18px;
+    background: #e0c4a0;
+    border-radius: 1px 3px 3px 3px;
+    border: 1px solid rgba(6,182,212,.4);
+    box-shadow: 0 0 8px rgba(6,182,212,.3);
+  }
+  
+  /* Glow between hands */
+  .rec-handshake-glow {
+    position: absolute; left: 50%; top: 50%;
+    transform: translate(-50%,-50%);
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(245,158,11,.5) 0%, rgba(6,182,212,.3) 50%, transparent 70%);
+    animation: handshake-glow 1.2s ease-in-out infinite;
+    z-index: 1;
+  }
+  
+  @keyframes arm-pulse {
+    0%,100% { transform: scaleX(1); }
+    50%      { transform: scaleX(1.06); }
   }
   @keyframes handshake-bob {
-    0%,100% { transform: translateX(-50%) translateY(0); }
-    50%      { transform: translateX(-50%) translateY(-4px); }
+    0%,100% { transform: translateY(0) scale(1); }
+    50%      { transform: translateY(-3px) scale(1.05); }
+  }
+  @keyframes handshake-glow {
+    0%,100% { opacity: .6; transform: translate(-50%,-50%) scale(1); }
+    50%      { opacity: 1;  transform: translate(-50%,-50%) scale(1.3); }
   }
   
   /* ════════════════════════════════════════════════
@@ -380,10 +451,26 @@
     padding: 14px 20px !important;
   }
   
-  /* ── Greeting bubble position ── */
+  /* ── Receptionist area — below back wall line (56%), with figure visible ── */
   .receptionist-area {
-    top: 8% !important;
+    top: auto !important;
+    bottom: 44% !important;   /* sits just above the floor tiles */
     left: 5% !important;
+    align-items: flex-end !important;
+    flex-direction: column-reverse !important; /* bubble above figure */
+  }
+  /* Figure never gets clipped — scale down slightly to fit */
+  .rec-figure {
+    transform: scale(1.3) !important;
+    transform-origin: bottom center !important;
+    margin-bottom: 0 !important;
+  }
+  /* Greeting bubble sits above the figure */
+  .greeting-bubble {
+    position: relative !important;
+    bottom: auto !important;
+    transform: none !important;
+    margin-bottom: 8px !important;
   }
   
   /* ════════════════════════════════════════════════
@@ -415,11 +502,40 @@
     font-size: .46rem !important;
   }
   
-  /* Dialogue cloud — don't overlap about content, push to right */
+  /* Dialogue cloud — bottom-left corner, below desk, never overlaps characters */
   .dc-pos-bottom-left {
-    bottom: 32px !important;
-    left: 24px !important;
-    max-width: min(400px, 40vw) !important;
+    bottom: 16px !important;
+    left: 16px !important;
+    max-width: min(380px, 38vw) !important;
+    z-index: 190 !important;
+  }
+  
+  /* Reception dialogue cloud specifically — push further left */
+  #dialogue-layer .dialogue-cloud {
+    bottom: 16px !important;
+    left: 16px !important;
+  }
+  
+  /* Ensure host bubble never goes off-screen */
+  .rec-host-bubble {
+    bottom: 108% !important;
+    left: 0 !important;
+    transform: none !important;
+    max-width: 220px !important;
+  }
+  
+  /* Ensure visitor bubble never overlaps host bubble */
+  .rec-visitor-bubble {
+    bottom: 108% !important;
+    right: 0 !important;
+    left: auto !important;
+    transform: none !important;
+    max-width: 190px !important;
+  }
+  
+  /* Interaction zone — bring down slightly so bubbles have room above */
+  .rec-interaction-zone {
+    bottom: 38% !important;
   }
   
   /* ════════════════════════════════════════════════
