@@ -323,6 +323,32 @@
     background: rgba(124,58,237,.2);
   }
   
+  /* ── HOST WALKER — gold accent ── */
+  .hallway-walker-host {
+    left: calc(50% - 18px) !important;
+    filter: drop-shadow(0 0 14px rgba(245,158,11,.6)) !important;
+  }
+  .hw-head-host {
+    background: #e8c49a !important;
+  }
+  .hw-body-host {
+    background: linear-gradient(180deg,#1e2a4a,#162038) !important;
+    border-top: 2px solid rgba(245,158,11,.5) !important;
+  }
+  
+  /* ── VISITOR WALKER — cyan accent ── */
+  .hallway-walker-visitor {
+    left: calc(50% + 18px) !important;
+    filter: drop-shadow(0 0 14px rgba(6,182,212,.6)) !important;
+  }
+  .hw-head-visitor {
+    background: #e0c4a0 !important;
+  }
+  .hw-body-visitor {
+    background: linear-gradient(180deg,#1e3a2a,#162a1e) !important;
+    border-top: 2px solid rgba(6,182,212,.5) !important;
+  }
+  
   /* ════════════════════════════════════════════════
      MOBILE — skip hallway, use escalator
   ════════════════════════════════════════════════ */
