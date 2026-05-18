@@ -577,3 +577,109 @@
   }
   .dc-text { font-size: .62rem !important; line-height: 1.75 !important; }
   .dc-btn  { font-size: .5rem !important; padding: 7px 16px !important; }
+  
+  /* ════════════════════════════════════════════════
+     ABOUT PAGE — title padding fix
+     Panel needs enough top space to clear nav + sticky tag
+  ════════════════════════════════════════════════ */
+  .about-panel:first-of-type {
+    padding-top: 120px !important; /* nav(60) + tag(~38) + gap(22) */
+  }
+  .about-panel {
+    padding-top: 80px !important;
+    padding-right: 92px !important; /* clear floor dir panel */
+  }
+  
+  /* ════════════════════════════════════════════════
+     ESCALATOR — dual riders, bright, side by side
+  ════════════════════════════════════════════════ */
+  
+  /* Widen the track to fit two riders */
+  .esc-track {
+    width: 160px !important; /* was 120px */
+  }
+  
+  /* Position the two riders side by side inside track */
+  .esc-main-rider {
+    left: 22px !important; /* host on left */
+    filter: drop-shadow(0 0 10px rgba(245,158,11,.7)) !important;
+  }
+  .esc-visitor-rider {
+    left: auto !important;
+    right: 22px !important; /* visitor on right */
+    filter: drop-shadow(0 0 10px rgba(6,182,212,.7)) !important;
+  }
+  
+  /* Host head — gold tint */
+  .emr-head-host {
+    background: #e8c49a !important;
+    box-shadow: 0 0 6px rgba(245,158,11,.5) !important;
+  }
+  .emr-body-host {
+    background: linear-gradient(180deg,#1e2a4a,#162038) !important;
+    border-top: 2px solid rgba(245,158,11,.5) !important;
+  }
+  
+  /* Visitor head — cyan tint */
+  .emr-head-visitor {
+    background: #e0c4a0 !important;
+    box-shadow: 0 0 6px rgba(6,182,212,.5) !important;
+  }
+  .emr-body-visitor {
+    background: linear-gradient(180deg,#1e3a2a,#162a1e) !important;
+    border-top: 2px solid rgba(6,182,212,.5) !important;
+  }
+  
+  /* Name label under each rider */
+  .emr-label {
+    font-family: var(--font-mono) !important;
+    font-size: .38rem !important;
+    letter-spacing: 2px !important;
+    color: rgba(245,158,11,.8) !important;
+    text-align: center !important;
+    margin-top: 3px !important;
+    white-space: nowrap !important;
+  }
+  .emr-label-visitor {
+    color: rgba(6,182,212,.8) !important;
+  }
+  
+  /* Make riders bigger and more visible */
+  .emr-head {
+    width: 20px !important; height: 20px !important;
+  }
+  .emr-body {
+    width: 22px !important; height: 26px !important;
+  }
+  .emr-legs { gap: 3px !important; }
+  .emr-leg  { width: 9px !important; height: 14px !important; }
+  
+  /* Brighter track */
+  .esc-track {
+    background: rgba(124,58,237,.08) !important;
+    border: 1px solid rgba(124,58,237,.4) !important;
+    box-shadow: 0 0 20px rgba(124,58,237,.2), inset 0 0 20px rgba(124,58,237,.05) !important;
+  }
+  .esc-track-steps {
+    background: repeating-linear-gradient(
+      -45deg,
+      transparent 0 10px,
+      rgba(124,58,237,.25) 10px 11px
+    ) !important;
+  }
+  .esc-track-rail-l,
+  .esc-track-rail-r {
+    background: rgba(124,58,237,.5) !important;
+    box-shadow: 0 0 6px rgba(124,58,237,.4) !important;
+  }
+  
+  /* Escalator counter — brighter */
+  .esc-counter {
+    color: rgba(124,58,237,.4) !important;
+    font-size: 5rem !important;
+  }
+  
+  /* Escalator main area — more light */
+  .esc-main {
+    background: rgba(12,10,26,.5) !important;
+  }
