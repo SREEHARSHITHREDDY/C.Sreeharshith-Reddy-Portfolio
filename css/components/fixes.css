@@ -93,19 +93,22 @@
   /* Interaction zone — positioned between holo display and desk */
   .rec-interaction-zone {
     position: absolute;
-    bottom: 42%;
+    bottom: 40%;
     left: 50%;
     transform: translateX(-50%);
-    width: min(520px, 80vw);
+    width: min(560px, 82vw);
     z-index: 6;
     display: flex;
     align-items: flex-end;
     justify-content: center;
-    gap: 48px;
-    opacity: 0;
-    transition: opacity .8s .5s;
+    gap: 60px;
+    opacity: 0; /* shown by JS — zone.style.opacity = "1" */
   }
   .rec-interaction-zone.show { opacity: 1; }
+  
+  /* Characters inside zone are always visible once zone shows */
+  .rec-host-figure,
+  .rec-visitor-figure { opacity: 1; }
   
   /* ── HARSHITH CHARACTER (host) ── */
   .rec-host-figure {
@@ -307,8 +310,7 @@
     color: var(--text);
     box-shadow: 0 4px 20px rgba(0,0,0,.6);
     z-index: 10;
-    opacity: 0;
-    transition: opacity .5s 3s;
+    opacity: 0; /* shown by JS */
   }
   .rec-visitor-bubble.show { opacity: 1; }
   .rec-visitor-bubble::after {
@@ -475,11 +477,14 @@
   .esc-lbl { color: rgba(180,165,255,.5) !important; font-size: .42rem !important; }
   
   /* ════════════════════════════════════════════════
-     10. HOLO DISPLAY — sit closer to top, no gap
+     10. HOLO DISPLAY — inside reception scene top
   ════════════════════════════════════════════════ */
   .holo-mount {
-    top: 2% !important;
+    top: 4% !important;
+    z-index: 9 !important;
   }
+  /* Ensure holo bezel shows with correct width */
+  .holo-bezel { width: min(600px, 78vw) !important; }
   
   /* ════════════════════════════════════════════════
      11. DESK AREA — slightly higher placement
