@@ -5,156 +5,187 @@
 
 let visitorName = '';
 
+/* ── NAME PROMPT ── */
 function initNamePrompt() {
   const prompt = document.getElementById('namePrompt');
   if (!prompt) return;
   document.body.style.overflow = 'hidden';
   prompt.classList.remove('hidden');
-
   if (window.EmpireAnim?.namePromptIn) {
     EmpireAnim.namePromptIn();
   } else {
-    setTimeout(() => { document.getElementById('visitorNameInput')?.focus(); }, 300);
+    setTimeout(() => document.getElementById('visitorNameInput')?.focus(), 300);
   }
 }
 
 function submitVisitorName(skip) {
   visitorName = skip ? '' : (document.getElementById('visitorNameInput')?.value || '').trim();
   document.body.style.overflow = '';
-
   if (window.EmpireAnim?.namePromptOut) {
     EmpireAnim.namePromptOut(() => document.getElementById('namePrompt').classList.add('hidden'));
   } else {
     const p = document.getElementById('namePrompt');
-    if (p) { p.style.opacity = '0'; p.style.transition = 'opacity .5s'; setTimeout(() => p.classList.add('hidden'), 500); }
+    if (p) { p.style.opacity='0'; p.style.transition='opacity .5s'; setTimeout(()=>p.classList.add('hidden'),500); }
   }
-
-  // Update holo display with visitor name if it is already mounted
   if (window.updateHoloName) updateHoloName(visitorName);
 }
 
+/* ── RECEPTION INIT ── */
 function initReception() {
-  // Boot hallway system
-  if (window.initHallway) initHallway();
-
-  // Boot holographic display
-  if (window.initHoloDisplay) initHoloDisplay();
-
-  // Init dialogue system
+  // Boot subsystems
+  if (window.initHallway)       initHallway();
+  if (window.initHoloDisplay)   initHoloDisplay();
   if (window.initDialogueSystem) initDialogueSystem();
 
-  if (window.EmpireAnim?.receptionIn) {
-    EmpireAnim.receptionIn();
-    setTimeout(() => { EmpireAnim.greetingBubbleIn?.(); runPersonalisedGreeting(); }, 900);
-    setTimeout(() => {
-      const esc = document.getElementById('escPrompt');
-      if (esc) gsap.fromTo(esc, { opacity:0, y:10 }, { opacity:1, y:0, duration:.6, ease:'empireOut', onComplete:()=>esc.classList.add('show') });
-    }, 4500);
-    setTimeout(() => EmpireAnim.ambientLoops?.(), 1500);
+  /* ── Show desk + receptionist ── */
+  const deskArea = document.getElementById('deskArea');
+  const recArea  = document.getElementById('recArea');
 
-    // Reception floor dialogue
-    if (window.triggerFloorDialogue) triggerFloorDialogue(0);
+  if (window.gsap) {
+    gsap.set(deskArea, { opacity:0, y:40 });
+    gsap.set(recArea,  { opacity:0, x:-20 });
+    gsap.to(deskArea, { opacity:1, y:0, duration:.9, delay:.4, ease:'empireOut',
+      onComplete: () => deskArea.classList.add('show') });
+    gsap.to(recArea,  { opacity:1, x:0, duration:.75, delay:.6, ease:'empireOut',
+      onComplete: () => recArea.classList.add('show') });
 
-    // Show interaction zone
-    setTimeout(() => initInteractionZone(), 1200);
+    // Floor buttons stagger
+    const btns = document.querySelectorAll('.floor-btn');
+    gsap.fromTo(btns, { opacity:0, x:-10 }, { opacity:1, x:0, duration:.4, stagger:.07, delay:.8, ease:'empireOut' });
   } else {
-    setTimeout(() => { document.getElementById('deskArea')?.classList.add('show'); document.getElementById('recArea')?.classList.add('show'); }, 400);
-    setTimeout(() => { document.getElementById('greetingBubble')?.classList.add('show'); runPersonalisedGreeting(); }, 900);
-    setTimeout(() => document.getElementById('escPrompt')?.classList.add('show'), 4500);
+    setTimeout(() => { deskArea?.classList.add('show'); recArea?.classList.add('show'); }, 400);
   }
+
+  /* ── Greeting bubble typewriter ── */
+  setTimeout(() => {
+    const bubble = document.getElementById('greetingBubble');
+    if (window.EmpireAnim?.greetingBubbleIn) EmpireAnim.greetingBubbleIn();
+    else if (bubble) bubble.classList.add('show');
+    runPersonalisedGreeting();
+  }, 900);
+
+  /* ── Interaction zone — both characters ── */
+  setTimeout(() => initInteractionZone(), 1400);
+
+  /* ── Esc prompt ── */
+  setTimeout(() => {
+    const esc = document.getElementById('escPrompt');
+    if (!esc) return;
+    if (window.gsap) {
+      gsap.fromTo(esc, { opacity:0, y:10 }, { opacity:1, y:0, duration:.6, ease:'empireOut',
+        onComplete: ()=>esc.classList.add('show') });
+    } else {
+      esc.classList.add('show');
+    }
+  }, 4500);
+
+  /* ── Ambient loops ── */
+  setTimeout(() => window.EmpireAnim?.ambientLoops?.(), 1800);
+
+  /* ── Floor dialogue ── */
+  if (window.triggerFloorDialogue) setTimeout(() => triggerFloorDialogue(0), 5500);
 }
 
+/* ── PERSONALISED TYPEWRITER GREETING ── */
 function runPersonalisedGreeting() {
   const textEl = document.getElementById('bubbleText');
   const curEl  = document.getElementById('bubbleCursor');
   if (!textEl) return;
-
-  const name  = visitorName ? `, ${visitorName}` : '';
+  const name = visitorName ? `, ${visitorName}` : '';
   const lines = [
     `Good day${name}! Welcome to\nC. Sree Harshith Reddy's Empire.`,
     `I'm your guide for today.`,
     `Select a floor from the panel\nor scroll down to begin.`
   ];
-
-  let li = 0, ci = 0, fullText = '';
+  let li=0, ci=0, full='';
   function next() {
-    if (li >= lines.length) { if (curEl) curEl.style.display = 'none'; return; }
-    const ln = lines[li];
-    if (ci < ln.length) { fullText += ln[ci]; textEl.textContent = fullText; ci++; setTimeout(next, 36); }
-    else { fullText += '\n'; ci = 0; li++; setTimeout(next, 700); }
+    if (li>=lines.length) { if(curEl) curEl.style.display='none'; return; }
+    const ln=lines[li];
+    if (ci<ln.length) { full+=ln[ci]; textEl.textContent=full; ci++; setTimeout(next,36); }
+    else { full+='\n'; ci=0; li++; setTimeout(next,700); }
   }
   next();
 }
 
-function showToast(msg) {
-  let t = document.getElementById('addToast');
-  if (!t) { t = document.createElement('div'); t.id = 'addToast'; document.body.appendChild(t); }
-  t.textContent = msg;
-  if (window.gsap) {
-    gsap.fromTo(t, { opacity:0, y:10 }, { opacity:1, y:0, duration:.3, ease:'empireOut',
-      onComplete: () => gsap.to(t, { opacity:0, y:-8, duration:.4, delay:2, ease:'empireSoft' })
-    });
-  } else {
-    t.style.opacity = '1';
-    setTimeout(() => { t.style.opacity = '0'; }, 2400);
-  }
-}
-
 /* ── INTERACTION ZONE ── */
 function initInteractionZone() {
-  const zone      = document.getElementById('recInteraction');
-  const hostBubble = document.getElementById('recHostBubble');
-  const hostText  = document.getElementById('recHostBubbleText');
-  const hostCursor= document.getElementById('recHostCursor');
+  const zone        = document.getElementById('recInteraction');
+  const hostText    = document.getElementById('recHostBubbleText');
+  const hostCursor  = document.getElementById('recHostCursor');
   const visitorBubble = document.getElementById('recVisitorBubble');
   const visitorLabel  = document.getElementById('recVisitorLabel');
-  const visitorName_  = document.getElementById('recVisitorBubbleName');
+  const visitorNameEl = document.getElementById('recVisitorBubbleName');
   const handshake     = document.getElementById('recHandshake');
+  const host          = document.getElementById('recHostFigure');
+  const visitor       = document.getElementById('recVisitorFigure');
 
   if (!zone) return;
+
+  // Force show — don't rely on CSS transition alone
+  zone.style.opacity = '1';
   zone.classList.add('show');
 
-  // Update visitor name
+  // Visitor name
   const vName = (typeof visitorName !== 'undefined' && visitorName) ? visitorName : 'Visitor';
-  if (visitorLabel)  { visitorLabel.textContent  = vName; visitorLabel.classList.add('show'); }
-  if (visitorName_)  visitorName_.textContent = `— ${vName}`;
+  if (visitorLabel)   { visitorLabel.textContent = vName; visitorLabel.classList.add('show'); }
+  if (visitorNameEl)  visitorNameEl.textContent = `— ${vName}`;
 
-  // Typewriter for host bubble
-  const lines = [
-    `Hi ${vName}!`,
-    `Welcome to my Empire.`,
-    `Let me show you around.`
-  ];
-  if (hostText && hostCursor) {
-    let li = 0, ci = 0, full = '';
-    hostCursor.style.display = 'inline-block';
-    function tick() {
-      if (li >= lines.length) { hostCursor.style.display='none'; return; }
-      const ln = lines[li];
-      if (ci < ln.length) { full += ln[ci]; hostText.textContent = full; ci++; setTimeout(tick, 42); }
-      else { full += '
-'; ci=0; li++; setTimeout(tick, 600); }
-    }
-    setTimeout(tick, 400);
+  // GSAP character entrance
+  if (window.gsap) {
+    gsap.fromTo(host,    { opacity:0, x:-40 }, { opacity:1, x:0, duration:.75, ease:'empireOut' });
+    gsap.fromTo(visitor, { opacity:0, x:40  }, { opacity:1, x:0, duration:.75, ease:'empireOut', delay:.2 });
+  } else {
+    if (host)    host.style.opacity    = '1';
+    if (visitor) visitor.style.opacity = '1';
   }
 
-  // Show visitor bubble + handshake after host finishes
-  setTimeout(() => {
-    if (visitorBubble) visitorBubble.classList.add('show');
-    if (handshake)     handshake.classList.add('show');
-  }, 3500);
+  // Host bubble typewriter
+  if (hostText && hostCursor) {
+    const lines = [`Hi ${vName}!`, `Welcome to my Empire.`, `Let me show\nyou around.`];
+    let li=0, ci=0, full='';
+    hostCursor.style.display = 'inline-block';
+    function tick() {
+      if (li>=lines.length) { hostCursor.style.display='none'; return; }
+      const ln=lines[li];
+      if (ci<ln.length) { full+=ln[ci]; hostText.textContent=full; ci++; setTimeout(tick,45); }
+      else { full+='\n'; ci=0; li++; setTimeout(tick,650); }
+    }
+    setTimeout(tick, 500);
+  }
 
-  // GSAP entrance if available
+  // Visitor bubble + handshake appear after host finishes (~3.5s)
+  setTimeout(() => {
+    if (visitorBubble) {
+      visitorBubble.style.transition = 'opacity .5s';
+      visitorBubble.style.opacity    = '1';
+      visitorBubble.classList.add('show');
+    }
+    if (handshake) {
+      handshake.style.transition = 'opacity .5s';
+      handshake.style.opacity    = '1';
+      handshake.classList.add('show');
+    }
+  }, 3500);
+}
+
+/* ── TOAST ── */
+function showToast(msg) {
+  let t = document.getElementById('addToast');
+  if (!t) { t=document.createElement('div'); t.id='addToast'; document.body.appendChild(t); }
+  t.textContent = msg;
   if (window.gsap) {
-    const host    = document.getElementById('recHostFigure');
-    const visitor = document.getElementById('recVisitorFigure');
-    gsap.fromTo(host,    { opacity:0, x:-30 }, { opacity:1, x:0, duration:.7, ease:'empireOut' });
-    gsap.fromTo(visitor, { opacity:0, x:30  }, { opacity:1, x:0, duration:.7, ease:'empireOut', delay:.2 });
+    gsap.fromTo(t, {opacity:0,y:10}, {opacity:1,y:0,duration:.3,ease:'empireOut',
+      onComplete:()=>gsap.to(t,{opacity:0,y:-8,duration:.4,delay:2,ease:'empireSoft'})});
+  } else {
+    t.style.opacity='1';
+    setTimeout(()=>{t.style.opacity='0';},2400);
   }
 }
 
-window.initNamePrompt    = initNamePrompt;
-window.submitVisitorName = submitVisitorName;
-window.initReception     = initReception;
-window.showToast         = showToast;
-Object.defineProperty(window, 'visitorName', { get: () => visitorName, set: v => { visitorName = v; } });
+/* ── EXPOSE ── */
+window.initNamePrompt     = initNamePrompt;
+window.submitVisitorName  = submitVisitorName;
+window.initReception      = initReception;
+window.showToast          = showToast;
+window.initInteractionZone= initInteractionZone;
+Object.defineProperty(window,'visitorName',{get:()=>visitorName,set:v=>{visitorName=v;}});
