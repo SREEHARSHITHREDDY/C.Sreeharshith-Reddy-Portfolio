@@ -1,0 +1,314 @@
+/*
+  ═══════════════════════════════════════════════
+  SHOWCASE.CSS — 3D Glass Display Stands
+  Luxury tech exhibition style for Floor 02
+  Extends + overrides projects.css card styles
+  C. Sree Harshith Reddy's Empire
+  ═══════════════════════════════════════════════
+*/
+
+/* ════════════════════════════════════════════════
+   STAGE UPGRADES — exhibition hall feel
+════════════════════════════════════════════════ */
+.proj-stage {
+    perspective: 1400px;
+    perspective-origin: 50% 58%;
+  }
+  
+  /* Exhibition floor reflection line */
+  .proj-floor-ref {
+    bottom: 28%;
+    height: 2px;
+    background: linear-gradient(90deg,
+      transparent 0%,
+      rgba(124,58,237,.15) 15%,
+      rgba(245,158,11,.25) 35%,
+      rgba(6,182,212,.2)   50%,
+      rgba(245,158,11,.25) 65%,
+      rgba(124,58,237,.15) 85%,
+      transparent 100%
+    );
+    filter: blur(1px);
+  }
+  
+  /* Ambient exhibition glow — wider */
+  .proj-spotlight {
+    width: 800px;
+    background: radial-gradient(ellipse 65% 80% at 50% 45%,
+      rgba(124,58,237,.07) 0%,
+      rgba(6,182,212,.04) 40%,
+      transparent 70%
+    );
+  }
+  
+  /* ════════════════════════════════════════════════
+     STAND BASE CARD — replaces flat card
+  ════════════════════════════════════════════════ */
+  .proj-card {
+    width: 300px;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    overflow: visible;           /* allow stand to extend below */
+    box-shadow: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+  }
+  
+  /* ── ACTIVE STATE ── */
+  .proj-card[data-state="active"] {
+    border: none;
+    box-shadow: none;
+  }
+  
+  /* ════════════════════════════════════════════════
+     HOLOGRAPHIC DISPLAY PANEL (top of stand)
+     Replaces .pc-cover
+  ════════════════════════════════════════════════ */
+  .pc-cover {
+    width: 100%;
+    height: 200px;
+    position: relative;
+    overflow: visible;
+    border-radius: 10px 10px 0 0;
+    /* Glass panel */
+    background: rgba(12, 10, 26, 0.7);
+    border: 1px solid rgba(124,58,237,.35);
+    border-bottom: none;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.06),
+      inset 0 0 40px rgba(124,58,237,.06),
+      0 0 30px rgba(124,58,237,.12);
+    transition: box-shadow .4s, border-color .4s;
+  }
+  
+  .proj-card[data-state="active"] .pc-cover {
+    border-color: rgba(124,58,237,.6);
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.1),
+      inset 0 0 60px rgba(124,58,237,.1),
+      0 0 60px rgba(124,58,237,.25),
+      0 0 120px rgba(124,58,237,.1);
+  }
+  
+  /* Category colour overrides for glass panel */
+  .cover-enterprise { background: rgba(8,5,30,.75);  border-color: rgba(124,58,237,.4); }
+  .cover-research   { background: rgba(3,14,22,.75);  border-color: rgba(6,182,212,.35); }
+  .cover-innovation { background: rgba(18,8,2,.75);   border-color: rgba(245,158,11,.35); }
+  .cover-product    { background: rgba(10,5,24,.75);  border-color: rgba(192,132,252,.35); }
+  
+  .proj-card[data-state="active"] .cover-enterprise { border-color: rgba(124,58,237,.7); box-shadow: inset 0 0 60px rgba(124,58,237,.12), 0 0 60px rgba(124,58,237,.3); }
+  .proj-card[data-state="active"] .cover-research   { border-color: rgba(6,182,212,.6);  box-shadow: inset 0 0 60px rgba(6,182,212,.1),   0 0 60px rgba(6,182,212,.25); }
+  .proj-card[data-state="active"] .cover-innovation { border-color: rgba(245,158,11,.6); box-shadow: inset 0 0 60px rgba(245,158,11,.1),  0 0 60px rgba(245,158,11,.25); }
+  .proj-card[data-state="active"] .cover-product    { border-color: rgba(192,132,252,.6);box-shadow: inset 0 0 60px rgba(192,132,252,.1), 0 0 60px rgba(192,132,252,.25); }
+  
+  /* Scanline overlay on panel */
+  .cv-grid {
+    background:
+      repeating-linear-gradient(0deg,  rgba(255,255,255,.025) 0 1px, transparent 1px 28px),
+      repeating-linear-gradient(90deg, rgba(255,255,255,.015) 0 1px, transparent 1px 28px);
+    border-radius: 10px 10px 0 0;
+  }
+  
+  /* Moving scan line on active */
+  .pc-cover::after {
+    content: '';
+    position: absolute; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg,transparent,rgba(124,58,237,.5) 30%,rgba(6,182,212,.6) 50%,rgba(124,58,237,.5) 70%,transparent);
+    opacity: 0;
+    animation: stand-scan 4s ease-in-out infinite;
+    pointer-events: none; z-index: 5;
+  }
+  .proj-card[data-state="active"] .pc-cover::after { opacity: 1; }
+  @keyframes stand-scan {
+    0%   { top: 0%;   }
+    100% { top: 100%; }
+  }
+  
+  /* Floating holographic icon — replaces flat shape */
+  .cv-shape {
+    opacity: 1;
+    animation: stand-float 3s ease-in-out infinite;
+  }
+  @keyframes stand-float {
+    0%,100% { transform: translate(-50%,-60%) translateY(0px); }
+    50%     { transform: translate(-50%,-60%) translateY(-8px); }
+  }
+  .cover-enterprise .cv-shape { animation-delay: 0s; }
+  .cover-research   .cv-shape { animation-delay: .7s; }
+  .cover-innovation .cv-shape { animation-delay: 1.4s; }
+  .cover-product    .cv-shape { animation-delay: 2.1s; }
+  
+  /* Glow intensified on active */
+  .cv-glow {
+    opacity: .5;
+    transition: opacity .4s, width .4s;
+  }
+  .proj-card[data-state="active"] .cv-glow { opacity: .9; width: 75%; }
+  
+  /* Badge — top right corner chip */
+  .cv-badge {
+    top: 10px; left: auto; right: 12px;
+    font-size: .38rem;
+  }
+  
+  /* ════════════════════════════════════════════════
+     GLASS PANEL EDGE — top connector stripe
+  ════════════════════════════════════════════════ */
+  .pc-cover::before {
+    content: '';
+    position: absolute; top: 0; left: 10%; right: 10%; height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,.12), transparent);
+    z-index: 4;
+  }
+  
+  /* ════════════════════════════════════════════════
+     STAND NECK — connects panel to pedestal
+  ════════════════════════════════════════════════ */
+  .pc-neck {
+    width: 100%;
+    height: 6px;
+    background: linear-gradient(180deg,rgba(124,58,237,.3),rgba(124,58,237,.15));
+    border-left: 1px solid rgba(124,58,237,.25);
+    border-right: 1px solid rgba(124,58,237,.25);
+    position: relative;
+  }
+  .pc-neck::after {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg,transparent,rgba(124,58,237,.6),rgba(245,158,11,.4),rgba(124,58,237,.6),transparent);
+  }
+  
+  /* ════════════════════════════════════════════════
+     PEDESTAL BODY — the glass base
+  ════════════════════════════════════════════════ */
+  .pc-body {
+    width: 100%;
+    padding: 16px 18px 14px;
+    background: linear-gradient(180deg,
+      rgba(16,12,36,.9) 0%,
+      rgba(10,8,24,.95) 100%
+    );
+    border: 1px solid rgba(124,58,237,.25);
+    border-top: none;
+    border-radius: 0 0 4px 4px;
+    position: relative;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    box-shadow:
+      inset 0 -1px 0 rgba(124,58,237,.1),
+      0 20px 60px rgba(0,0,0,.6);
+    transition: border-color .4s, box-shadow .4s;
+  }
+  
+  .proj-card[data-state="active"] .pc-body {
+    border-color: rgba(124,58,237,.45);
+    box-shadow:
+      inset 0 -1px 0 rgba(124,58,237,.2),
+      0 30px 80px rgba(0,0,0,.8),
+      0 0 30px rgba(124,58,237,.1);
+  }
+  
+  /* Left accent bar on pedestal */
+  .pc-body::before {
+    content: '';
+    position: absolute; left: 0; top: 10%; bottom: 10%; width: 2px;
+    background: linear-gradient(180deg,transparent,var(--accent),transparent);
+    opacity: 0;
+    transition: opacity .4s;
+    border-radius: 1px;
+  }
+  .proj-card[data-state="active"] .pc-body::before { opacity: .6; }
+  
+  /* ════════════════════════════════════════════════
+     PEDESTAL PLINTH — wide flat base
+  ════════════════════════════════════════════════ */
+  .pc-plinth {
+    width: 110%;
+    height: 8px;
+    background: linear-gradient(180deg,rgba(20,16,44,.9),rgba(10,8,24,.95));
+    border: 1px solid rgba(124,58,237,.18);
+    border-top: none;
+    border-radius: 0 0 6px 6px;
+    position: relative;
+    box-shadow: 0 8px 30px rgba(0,0,0,.5);
+  }
+  
+  /* Plinth top glow line */
+  .pc-plinth::before {
+    content: '';
+    position: absolute; top: 0; left: 5%; right: 5%; height: 1px;
+    background: linear-gradient(90deg,transparent,rgba(124,58,237,.3),rgba(245,158,11,.2),rgba(124,58,237,.3),transparent);
+    opacity: 0;
+    transition: opacity .4s;
+  }
+  .proj-card[data-state="active"] .pc-plinth::before { opacity: 1; }
+  
+  /* Ground reflection */
+  .pc-reflection {
+    width: 90%;
+    height: 24px;
+    background: linear-gradient(180deg,
+      rgba(124,58,237,.08) 0%,
+      transparent 100%
+    );
+    filter: blur(6px);
+    border-radius: 50%;
+    margin-top: 2px;
+    opacity: 0;
+    transition: opacity .4s;
+  }
+  .proj-card[data-state="active"] .pc-reflection { opacity: 1; }
+  
+  /* ════════════════════════════════════════════════
+     TEXT UPGRADES inside pedestal
+  ════════════════════════════════════════════════ */
+  .pc-title {
+    font-size: 1.3rem;
+    margin-bottom: 4px;
+    text-shadow: 0 0 20px rgba(124,58,237,.3);
+  }
+  
+  .proj-card[data-state="active"] .pc-title {
+    color: #fff;
+    text-shadow: 0 0 30px rgba(124,58,237,.5);
+  }
+  
+  .pc-tagline { font-size: .72rem; margin-bottom: 10px; }
+  
+  /* ════════════════════════════════════════════════
+     HOVER EFFECT on active stand
+  ════════════════════════════════════════════════ */
+  .proj-card[data-state="active"]:hover .pc-cover {
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.12),
+      inset 0 0 80px rgba(124,58,237,.14),
+      0 0 80px rgba(124,58,237,.35),
+      0 0 160px rgba(124,58,237,.12);
+  }
+  .proj-card[data-state="active"]:hover .cv-shape {
+    opacity: .25;
+  }
+  
+  /* ════════════════════════════════════════════════
+     PREV / NEXT — ghost stands, dimmed
+  ════════════════════════════════════════════════ */
+  .proj-card[data-state="prev"]  { transform: translateX(-480px) scale(.68) rotateY(24deg);  opacity: .25; }
+  .proj-card[data-state="prev2"] { transform: translateX(-780px) scale(.52) rotateY(32deg);  opacity: 0; }
+  .proj-card[data-state="next"]  { transform: translateX(480px)  scale(.68) rotateY(-24deg); opacity: .25; }
+  .proj-card[data-state="next2"] { transform: translateX(780px)  scale(.52) rotateY(-32deg); opacity: 0; }
+  
+  /* ════════════════════════════════════════════════
+     MOBILE — flat card fallback
+  ════════════════════════════════════════════════ */
+  @media (max-width: 768px) {
+    .pc-cover  { border-radius: 10px 10px 0 0; height: 150px; }
+    .pc-neck   { display: none; }
+    .pc-plinth { width: 100%; border-radius: 0 0 10px 10px; }
+    .pc-reflection { display: none; }
+    .proj-card { width: 280px; }
+  }
