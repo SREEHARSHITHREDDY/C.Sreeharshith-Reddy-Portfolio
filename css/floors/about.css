@@ -37,19 +37,32 @@
 .about-floor-content {
   align-items: flex-start; justify-content: flex-start;
   padding: 0; overflow-y: auto; height: 100vh;
-  padding-top: 60px; scroll-behavior: smooth; scrollbar-width: none;
+  padding-top: 0; /* nav is fixed, no push needed */
+  scroll-behavior: smooth; scrollbar-width: none;
 }
 .about-floor-content::-webkit-scrollbar { display: none; }
 
+/* Sticky tag — sits directly under the 60px fixed nav */
 .about-tag {
-  position: sticky; top: 60px;
-  background: rgba(7,6,14,.92); backdrop-filter: blur(14px);
-  padding: 10px var(--sp-3xl) 10px 60px; z-index: 10;
-  margin-bottom: 0; border-bottom: 1px solid var(--border); width: 100%;
+  position: sticky;
+  top: 60px; /* exactly nav height */
+  background: rgba(7,6,14,.98);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  padding: 8px 92px 8px 60px; /* right pad accounts for floor panel */
+  z-index: 20;
+  margin-bottom: 0;
+  border-bottom: 1px solid rgba(124,58,237,.2);
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 14px;
 }
 
 .about-panel {
-  min-height: 100vh; padding: 136px 100px 60px 60px;
+  /* Top padding = nav(60) + tag(~38) + breathing room(40) */
+  min-height: 100vh;
+  padding: 60px 100px 60px 60px;
   display: flex; flex-direction: column; justify-content: center; gap: 28px;
   position: relative; opacity: 0; transform: translateY(30px);
   transition: opacity var(--dur-slow) ease, transform var(--dur-slow) var(--ease-out-expo);
