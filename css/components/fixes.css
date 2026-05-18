@@ -1,0 +1,489 @@
+/*
+  ═══════════════════════════════════════════════
+  FIXES.CSS — Visibility, Spacing & Character Fixes
+  1. Brighter purple — floor panel, desk, nav all readable
+  2. Empty space filled with interaction scene
+  3. Larger avatars + figures
+  4. Larger fonts throughout
+  5. About page alignment
+  6. Dialogue cloud positioning
+  ═══════════════════════════════════════════════
+*/
+
+/* ════════════════════════════════════════════════
+   1. FLOOR DIR PANEL — much brighter, readable
+════════════════════════════════════════════════ */
+.floor-dir-panel {
+    background: rgba(10, 8, 28, 0.97);
+    border-left: 1px solid rgba(124,58,237,.35);
+  }
+  
+  .fdp-num {
+    font-size: 1.15rem !important;
+    color: rgba(200, 185, 255, 0.75) !important; /* was .3 — now bright */
+    letter-spacing: 1px;
+  }
+  .fdp-floor:hover .fdp-num { color: #fff !important; }
+  .fdp-floor.fdp-current .fdp-num { color: var(--gold) !important; }
+  
+  .fdp-name {
+    font-size: .42rem !important;
+    color: rgba(180, 165, 255, 0.5) !important; /* was .25 — now visible */
+    letter-spacing: 2px !important;
+  }
+  .fdp-floor:hover .fdp-name { color: rgba(232,228,240,.7) !important; }
+  .fdp-floor.fdp-current .fdp-name { color: rgba(232,228,240,.9) !important; }
+  
+  .fdp-lbl { color: rgba(180,165,255,.45) !important; }
+  .fdp-divider { background: rgba(124,58,237,.2); }
+  .fdp-floor:hover { background: rgba(124,58,237,.12) !important; }
+  
+  /* ════════════════════════════════════════════════
+     2. DESK FLOOR BUTTONS — brighter text
+  ════════════════════════════════════════════════ */
+  .floor-btn {
+    background: rgba(124,58,237,.07) !important;
+    border: 1px solid rgba(124,58,237,.18) !important;
+    border-left: 3px solid transparent !important;
+  }
+  .floor-btn:hover {
+    background: rgba(124,58,237,.16) !important;
+    border-left-color: rgba(124,58,237,.6) !important;
+  }
+  .floor-btn.active {
+    background: rgba(245,158,11,.08) !important;
+    border-left-color: var(--gold) !important;
+  }
+  
+  .fb-num {
+    font-size: 1.4rem !important;
+    color: rgba(200,185,255,.55) !important; /* was .4 opacity gold */
+    opacity: 1 !important;
+  }
+  .floor-btn.active .fb-num { color: var(--gold) !important; }
+  
+  .fb-name {
+    font-size: .65rem !important;  /* was .52rem */
+    color: rgba(232,228,240,.85) !important;
+    letter-spacing: 1.5px !important;
+  }
+  .fb-sub {
+    font-size: .48rem !important;  /* was .38rem */
+    color: rgba(180,165,255,.6) !important;
+  }
+  
+  .desk-hdr {
+    font-size: .5rem !important;
+    color: rgba(180,165,255,.6) !important;
+    letter-spacing: 3px !important;
+  }
+  .desk-nameplate {
+    font-size: .55rem !important;
+    color: rgba(180,165,255,.8) !important;
+  }
+  
+  /* ════════════════════════════════════════════════
+     3. RECEPTION SCENE — fill empty space with
+        interaction zone between display and desk
+  ════════════════════════════════════════════════ */
+  
+  /* Make wall taller so interaction zone has room */
+  .rec-back-wall { height: 62%; }
+  
+  /* Interaction zone — positioned between holo display and desk */
+  .rec-interaction-zone {
+    position: absolute;
+    bottom: 42%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(520px, 80vw);
+    z-index: 6;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 48px;
+    opacity: 0;
+    transition: opacity .8s .5s;
+  }
+  .rec-interaction-zone.show { opacity: 1; }
+  
+  /* ── HARSHITH CHARACTER (host) ── */
+  .rec-host-figure {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    filter: drop-shadow(0 0 18px rgba(245,158,11,.35));
+    position: relative;
+  }
+  
+  .rec-host-label {
+    font-family: var(--font-mono);
+    font-size: .5rem;
+    letter-spacing: 3px;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+    white-space: nowrap;
+  }
+  
+  /* Large pixel character — host */
+  .rec-host-head {
+    width: 38px; height: 40px;
+    background: #e8c49a;
+    border-radius: 50% 50% 42% 42%;
+    position: relative; z-index: 2;
+  }
+  .rec-host-head::before { /* hair */
+    content: '';
+    position: absolute; top: -10px; left: -4px;
+    width: 46px; height: 16px;
+    background: #1a0f06;
+    border-radius: 50% 50% 0 0;
+  }
+  .rec-host-head::after { /* ear */
+    content: '';
+    position: absolute; top: 10px; right: -7px;
+    width: 8px; height: 10px;
+    background: #d4aa82; border-radius: 50%;
+  }
+  .rec-host-body {
+    width: 44px; height: 58px;
+    background: linear-gradient(180deg,#1e2a4a,#162038);
+    border-radius: 5px 5px 0 0;
+    margin-top: -2px;
+    position: relative;
+  }
+  .rec-host-body::before { /* suit lapel */
+    content: '';
+    position: absolute; top: 4px; left: 50%; transform: translateX(-50%);
+    width: 12px; height: 18px;
+    background: rgba(255,255,255,.12);
+    clip-path: polygon(50% 0%,0% 100%,100% 100%);
+  }
+  .rec-host-body::after { /* briefcase / badge */
+    content: 'SH';
+    position: absolute; bottom: 6px; right: -14px;
+    width: 18px; height: 14px;
+    background: #2a1a08;
+    border: 1px solid rgba(245,158,11,.55);
+    border-radius: 2px;
+    font-family: var(--font-display);
+    font-size: .45rem;
+    color: var(--gold);
+    display: flex; align-items: center; justify-content: center;
+    letter-spacing: 1px;
+  }
+  .rec-host-legs { display: flex; gap: 5px; }
+  .rec-host-leg {
+    width: 18px; height: 32px;
+    background: #111830;
+    border-radius: 0 0 5px 5px;
+  }
+  .rec-host-leg::after {
+    content: '';
+    display: block;
+    width: 22px; height: 7px;
+    background: #0a0a12;
+    border-radius: 0 3px 3px 0;
+    margin-top: 25px; margin-left: -2px;
+  }
+  .rec-host-shadow {
+    width: 50px; height: 8px;
+    background: rgba(0,0,0,.5);
+    border-radius: 50%;
+    margin-top: 3px;
+    filter: blur(3px);
+  }
+  
+  /* ── HOST SPEECH BUBBLE ── */
+  .rec-host-bubble {
+    position: absolute;
+    bottom: 105%;
+    left: 50%;
+    transform: translateX(-10%);
+    background: rgba(10,8,24,.95);
+    border: 1px solid rgba(245,158,11,.5);
+    border-radius: 10px 10px 10px 0;
+    padding: 10px 16px;
+    min-width: 200px;
+    max-width: 240px;
+    font-family: var(--font-mono);
+    font-size: .6rem;
+    letter-spacing: .5px;
+    line-height: 1.7;
+    color: var(--text);
+    white-space: pre-wrap;
+    box-shadow: 0 4px 20px rgba(0,0,0,.6);
+    z-index: 10;
+  }
+  .rec-host-bubble::after {
+    content: '';
+    position: absolute; bottom: -8px; left: 18px;
+    width: 14px; height: 8px;
+    background: rgba(245,158,11,.5);
+    clip-path: polygon(0% 0%,100% 0%,0% 100%);
+  }
+  .rec-host-bubble-name {
+    font-size: .42rem;
+    letter-spacing: 3px;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 5px;
+    display: block;
+  }
+  
+  /* ── VISITOR CHARACTER ── */
+  .rec-visitor-figure {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    filter: drop-shadow(0 0 14px rgba(6,182,212,.3));
+    position: relative;
+  }
+  .rec-visitor-label {
+    font-family: var(--font-mono);
+    font-size: .5rem;
+    letter-spacing: 3px;
+    color: var(--cyan);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+    white-space: nowrap;
+    opacity: 0; /* shown when name known */
+  }
+  .rec-visitor-label.show { opacity: 1; }
+  
+  /* Visitor head — slightly different tone */
+  .rec-visitor-head {
+    width: 34px; height: 36px;
+    background: #e0c4a0;
+    border-radius: 50% 50% 42% 42%;
+    position: relative; z-index: 2;
+  }
+  .rec-visitor-head::before { /* hair */
+    content: '';
+    position: absolute; top: -9px; left: -3px;
+    width: 40px; height: 14px;
+    background: #2a1e0e;
+    border-radius: 50% 50% 0 0;
+  }
+  .rec-visitor-body {
+    width: 40px; height: 52px;
+    background: linear-gradient(180deg,#1e3a2a,#162a1e);
+    border-radius: 5px 5px 0 0;
+    margin-top: -2px;
+    position: relative;
+  }
+  .rec-visitor-legs { display: flex; gap: 4px; }
+  .rec-visitor-leg {
+    width: 16px; height: 28px;
+    background: #0f1a14;
+    border-radius: 0 0 4px 4px;
+  }
+  .rec-visitor-shadow {
+    width: 44px; height: 7px;
+    background: rgba(0,0,0,.45);
+    border-radius: 50%;
+    margin-top: 3px;
+    filter: blur(3px);
+  }
+  
+  /* ── VISITOR SPEECH BUBBLE ── */
+  .rec-visitor-bubble {
+    position: absolute;
+    bottom: 105%;
+    right: 50%;
+    transform: translateX(10%);
+    background: rgba(10,8,24,.95);
+    border: 1px solid rgba(6,182,212,.5);
+    border-radius: 10px 10px 0 10px;
+    padding: 10px 16px;
+    min-width: 160px;
+    max-width: 200px;
+    font-family: var(--font-mono);
+    font-size: .58rem;
+    letter-spacing: .5px;
+    line-height: 1.7;
+    color: var(--text);
+    box-shadow: 0 4px 20px rgba(0,0,0,.6);
+    z-index: 10;
+    opacity: 0;
+    transition: opacity .5s 3s;
+  }
+  .rec-visitor-bubble.show { opacity: 1; }
+  .rec-visitor-bubble::after {
+    content: '';
+    position: absolute; bottom: -8px; right: 18px;
+    width: 14px; height: 8px;
+    background: rgba(6,182,212,.5);
+    clip-path: polygon(0% 0%,100% 0%,100% 100%);
+  }
+  .rec-visitor-bubble-name {
+    font-size: .42rem;
+    letter-spacing: 3px;
+    color: var(--cyan);
+    text-transform: uppercase;
+    margin-bottom: 5px;
+    display: block;
+  }
+  
+  /* ── INTERACTION GESTURE — handshake arc ── */
+  .rec-handshake {
+    position: absolute;
+    bottom: 28px;
+    left: 50%; transform: translateX(-50%);
+    width: 60px; height: 24px;
+    z-index: 8;
+    opacity: 0;
+    transition: opacity .5s 2s;
+  }
+  .rec-handshake.show { opacity: 1; }
+  .rec-handshake::before {
+    content: '🤝';
+    font-size: 1.4rem;
+    position: absolute; left: 50%; transform: translateX(-50%);
+    animation: handshake-bob .8s ease-in-out infinite;
+  }
+  @keyframes handshake-bob {
+    0%,100% { transform: translateX(-50%) translateY(0); }
+    50%      { transform: translateX(-50%) translateY(-4px); }
+  }
+  
+  /* ════════════════════════════════════════════════
+     4. RECEPTIONIST — larger figure
+  ════════════════════════════════════════════════ */
+  .rec-figure {
+    transform: scale(1.6);
+    transform-origin: bottom center;
+    margin-bottom: 8px;
+  }
+  
+  /* ════════════════════════════════════════════════
+     5. SPEECH BUBBLE — bigger text, avatar
+  ════════════════════════════════════════════════ */
+  .speech-bubble {
+    font-size: .72rem !important;  /* was .6rem */
+    line-height: 1.9 !important;
+    max-width: 320px !important;
+    padding: 14px 18px !important;
+  }
+  .bubble-speaker {
+    font-size: .52rem !important;  /* was .48rem */
+    margin-bottom: 7px !important;
+  }
+  .greeting-bubble {
+    font-size: .75rem !important;
+    line-height: 1.9 !important;
+    max-width: 360px !important;
+    padding: 14px 20px !important;
+  }
+  
+  /* ── Greeting bubble position ── */
+  .receptionist-area {
+    top: 8% !important;
+    left: 5% !important;
+  }
+  
+  /* ════════════════════════════════════════════════
+     6. DIALOGUE CLOUD — bigger text + avatar
+  ════════════════════════════════════════════════ */
+  .dc-speaker-avatar {
+    width: 38px !important; height: 38px !important;
+    font-size: .8rem !important;
+  }
+  .dc-speaker-name {
+    font-size: .56rem !important;  /* was .46rem */
+    letter-spacing: 2px !important;
+  }
+  .dc-speaker-role {
+    font-size: .46rem !important;  /* was .38rem */
+  }
+  .dc-text {
+    font-size: .68rem !important;  /* was .6rem */
+    line-height: 2 !important;
+  }
+  .dc-btn {
+    font-size: .54rem !important;  /* was .48rem */
+    padding: 8px 18px !important;
+  }
+  .dc-floor-badge {
+    font-size: .44rem !important;
+  }
+  .dc-skip {
+    font-size: .46rem !important;
+  }
+  
+  /* Dialogue cloud — don't overlap about content, push to right */
+  .dc-pos-bottom-left {
+    bottom: 32px !important;
+    left: 24px !important;
+    max-width: min(400px, 40vw) !important;
+  }
+  
+  /* ════════════════════════════════════════════════
+     7. ABOUT PAGE — alignment fixes
+  ════════════════════════════════════════════════ */
+  
+  /* Floor tag was overlapping title — fix spacing */
+  .about-floor-content {
+    padding-top: 52px !important; /* exact nav height */
+  }
+  .about-tag {
+    top: 52px !important;
+    padding: 12px 60px !important;
+    font-size: .54rem !important;
+    letter-spacing: 5px !important;
+    color: rgba(180,165,255,.6) !important;
+    /* Don't overlap "ABOUT ME" watermark */
+    background: rgba(7,6,14,.97) !important;
+    z-index: 20 !important;
+  }
+  .about-panel {
+    padding-top: 100px !important; /* clear the sticky tag */
+  }
+  
+  /* "ABOUT ME" background watermark — less intrusive */
+  .rec-wall-name {
+    color: rgba(124,58,237,.04) !important;
+  }
+  
+  /* About title — ensure it's not behind the tag */
+  .about-section-header {
+    position: relative; z-index: 5;
+  }
+  
+  /* ════════════════════════════════════════════════
+     8. NAV BAR — brighter text
+  ════════════════════════════════════════════════ */
+  .nav-links a {
+    color: rgba(200,185,255,.7) !important; /* was var(--muted)=.42 */
+  }
+  .nav-links a:hover,
+  .nav-links a.active-nav { color: var(--gold) !important; }
+  
+  .nav-logo { color: var(--gold) !important; font-size: .95rem !important; }
+  
+  /* ════════════════════════════════════════════════
+     9. ESC SHAFT levels — brighter
+  ════════════════════════════════════════════════ */
+  .esc-lvl {
+    color: rgba(180,165,255,.4) !important;
+    font-size: .65rem !important;
+  }
+  .esc-lvl.cur { color: var(--gold) !important; }
+  .esc-readout { color: var(--gold) !important; font-size: 1.2rem !important; }
+  .esc-lbl { color: rgba(180,165,255,.5) !important; font-size: .42rem !important; }
+  
+  /* ════════════════════════════════════════════════
+     10. HOLO DISPLAY — sit closer to top, no gap
+  ════════════════════════════════════════════════ */
+  .holo-mount {
+    top: 2% !important;
+  }
+  
+  /* ════════════════════════════════════════════════
+     11. DESK AREA — slightly higher placement
+  ════════════════════════════════════════════════ */
+  .desk-area {
+    bottom: 2% !important;
+  }
