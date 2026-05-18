@@ -109,9 +109,16 @@ function escalateTo(targetFloor) {
   const escPanel  = document.getElementById('escBuildingPanel');
   const escDestF  = document.getElementById('escDestFloor');
   const escDestN  = document.getElementById('escDestName');
-  const escRider  = document.getElementById('escMainRider');
-  const escCount  = document.getElementById('escCounter');
-  const floor     = FLOORS[targetFloor];
+  const escRider        = document.getElementById('escMainRider');
+  const escVisitorRider = document.getElementById('escVisitorRider');
+  const escVisitorLabel = document.getElementById('escVisitorLabel');
+  const escCount        = document.getElementById('escCounter');
+  const floor           = FLOORS[targetFloor];
+
+  // Update visitor label with name
+  if (escVisitorLabel && typeof visitorName !== 'undefined' && visitorName) {
+    escVisitorLabel.textContent = visitorName.toUpperCase().slice(0, 6);
+  }
 
   // Build side panel
   escPanel.innerHTML = '';
@@ -138,12 +145,13 @@ function escalateTo(targetFloor) {
   // Show overlay
   escTrans.classList.add('show');
 
-  // Animate rider
+  // Animate both riders together
   setTimeout(() => {
     const trackH = 280, riderH = 36;
     const frac   = targetFloor / (FLOORS.length - 1);
     const dest   = Math.round(frac * (trackH - riderH));
     escRider.style.bottom = dest + 'px';
+    if (escVisitorRider) escVisitorRider.style.bottom = dest + 'px';
 
     // Floor counter ticks
     let counted = currentFloor;
