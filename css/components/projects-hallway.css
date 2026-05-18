@@ -1,0 +1,476 @@
+/*
+  ═══════════════════════════════════════════════
+  PROJECTS-HALLWAY.CSS — Museum Exhibition Floor
+  Inspired by: luxury tech exhibition hallway
+  Dark purple / gold / cyan Empire theme
+  Overrides projects.css carousel with hallway layout
+  C. Sree Harshith Reddy's Empire
+  ═══════════════════════════════════════════════
+*/
+
+/* ════════════════════════════════════════════════
+   FLOOR WRAPPER — full height scrollable hallway
+════════════════════════════════════════════════ */
+#floor-projects {
+    flex-direction: column !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    height: 100vh !important;
+    scrollbar-width: none !important;
+    background: var(--bg) !important;
+    position: relative !important;
+    scroll-behavior: smooth !important;
+  }
+  #floor-projects::-webkit-scrollbar { display: none; }
+  
+  /* ════════════════════════════════════════════════
+     HALLWAY ENVIRONMENT — perspective corridor
+  ════════════════════════════════════════════════ */
+  .proj-hallway {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  /* Ceiling light track */
+  .ph-ceiling-track {
+    position: fixed;
+    top: 60px; /* below nav */
+    left: 0; right: 0;
+    height: 4px;
+    background: repeating-linear-gradient(
+      90deg,
+      transparent 0 80px,
+      rgba(245,158,11,.15) 80px 82px,
+      rgba(124,58,237,.1) 82px 160px,
+      transparent 160px 240px
+    );
+    z-index: 15;
+    pointer-events: none;
+  }
+  .ph-ceiling-glow {
+    position: fixed;
+    top: 60px; left: 0; right: 0;
+    height: 120px;
+    background: repeating-linear-gradient(
+      90deg,
+      transparent 0 80px,
+      rgba(245,158,11,.04) 80px 160px,
+      transparent 160px 240px
+    );
+    filter: blur(12px);
+    z-index: 14;
+    pointer-events: none;
+  }
+  
+  /* Floor reflection */
+  .ph-floor-line {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg,
+      transparent,
+      rgba(124,58,237,.2) 20%,
+      rgba(245,158,11,.15) 50%,
+      rgba(124,58,237,.2) 80%,
+      transparent
+    );
+    z-index: 14;
+  }
+  
+  /* ════════════════════════════════════════════════
+     HUD — floor header (sticky)
+  ════════════════════════════════════════════════ */
+  .proj-hud {
+    position: sticky !important;
+    top: 60px !important;
+    z-index: 25 !important;
+    padding: 14px 92px 14px 60px !important;
+    background: rgba(7,6,14,.97) !important;
+    backdrop-filter: blur(18px) !important;
+    border-bottom: 1px solid rgba(124,58,237,.2) !important;
+    margin: 0 !important;
+  }
+  .proj-hud-row { margin-bottom: 4px !important; }
+  .proj-hsub    { margin-bottom: 10px !important; }
+  
+  /* ════════════════════════════════════════════════
+     HIDE OLD CAROUSEL — replaced by hallway
+  ════════════════════════════════════════════════ */
+  .proj-stage,
+  .proj-nav-btn,
+  .proj-dots,
+  .proj-counter,
+  .proj-bar,
+  .proj-hint   { display: none !important; }
+  
+  /* ════════════════════════════════════════════════
+     HALLWAY BODY — scrollable exhibition space
+  ════════════════════════════════════════════════ */
+  .ph-body {
+    flex: 1;
+    padding: 40px 0 80px;
+    position: relative;
+  }
+  
+  /* Centre corridor path */
+  .ph-corridor {
+    position: absolute;
+    top: 0; bottom: 0;
+    left: 50%; transform: translateX(-50%);
+    width: 180px;
+    background: linear-gradient(180deg,
+      rgba(124,58,237,.03) 0%,
+      rgba(124,58,237,.06) 50%,
+      rgba(124,58,237,.03) 100%
+    );
+    border-left:  1px solid rgba(124,58,237,.08);
+    border-right: 1px solid rgba(124,58,237,.08);
+    pointer-events: none;
+  }
+  
+  /* Corridor floor lines (perspective) */
+  .ph-corridor::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: repeating-linear-gradient(
+      180deg,
+      transparent 0 60px,
+      rgba(124,58,237,.06) 60px 61px
+    );
+  }
+  
+  /* ════════════════════════════════════════════════
+     PROJECT ROW — alternating left/right layout
+     Mirrors the exhibition image: title on wall,
+     display case in front
+  ════════════════════════════════════════════════ */
+  .ph-project-row {
+    display: flex;
+    align-items: stretch;
+    min-height: 260px;
+    margin-bottom: 0;
+    position: relative;
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity .6s ease, transform .6s var(--ease-out-expo);
+  }
+  .ph-project-row.ph-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  
+  /* Alternating: left vs right */
+  .ph-project-row.ph-left  { flex-direction: row; }
+  .ph-project-row.ph-right { flex-direction: row-reverse; }
+  
+  /* ── WALL PANEL — title mounted on wall ── */
+  .ph-wall {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 36px 48px;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  /* Wall texture */
+  .ph-wall::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      rgba(124,58,237,.02) 0 1px,
+      transparent 1px 40px
+    );
+    pointer-events: none;
+  }
+  
+  /* Left wall — subtle left border */
+  .ph-project-row.ph-left .ph-wall {
+    border-right: 1px solid rgba(124,58,237,.1);
+  }
+  .ph-project-row.ph-right .ph-wall {
+    border-left: 1px solid rgba(124,58,237,.1);
+  }
+  
+  /* Wall accent line (like light hitting wall) */
+  .ph-wall::after {
+    content: '';
+    position: absolute;
+    top: 15%; bottom: 15%;
+    width: 2px;
+    background: linear-gradient(180deg, transparent, var(--accent), transparent);
+    opacity: .3;
+  }
+  .ph-project-row.ph-left .ph-wall::after  { right: 0; }
+  .ph-project-row.ph-right .ph-wall::after { left: 0; }
+  
+  /* Category label */
+  .ph-cat-label {
+    font-family: var(--font-mono);
+    font-size: .44rem;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--accent);
+    opacity: .7;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .ph-cat-label::before {
+    content: '';
+    display: inline-block;
+    width: 20px; height: 1px;
+    background: currentColor;
+  }
+  
+  /* Project title on wall — large, bold like exhibition */
+  .ph-wall-title {
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 3.5vw, 3.2rem);
+    letter-spacing: 3px;
+    line-height: 1.1;
+    color: var(--text);
+    margin-bottom: 12px;
+    text-shadow: 0 0 40px rgba(124,58,237,.2);
+  }
+  .ph-wall-title:hover { color: var(--gold); cursor: pointer; }
+  
+  /* Wall description */
+  .ph-wall-desc {
+    font-family: var(--font-body);
+    font-size: .82rem;
+    line-height: 1.7;
+    color: rgba(232,228,240,.55);
+    max-width: 340px;
+    margin-bottom: 16px;
+  }
+  
+  /* Stack tags */
+  .ph-stack-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+  .ph-chip {
+    font-family: var(--font-mono);
+    font-size: .4rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: 2px;
+    background: rgba(124,58,237,.08);
+    border: 1px solid rgba(124,58,237,.2);
+    color: rgba(180,160,255,.75);
+  }
+  
+  /* ── DISPLAY CASE ZONE — glass exhibit in corridor ── */
+  .ph-display-zone {
+    width: 280px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 20px;
+    position: relative;
+  }
+  
+  /* Spotlight from ceiling */
+  .ph-display-zone::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 50%; transform: translateX(-50%);
+    width: 140px; height: 100%;
+    background: linear-gradient(180deg,
+      rgba(245,158,11,.08) 0%,
+      rgba(245,158,11,.04) 40%,
+      transparent 100%
+    );
+    pointer-events: none;
+  }
+  
+  /* ── GLASS DISPLAY CASE ── */
+  .ph-case {
+    width: 220px;
+    background: rgba(12,10,26,.85);
+    border: 1px solid rgba(124,58,237,.35);
+    border-radius: 6px;
+    overflow: hidden;
+    position: relative;
+    cursor: pointer;
+    transition: border-color .3s, box-shadow .3s, transform .3s;
+    backdrop-filter: blur(4px);
+    box-shadow:
+      0 0 0 1px rgba(124,58,237,.1),
+      0 20px 60px rgba(0,0,0,.6),
+      inset 0 1px 0 rgba(255,255,255,.06);
+  }
+  .ph-case:hover {
+    border-color: rgba(245,158,11,.5);
+    box-shadow:
+      0 0 0 1px rgba(245,158,11,.15),
+      0 0 40px rgba(245,158,11,.15),
+      0 30px 80px rgba(0,0,0,.8),
+      inset 0 1px 0 rgba(255,255,255,.08);
+    transform: translateY(-4px);
+  }
+  
+  /* Glass top shine */
+  .ph-case::before {
+    content: '';
+    position: absolute; top: 0; left: 10%; right: 10%; height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,.15), transparent);
+    z-index: 3;
+  }
+  
+  /* Case category cover */
+  .ph-case-cover {
+    height: 130px;
+    position: relative;
+    overflow: hidden;
+    display: flex; align-items: center; justify-content: center;
+  }
+  
+  /* Scan line */
+  .ph-case-cover::after {
+    content: '';
+    position: absolute; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg,transparent,rgba(124,58,237,.5),rgba(6,182,212,.4),rgba(124,58,237,.5),transparent);
+    animation: case-scan 3s ease-in-out infinite;
+    opacity: .8;
+  }
+  @keyframes case-scan {
+    0%   { top: 0%; opacity: 0; }
+    10%  { opacity: .8; }
+    90%  { opacity: .8; }
+    100% { top: 100%; opacity: 0; }
+  }
+  
+  /* Project icon in case */
+  .ph-case-icon {
+    font-family: var(--font-display);
+    font-size: 3.5rem;
+    opacity: .12;
+    color: #fff;
+    position: relative; z-index: 1;
+    user-select: none;
+  }
+  
+  /* Floating tech icon animation */
+  .ph-case-icon {
+    animation: case-float 3s ease-in-out infinite;
+  }
+  @keyframes case-float {
+    0%,100% { transform: translateY(0); }
+    50%      { transform: translateY(-8px); }
+  }
+  
+  /* Year badge */
+  .ph-case-year {
+    position: absolute; top: 10px; right: 10px;
+    font-family: var(--font-mono); font-size: .4rem;
+    letter-spacing: 2px; color: rgba(255,255,255,.4);
+    z-index: 2;
+  }
+  
+  /* Case body */
+  .ph-case-body {
+    padding: 14px 16px 14px;
+  }
+  .ph-case-title {
+    font-family: var(--font-display);
+    font-size: 1.1rem; letter-spacing: 2px;
+    color: var(--text); margin-bottom: 4px; line-height: 1.1;
+  }
+  .ph-case-tag {
+    font-family: var(--font-mono); font-size: .42rem;
+    letter-spacing: 2px; text-transform: uppercase;
+    color: rgba(124,58,237,.5); margin-bottom: 10px;
+  }
+  .ph-case-footer {
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .ph-cat-pill {
+    font-family: var(--font-mono); font-size: .38rem;
+    letter-spacing: 2px; text-transform: uppercase;
+    padding: 2px 8px; border-radius: 20px;
+  }
+  .ph-view-btn {
+    font-family: var(--font-mono); font-size: .44rem;
+    letter-spacing: 2px; text-transform: uppercase;
+    color: var(--gold); border: 1px solid rgba(245,158,11,.3);
+    padding: 4px 12px; border-radius: 2px;
+    background: rgba(245,158,11,.05);
+    cursor: pointer; transition: background .2s;
+  }
+  .ph-view-btn:hover { background: rgba(245,158,11,.14); }
+  
+  /* Case base / plinth */
+  .ph-case-base {
+    height: 6px;
+    background: linear-gradient(180deg,rgba(20,16,44,.9),rgba(10,8,24,.95));
+    border-top: 1px solid rgba(124,58,237,.2);
+  }
+  
+  /* ── COLOUR VARIANTS per category ── */
+  .ph-case.ph-cat-enterprise .ph-case-cover { background: linear-gradient(140deg,#120742,#0c1848); }
+  .ph-case.ph-cat-research   .ph-case-cover { background: linear-gradient(140deg,#05182a,#072828); }
+  .ph-case.ph-cat-innovation .ph-case-cover { background: linear-gradient(140deg,#1c0a0e,#281600); }
+  .ph-case.ph-cat-product    .ph-case-cover { background: linear-gradient(140deg,#0c0820,#180828); }
+  
+  .ph-case.ph-cat-enterprise:hover { border-color: rgba(124,58,237,.6); }
+  .ph-case.ph-cat-research:hover   { border-color: rgba(6,182,212,.5); }
+  .ph-case.ph-cat-innovation:hover { border-color: rgba(245,158,11,.6); }
+  .ph-case.ph-cat-product:hover    { border-color: rgba(192,132,252,.5); }
+  
+  /* Category cover glows */
+  .ph-case.ph-cat-enterprise .ph-case-cover::before { content:''; position:absolute; bottom:-20px; left:50%; transform:translateX(-50%); width:60%; height:60px; border-radius:50%; background:var(--accent); filter:blur(22px); opacity:.4; }
+  .ph-case.ph-cat-research   .ph-case-cover::before { content:''; position:absolute; bottom:-20px; left:50%; transform:translateX(-50%); width:60%; height:60px; border-radius:50%; background:var(--cyan); filter:blur(22px); opacity:.35; }
+  .ph-case.ph-cat-innovation .ph-case-cover::before { content:''; position:absolute; bottom:-20px; left:50%; transform:translateX(-50%); width:60%; height:60px; border-radius:50%; background:var(--gold); filter:blur(22px); opacity:.35; }
+  .ph-case.ph-cat-product    .ph-case-cover::before { content:''; position:absolute; bottom:-20px; left:50%; transform:translateX(-50%); width:60%; height:60px; border-radius:50%; background:#c084fc; filter:blur(22px); opacity:.35; }
+  
+  /* ── ROW DIVIDER — subtle floor marking ── */
+  .ph-row-divider {
+    height: 1px;
+    margin: 0;
+    background: linear-gradient(90deg,
+      transparent 0%,
+      rgba(124,58,237,.1) 20%,
+      rgba(124,58,237,.15) 50%,
+      rgba(124,58,237,.1) 80%,
+      transparent 100%
+    );
+  }
+  
+  /* ════════════════════════════════════════════════
+     PROJECT COUNT FOOTER
+  ════════════════════════════════════════════════ */
+  .ph-footer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    padding: 40px 60px 20px;
+    font-family: var(--font-mono);
+    font-size: .48rem;
+    letter-spacing: 3px;
+    color: rgba(124,58,237,.4);
+    text-transform: uppercase;
+  }
+  .ph-footer-line { flex: 1; height: 1px; background: rgba(124,58,237,.1); }
+  
+  /* ════════════════════════════════════════════════
+     MOBILE — single column
+  ════════════════════════════════════════════════ */
+  @media (max-width: 768px) {
+    .ph-project-row { flex-direction: column !important; min-height: auto; }
+    .ph-wall         { padding: 24px 20px; }
+    .ph-display-zone { width: 100%; padding: 16px 20px 24px; }
+    .ph-case         { width: 100%; }
+    .ph-corridor     { display: none; }
+    .ph-wall-title   { font-size: clamp(1.6rem, 7vw, 2.5rem); }
+  }
