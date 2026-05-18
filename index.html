@@ -47,6 +47,8 @@
 
   <!-- Responsive + performance CSS — load last to override -->
   <link rel="stylesheet" href="css/systems/responsive.css"/>
+  <!-- Visual fixes — must be absolute last -->
+  <link rel="stylesheet" href="css/components/fixes.css"/>
 </head>
 <body>
 
@@ -307,6 +309,45 @@
     <div class="rec-plant right">
       <div class="plant-leaves"><div class="plant-leaf"></div><div class="plant-leaf"></div><div class="plant-leaf"></div></div>
       <div class="plant-pot"></div>
+    </div>
+
+    <!-- Interaction zone — Harshith + Visitor between display and desk -->
+    <div class="rec-interaction-zone" id="recInteraction">
+
+      <!-- Harshith (host) -->
+      <div class="rec-host-figure" id="recHostFigure">
+        <div class="rec-host-bubble" id="recHostBubble">
+          <span class="rec-host-bubble-name">— Sree Harshith</span>
+          <span id="recHostBubbleText"></span><span class="bubble-cursor" id="recHostCursor"></span>
+        </div>
+        <div class="rec-host-label">C. Sree Harshith</div>
+        <div class="rec-host-head"></div>
+        <div class="rec-host-body"></div>
+        <div class="rec-host-legs">
+          <div class="rec-host-leg"></div>
+          <div class="rec-host-leg"></div>
+        </div>
+        <div class="rec-host-shadow"></div>
+      </div>
+
+      <!-- Handshake gesture -->
+      <div class="rec-handshake" id="recHandshake"></div>
+
+      <!-- Visitor -->
+      <div class="rec-visitor-figure" id="recVisitorFigure">
+        <div class="rec-visitor-bubble" id="recVisitorBubble">
+          <span class="rec-visitor-bubble-name" id="recVisitorBubbleName">— Visitor</span>
+          <span id="recVisitorBubbleText">Great to be here!</span>
+        </div>
+        <div class="rec-visitor-label" id="recVisitorLabel">You</div>
+        <div class="rec-visitor-head"></div>
+        <div class="rec-visitor-body"></div>
+        <div class="rec-visitor-legs">
+          <div class="rec-visitor-leg"></div>
+          <div class="rec-visitor-leg"></div>
+        </div>
+        <div class="rec-visitor-shadow"></div>
+      </div>
     </div>
 
     <!-- Receptionist -->
