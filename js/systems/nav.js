@@ -30,6 +30,14 @@ function goToFloor(fi) {
   if (fi === currentFloor || transitioning) return;
   if (currentFloor === 0) {
     lobbyWalkThenEscalate(fi);
+  } else if (window.hallwayTo && window.HallwaySystem?.available()) {
+    // Desktop: hallway corridor walk
+    transitioning = true;
+    const handled = hallwayTo(fi, currentFloor, FLOORS, () => {
+      currentFloor = fi;
+      resolveToFloor(fi);
+    });
+    if (!handled) escalateTo(fi); // fallback
   } else {
     escalateTo(fi);
   }
@@ -253,3 +261,4 @@ window.deskFloorClick = deskFloorClick;
 window.openAddModal  = openAddModal;
 window.closeAddModal = closeAddModal;
 window.fixExternalLinks = fixExternalLinks;
+window.resolveToFloor = resolveToFloor;
