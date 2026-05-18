@@ -207,6 +207,29 @@ function initProjectsFloor() {
   };
   document.addEventListener('keydown', document._projKey);
 
+  // GSAP stand hover — active card lifts slightly
+  if (window.gsap) {
+    const stage = document.getElementById('projStage');
+    stage?.addEventListener('mousemove', e => {
+      const active = stage.querySelector('.proj-card[data-state="active"]');
+      if (!active) return;
+      const rect = active.getBoundingClientRect();
+      const cx   = rect.left + rect.width  / 2;
+      const cy   = rect.top  + rect.height / 2;
+      const dx   = (e.clientX - cx) / rect.width;
+      const dy   = (e.clientY - cy) / rect.height;
+      gsap.to(active, {
+        rotateX: -dy * 6, rotateY: dx * 8,
+        duration: .4, ease: 'empireSoft',
+        transformPerspective: 800
+      });
+    });
+    stage?.addEventListener('mouseleave', () => {
+      const active = stage.querySelector('.proj-card[data-state="active"]');
+      if (active) gsap.to(active, { rotateX: 0, rotateY: 0, duration: .6, ease: 'empireOut' });
+    });
+  }
+
   // Filters
   document.querySelectorAll('.pf-btn').forEach(btn => {
     btn.onclick = () => {
