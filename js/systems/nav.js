@@ -43,24 +43,63 @@ function goToFloor(fi) {
   }
 }
 
-/* ── LOBBY WALK SEQUENCE ── */
+/* ── LOBBY WALK SEQUENCE — both characters walk to escalator ── */
 function lobbyWalkThenEscalate(targetFloor) {
   transitioning = true;
-  if (window.EmpireAnim?.lobbyWalk) {
-    EmpireAnim.lobbyWalk(() => escalateTo(targetFloor));
+
+  const deskArea   = document.getElementById('deskArea');
+  const recArea    = document.getElementById('recArea');
+  const recPrompt  = document.getElementById('escPrompt');
+  const holoMount  = document.getElementById('holoMount');
+  const zone       = document.getElementById('recInteraction');
+  const host       = document.getElementById('recHostFigure');
+  const visitor    = document.getElementById('recVisitorFigure');
+  const handshake  = document.getElementById('recHandshake');
+
+  if (window.gsap) {
+    // 1. Fade out static elements (desk, receptionist, holo, prompt)
+    gsap.to([deskArea, recArea, recPrompt, holoMount], {
+      opacity: 0, duration: .6, ease: 'empireSoft'
+    });
+
+    // 2. Handshake fades, characters separate
+    if (handshake) gsap.to(handshake, { opacity:0, duration:.3 });
+
+    // 3. Both characters walk right together — slower, cinematic
+    if (host && visitor && zone) {
+      // Add walking legs animation class
+      const hostLegs    = host.querySelectorAll('.rec-host-leg');
+      const visitorLegs = visitor.querySelectorAll('.rec-visitor-leg');
+      hostLegs.forEach((l,i)    => { l.style.animation = `${i===0?'swing-left':'swing-right'} .5s ease-in-out infinite`; });
+      visitorLegs.forEach((l,i) => { l.style.animation = `${i===0?'swing-left':'swing-right'} .5s ease-in-out infinite`; });
+
+      // Walk the whole zone to the right (escalator side) — slow, 1.8s
+      // Use xPercent + x to avoid fighting the translateX(-50%) CSS transform
+      gsap.to(zone, {
+        x: '+=65vw',   /* slide right by 65% viewport width */
+        duration: 1.8,
+        ease: 'power1.inOut',
+        delay: .4,
+        onComplete: () => {
+          // Stop walking
+          hostLegs.forEach(l    => l.style.animation = '');
+          visitorLegs.forEach(l => l.style.animation = '');
+          gsap.to(zone, { opacity:0, duration:.3,
+            onComplete: () => escalateTo(targetFloor)
+          });
+        }
+      });
+    } else {
+      // Fallback if zone not found
+      setTimeout(() => escalateTo(targetFloor), 800);
+    }
+
   } else {
-    const lc = document.getElementById('lobby-char');
-    const deskArea = document.getElementById('deskArea');
-    const recArea  = document.getElementById('recArea');
-    lc.style.left = '50%'; lc.style.transform = 'translateX(-50%)'; lc.style.opacity = '1';
-    lc.classList.add('lc-walking');
-    deskArea.style.transition = 'opacity .5s'; deskArea.style.opacity = '0';
-    if (recArea) { recArea.style.transition = 'opacity .5s'; recArea.style.opacity = '0'; }
-    let pos = 50;
-    const wi = setInterval(() => {
-      pos += 1.2; lc.style.left = pos + '%'; lc.style.transform = 'translateX(0)';
-      if (pos >= 88) { clearInterval(wi); lc.classList.remove('lc-walking'); lc.style.opacity = '0'; setTimeout(() => escalateTo(targetFloor), 200); }
-    }, 20);
+    // No GSAP fallback
+    if (deskArea) { deskArea.style.transition='opacity .5s'; deskArea.style.opacity='0'; }
+    if (recArea)  { recArea.style.transition='opacity .5s';  recArea.style.opacity='0'; }
+    if (zone)     { zone.style.transition='opacity .8s .5s'; zone.style.opacity='0'; }
+    setTimeout(() => escalateTo(targetFloor), 1400);
   }
 }
 
