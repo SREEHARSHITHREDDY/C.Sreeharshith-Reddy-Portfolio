@@ -59,10 +59,20 @@ function hallwayAvailable() {
           <div class="hallway-dest-sub"  id="hallwayDestSub">Bio · Skills · Stats</div>
         </div>
   
-        <!-- Walking character -->
-        <div class="hallway-walker" id="hallwayWalker">
-          <div class="hw-head"></div>
-          <div class="hw-body"></div>
+        <!-- Walker 1: Harshith (host) -->
+        <div class="hallway-walker hallway-walker-host" id="hallwayWalker">
+          <div class="hw-head hw-head-host"></div>
+          <div class="hw-body hw-body-host"></div>
+          <div class="hw-legs">
+            <div class="hw-leg left"></div>
+            <div class="hw-leg right"></div>
+          </div>
+          <div class="hw-shadow"></div>
+        </div>
+        <!-- Walker 2: Visitor -->
+        <div class="hallway-walker hallway-walker-visitor" id="hallwayWalkerVisitor">
+          <div class="hw-head hw-head-visitor"></div>
+          <div class="hw-body hw-body-visitor"></div>
           <div class="hw-legs">
             <div class="hw-leg left"></div>
             <div class="hw-leg right"></div>
@@ -155,7 +165,9 @@ function hallwayAvailable() {
     // Reset all elements
     gsap.set(overlay,  { display: 'flex', opacity: 0 });
     gsap.set(dest,     { scale: 0.05, opacity: 0 });
-    gsap.set(walker,   { opacity: 0, y: 0, scale: 1 });
+    const walker2 = document.getElementById('hallwayWalkerVisitor');
+    gsap.set(walker,  { opacity: 0, y: 0, scale: 1, x: -14 });
+    gsap.set(walker2, { opacity: 0, y: 0, scale: 1, x:  14 });
     gsap.set(blur,     { opacity: 0 });
     gsap.set(hud,      { opacity: 0, y: 20 });
     gsap.set(frames,   { scale: 1, opacity: index => [.5,.4,.3,.2,.1][index] });
@@ -174,7 +186,8 @@ function hallwayAvailable() {
     tl.to(overlay, { opacity: 1, duration: .35, ease: 'empireSoft' })
   
     // ── Phase 2: Walker appears, signs slide in (0.3 – 0.8s) ──
-      .to(walker, { opacity: 1, duration: .25, ease: 'empireSoft' }, .3)
+      .to(walker,  { opacity: 1, duration: .25, ease: 'empireSoft' }, .3)
+      .to(walker2, { opacity: 1, duration: .25, ease: 'empireSoft' }, .35)
       .to(signs,  { opacity: 1, x: 0, duration: .4, stagger: .06, ease: 'empireOut' }, .35)
       .to(hud,    { opacity: 1, y: 0, duration: .4, ease: 'empireOut' }, .4)
   
@@ -188,11 +201,11 @@ function hallwayAvailable() {
         }, .6)
       .to(vpGlow, { scale: 8, opacity: 0, duration: 1.4, ease: 'power3.in' }, .65)
   
-    // Walker shrinks toward vanishing point (walks away)
-      .to(walker, {
-          scale: .15,
-          y: -30,
-          opacity: .4,
+    // Both walkers shrink toward vanishing point (walk away together)
+      .to([walker, walker2], {
+          scale: .12,
+          y: -28,
+          opacity: .35,
           duration: 1.3,
           ease: 'power2.in'
         }, .65)
