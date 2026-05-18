@@ -34,6 +34,9 @@ function submitVisitorName(skip) {
 }
 
 function initReception() {
+  // Boot hallway system
+  if (window.initHallway) initHallway();
+
   // Boot holographic display
   if (window.initHoloDisplay) initHoloDisplay();
 
