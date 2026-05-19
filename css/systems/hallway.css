@@ -10,348 +10,348 @@
    HALLWAY OVERLAY — full screen
 ════════════════════════════════════════════════ */
 #hallway-transition {
-    position: fixed; inset: 0;
-    z-index: var(--z-esc);
-    background: #07060e;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    opacity: 0;
-    pointer-events: none;
-    overflow: hidden;
-  }
-  #hallway-transition.show {
-    display: flex;
-    pointer-events: all;
-  }
-  
-  /* ════════════════════════════════════════════════
-     CORRIDOR — perspective tunnel
-  ════════════════════════════════════════════════ */
-  .hallway-corridor {
-    position: absolute; inset: 0;
-    perspective: 600px;
-    perspective-origin: 50% 48%;
-    overflow: hidden;
-  }
-  
-  /* Corridor walls — CSS 3D box */
-  .hallway-walls {
-    position: absolute; inset: 0;
-    transform-style: preserve-3d;
-    transform: translateZ(0px);
-    transition: none; /* GSAP handles */
-  }
-  
-  /* Floor */
-  .hallway-floor {
-    position: absolute;
-    bottom: 0; left: -20%; right: -20%;
-    height: 52%;
-    background:
-      repeating-linear-gradient(90deg,
-        rgba(124,58,237,.06) 0 1px, transparent 1px 120px),
-      repeating-linear-gradient(0deg,
-        rgba(124,58,237,.04) 0 1px, transparent 1px 80px),
-      linear-gradient(180deg, #0d0b22 0%, #07060e 100%);
-    transform: perspective(600px) rotateX(55deg);
-    transform-origin: bottom center;
-  }
-  .hallway-floor::after {
-    content: '';
-    position: absolute; top: 0; left: 0; right: 0; height: 3px;
-    background: linear-gradient(90deg,
-      transparent, rgba(124,58,237,.3) 30%,
-      rgba(245,158,11,.2) 50%,
-      rgba(124,58,237,.3) 70%, transparent
-    );
-  }
-  
-  /* Ceiling */
-  .hallway-ceiling {
-    position: absolute;
-    top: 0; left: -20%; right: -20%;
-    height: 48%;
-    background:
-      repeating-linear-gradient(90deg,
-        rgba(124,58,237,.04) 0 1px, transparent 1px 120px),
-      linear-gradient(180deg, #07060e 0%, #0a0818 100%);
-    transform: perspective(600px) rotateX(-55deg);
-    transform-origin: top center;
-  }
-  
-  /* Ceiling light strips */
-  .hallway-ceiling::before {
-    content: '';
-    position: absolute; bottom: 0; left: 15%; right: 15%; height: 2px;
-    background: linear-gradient(90deg,
-      transparent, rgba(124,58,237,.5) 20%,
-      rgba(6,182,212,.4) 50%,
-      rgba(124,58,237,.5) 80%, transparent
-    );
-    filter: blur(1px);
-    box-shadow: 0 0 20px rgba(124,58,237,.4);
-  }
-  
-  /* Left wall */
-  .hallway-wall-left {
-    position: absolute;
-    left: 0; top: 0; bottom: 0;
-    width: 22%;
-    background: linear-gradient(90deg, #07060e 0%, #0d0b22 60%, #0a0818 100%);
-    border-right: 1px solid rgba(124,58,237,.12);
-  }
-  /* Right wall */
-  .hallway-wall-right {
-    position: absolute;
-    right: 0; top: 0; bottom: 0;
-    width: 22%;
-    background: linear-gradient(270deg, #07060e 0%, #0d0b22 60%, #0a0818 100%);
-    border-left: 1px solid rgba(124,58,237,.12);
-  }
-  
-  /* Wall door frames — receding into distance */
-  .hallway-door-frames {
-    position: absolute; inset: 0;
-    pointer-events: none;
-  }
-  
-  .hallway-frame {
-    position: absolute;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    border: 1px solid rgba(124,58,237,.2);
-    border-radius: 2px;
-    box-shadow: 0 0 20px rgba(124,58,237,.08);
-    opacity: 0;
-  }
-  
-  /* Concentric frames — tunnel effect */
-  .hallway-frame:nth-child(1) { width: 65%;  height: 72%; opacity: .5; }
-  .hallway-frame:nth-child(2) { width: 45%;  height: 55%; opacity: .4; }
-  .hallway-frame:nth-child(3) { width: 30%;  height: 40%; opacity: .3; }
-  .hallway-frame:nth-child(4) { width: 18%;  height: 26%; opacity: .2; }
-  .hallway-frame:nth-child(5) { width: 9%;   height: 14%; opacity: .1; }
-  
-  /* Vanishing point glow */
-  .hallway-vp-glow {
-    position: absolute; top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    width: 300px; height: 300px;
-    background: radial-gradient(circle,
-      rgba(124,58,237,.25) 0%,
-      rgba(6,182,212,.08)  30%,
-      transparent 70%
-    );
-    border-radius: 50%;
-    pointer-events: none;
-    animation: vp-breathe 2s ease-in-out infinite;
-  }
-  @keyframes vp-breathe {
-    0%,100% { transform: translate(-50%,-50%) scale(1);   opacity: .7; }
-    50%     { transform: translate(-50%,-50%) scale(1.15); opacity: 1; }
-  }
-  
-  /* ════════════════════════════════════════════════
-     DESTINATION CARD — appears at vanishing point
-  ════════════════════════════════════════════════ */
-  .hallway-dest {
-    position: absolute; top: 50%; left: 50%;
-    transform: translate(-50%, -50%) scale(0.1);
-    z-index: 10;
-    display: flex; flex-direction: column; align-items: center; gap: 8px;
-    opacity: 0;
-    pointer-events: none;
-    text-align: center;
-  }
-  
-  .hallway-dest-num {
-    font-family: var(--font-display);
-    font-size: 5rem;
-    letter-spacing: 8px;
-    line-height: 1;
-    color: var(--gold);
-    text-shadow:
-      0 0 30px rgba(245,158,11,.8),
-      0 0 60px rgba(245,158,11,.4),
-      0 0 120px rgba(245,158,11,.2);
-  }
-  .hallway-dest-name {
-    font-family: var(--font-display);
-    font-size: 1.6rem;
-    letter-spacing: 8px;
-    color: var(--text);
-    text-shadow: 0 0 20px rgba(124,58,237,.5);
-  }
-  .hallway-dest-sub {
-    font-family: var(--font-mono);
-    font-size: .52rem;
-    letter-spacing: 4px;
-    color: var(--muted);
-    text-transform: uppercase;
-  }
-  
-  /* ════════════════════════════════════════════════
-     WALL SIGNS — floor labels on side walls
-  ════════════════════════════════════════════════ */
-  .hallway-signs {
-    position: absolute; inset: 0;
-    pointer-events: none; z-index: 5;
-  }
-  
-  .hallway-sign {
-    position: absolute;
-    display: flex; flex-direction: column; gap: 4px;
-    padding: 10px 14px;
-    background: rgba(10,8,24,.85);
-    border: 1px solid rgba(124,58,237,.2);
-    border-radius: 4px;
-    opacity: 0;
-    transform: translateX(-20px);
-    transition: none; /* GSAP */
-  }
-  .hallway-sign.right { transform: translateX(20px); }
-  
-  .hs-floor {
-    font-family: var(--font-display);
-    font-size: 1.2rem;
-    letter-spacing: 3px;
-    color: var(--gold);
-    line-height: 1;
-  }
-  .hs-name {
-    font-family: var(--font-mono);
-    font-size: .44rem;
-    letter-spacing: 2px;
-    color: var(--muted);
-    text-transform: uppercase;
-  }
-  
-  /* Left wall signs */
-  .hallway-sign.s-01 { left: 2%;  top: 25%; }
-  .hallway-sign.s-02 { left: 2%;  top: 45%; }
-  .hallway-sign.s-03 { left: 2%;  top: 65%; }
-  /* Right wall signs */
-  .hallway-sign.s-04 { right: 2%; top: 25%; }
-  .hallway-sign.s-05 { right: 2%; top: 45%; }
-  
-  /* ════════════════════════════════════════════════
-     WALKING CHARACTER in hallway
-  ════════════════════════════════════════════════ */
-  .hallway-walker {
-    position: absolute;
-    bottom: 36%;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 12;
-    display: flex; flex-direction: column; align-items: center;
-    filter: drop-shadow(0 0 12px rgba(124,58,237,.6));
-    opacity: 0;
-  }
-  
-  .hw-head {
-    width: 18px; height: 19px;
-    background: #e8c49a;
-    border-radius: 50% 50% 42% 42%;
-    position: relative;
-  }
-  .hw-head::before {
-    content: '';
-    position: absolute; top: -8px; left: -3px;
-    width: 24px; height: 13px;
-    background: #1a0f06;
-    border-radius: 50% 50% 0 0;
-  }
-  .hw-body {
-    width: 20px; height: 26px;
-    background: linear-gradient(180deg, #1e2a4a, #162038);
-    border-radius: 3px 3px 0 0;
-    margin-top: -1px;
-  }
-  .hw-legs { display: flex; gap: 3px; }
-  .hw-leg {
-    width: 8px; height: 16px;
-    background: #111830;
-    border-radius: 0 0 3px 3px;
-    transform-origin: top center;
-  }
-  .hw-leg.left  { animation: swing-left  .36s ease-in-out infinite; }
-  .hw-leg.right { animation: swing-right .36s ease-in-out infinite; }
-  .hw-shadow {
-    width: 22px; height: 6px;
-    background: rgba(0,0,0,.55);
-    border-radius: 50%;
-    margin-top: 2px;
-    filter: blur(2px);
-  }
-  
-  /* ════════════════════════════════════════════════
-     MOTION BLUR OVERLAY — speed effect
-  ════════════════════════════════════════════════ */
-  .hallway-blur-overlay {
-    position: absolute; inset: 0;
-    background: radial-gradient(ellipse 40% 60% at 50% 50%,
-      transparent 30%,
-      rgba(7,6,14,.6) 100%
-    );
-    pointer-events: none; z-index: 8;
-    opacity: 0;
-  }
-  
-  /* ════════════════════════════════════════════════
-     FLOOR NUMBER COUNTER — centre HUD
-  ════════════════════════════════════════════════ */
-  .hallway-hud {
-    position: absolute;
-    bottom: 32px; left: 50%;
-    transform: translateX(-50%);
-    z-index: 20;
-    display: flex; align-items: center; gap: 14px;
-    opacity: 0;
-  }
-  .hallway-hud-floor {
-    font-family: var(--font-display);
-    font-size: 3.5rem;
-    letter-spacing: 6px;
-    color: rgba(124,58,237,.25);
-    line-height: 1;
-    transition: color .3s;
-  }
-  .hallway-hud-floor.active { color: var(--gold); }
-  .hallway-hud-sep {
-    width: 1px; height: 32px;
-    background: rgba(124,58,237,.2);
-  }
-  
-  /* ── HOST WALKER — gold accent ── */
-  .hallway-walker-host {
-    left: calc(50% - 18px) !important;
-    filter: drop-shadow(0 0 14px rgba(245,158,11,.6)) !important;
-  }
-  .hw-head-host {
-    background: #e8c49a !important;
-  }
-  .hw-body-host {
-    background: linear-gradient(180deg,#1e2a4a,#162038) !important;
-    border-top: 2px solid rgba(245,158,11,.5) !important;
-  }
-  
-  /* ── VISITOR WALKER — cyan accent ── */
-  .hallway-walker-visitor {
-    left: calc(50% + 18px) !important;
-    filter: drop-shadow(0 0 14px rgba(6,182,212,.6)) !important;
-  }
-  .hw-head-visitor {
-    background: #e0c4a0 !important;
-  }
-  .hw-body-visitor {
-    background: linear-gradient(180deg,#1e3a2a,#162a1e) !important;
-    border-top: 2px solid rgba(6,182,212,.5) !important;
-  }
-  
-  /* ════════════════════════════════════════════════
-     MOBILE — skip hallway, use escalator
-  ════════════════════════════════════════════════ */
-  @media (max-width: 768px) {
-    #hallway-transition { display: none !important; }
-  }
+  position: fixed; inset: 0;
+  z-index: var(--z-esc);
+  background: #07060e;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+#hallway-transition.show {
+  display: flex;
+  pointer-events: all;
+}
+
+/* ════════════════════════════════════════════════
+   CORRIDOR — perspective tunnel
+════════════════════════════════════════════════ */
+.hallway-corridor {
+  position: absolute; inset: 0;
+  perspective: 600px;
+  perspective-origin: 50% 48%;
+  overflow: hidden;
+}
+
+/* Corridor walls — CSS 3D box */
+.hallway-walls {
+  position: absolute; inset: 0;
+  transform-style: preserve-3d;
+  transform: translateZ(0px);
+  transition: none; /* GSAP handles */
+}
+
+/* Floor */
+.hallway-floor {
+  position: absolute;
+  bottom: 0; left: -20%; right: -20%;
+  height: 52%;
+  background:
+    repeating-linear-gradient(90deg,
+      rgba(124,58,237,.06) 0 1px, transparent 1px 120px),
+    repeating-linear-gradient(0deg,
+      rgba(124,58,237,.04) 0 1px, transparent 1px 80px),
+    linear-gradient(180deg, #0d0b22 0%, #07060e 100%);
+  transform: perspective(600px) rotateX(55deg);
+  transform-origin: bottom center;
+}
+.hallway-floor::after {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg,
+    transparent, rgba(124,58,237,.3) 30%,
+    rgba(245,158,11,.2) 50%,
+    rgba(124,58,237,.3) 70%, transparent
+  );
+}
+
+/* Ceiling */
+.hallway-ceiling {
+  position: absolute;
+  top: 0; left: -20%; right: -20%;
+  height: 48%;
+  background:
+    repeating-linear-gradient(90deg,
+      rgba(124,58,237,.04) 0 1px, transparent 1px 120px),
+    linear-gradient(180deg, #07060e 0%, #0a0818 100%);
+  transform: perspective(600px) rotateX(-55deg);
+  transform-origin: top center;
+}
+
+/* Ceiling light strips */
+.hallway-ceiling::before {
+  content: '';
+  position: absolute; bottom: 0; left: 15%; right: 15%; height: 2px;
+  background: linear-gradient(90deg,
+    transparent, rgba(124,58,237,.5) 20%,
+    rgba(6,182,212,.4) 50%,
+    rgba(124,58,237,.5) 80%, transparent
+  );
+  filter: blur(1px);
+  box-shadow: 0 0 20px rgba(124,58,237,.4);
+}
+
+/* Left wall */
+.hallway-wall-left {
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 22%;
+  background: linear-gradient(90deg, #07060e 0%, #0d0b22 60%, #0a0818 100%);
+  border-right: 1px solid rgba(124,58,237,.12);
+}
+/* Right wall */
+.hallway-wall-right {
+  position: absolute;
+  right: 0; top: 0; bottom: 0;
+  width: 22%;
+  background: linear-gradient(270deg, #07060e 0%, #0d0b22 60%, #0a0818 100%);
+  border-left: 1px solid rgba(124,58,237,.12);
+}
+
+/* Wall door frames — receding into distance */
+.hallway-door-frames {
+  position: absolute; inset: 0;
+  pointer-events: none;
+}
+
+.hallway-frame {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  border: 1px solid rgba(124,58,237,.2);
+  border-radius: 2px;
+  box-shadow: 0 0 20px rgba(124,58,237,.08);
+  opacity: 0;
+}
+
+/* Concentric frames — tunnel effect */
+.hallway-frame:nth-child(1) { width: 65%;  height: 72%; opacity: .5; }
+.hallway-frame:nth-child(2) { width: 45%;  height: 55%; opacity: .4; }
+.hallway-frame:nth-child(3) { width: 30%;  height: 40%; opacity: .3; }
+.hallway-frame:nth-child(4) { width: 18%;  height: 26%; opacity: .2; }
+.hallway-frame:nth-child(5) { width: 9%;   height: 14%; opacity: .1; }
+
+/* Vanishing point glow */
+.hallway-vp-glow {
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 300px; height: 300px;
+  background: radial-gradient(circle,
+    rgba(124,58,237,.25) 0%,
+    rgba(6,182,212,.08)  30%,
+    transparent 70%
+  );
+  border-radius: 50%;
+  pointer-events: none;
+  animation: vp-breathe 2s ease-in-out infinite;
+}
+@keyframes vp-breathe {
+  0%,100% { transform: translate(-50%,-50%) scale(1);   opacity: .7; }
+  50%     { transform: translate(-50%,-50%) scale(1.15); opacity: 1; }
+}
+
+/* ════════════════════════════════════════════════
+   DESTINATION CARD — appears at vanishing point
+════════════════════════════════════════════════ */
+.hallway-dest {
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -50%) scale(0.1);
+  z-index: 10;
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  opacity: 0;
+  pointer-events: none;
+  text-align: center;
+}
+
+.hallway-dest-num {
+  font-family: var(--font-display);
+  font-size: 5rem;
+  letter-spacing: 8px;
+  line-height: 1;
+  color: var(--gold);
+  text-shadow:
+    0 0 30px rgba(245,158,11,.8),
+    0 0 60px rgba(245,158,11,.4),
+    0 0 120px rgba(245,158,11,.2);
+}
+.hallway-dest-name {
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  letter-spacing: 8px;
+  color: var(--text);
+  text-shadow: 0 0 20px rgba(124,58,237,.5);
+}
+.hallway-dest-sub {
+  font-family: var(--font-mono);
+  font-size: .52rem;
+  letter-spacing: 4px;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+
+/* ════════════════════════════════════════════════
+   WALL SIGNS — floor labels on side walls
+════════════════════════════════════════════════ */
+.hallway-signs {
+  position: absolute; inset: 0;
+  pointer-events: none; z-index: 5;
+}
+
+.hallway-sign {
+  position: absolute;
+  display: flex; flex-direction: column; gap: 4px;
+  padding: 10px 14px;
+  background: rgba(10,8,24,.85);
+  border: 1px solid rgba(124,58,237,.2);
+  border-radius: 4px;
+  opacity: 0;
+  transform: translateX(-20px);
+  transition: none; /* GSAP */
+}
+.hallway-sign.right { transform: translateX(20px); }
+
+.hs-floor {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  letter-spacing: 3px;
+  color: var(--gold);
+  line-height: 1;
+}
+.hs-name {
+  font-family: var(--font-mono);
+  font-size: .44rem;
+  letter-spacing: 2px;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+
+/* Left wall signs */
+.hallway-sign.s-01 { left: 2%;  top: 25%; }
+.hallway-sign.s-02 { left: 2%;  top: 45%; }
+.hallway-sign.s-03 { left: 2%;  top: 65%; }
+/* Right wall signs */
+.hallway-sign.s-04 { right: 2%; top: 25%; }
+.hallway-sign.s-05 { right: 2%; top: 45%; }
+
+/* ════════════════════════════════════════════════
+   WALKING CHARACTER in hallway
+════════════════════════════════════════════════ */
+.hallway-walker {
+  position: absolute;
+  bottom: 36%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 12;
+  display: flex; flex-direction: column; align-items: center;
+  filter: drop-shadow(0 0 12px rgba(124,58,237,.6));
+  opacity: 0;
+}
+
+.hw-head {
+  width: 18px; height: 19px;
+  background: #e8c49a;
+  border-radius: 50% 50% 42% 42%;
+  position: relative;
+}
+.hw-head::before {
+  content: '';
+  position: absolute; top: -8px; left: -3px;
+  width: 24px; height: 13px;
+  background: #1a0f06;
+  border-radius: 50% 50% 0 0;
+}
+.hw-body {
+  width: 20px; height: 26px;
+  background: linear-gradient(180deg, #1e2a4a, #162038);
+  border-radius: 3px 3px 0 0;
+  margin-top: -1px;
+}
+.hw-legs { display: flex; gap: 3px; }
+.hw-leg {
+  width: 8px; height: 16px;
+  background: #111830;
+  border-radius: 0 0 3px 3px;
+  transform-origin: top center;
+}
+.hw-leg.left  { animation: swing-left  .36s ease-in-out infinite; }
+.hw-leg.right { animation: swing-right .36s ease-in-out infinite; }
+.hw-shadow {
+  width: 22px; height: 6px;
+  background: rgba(0,0,0,.55);
+  border-radius: 50%;
+  margin-top: 2px;
+  filter: blur(2px);
+}
+
+/* ════════════════════════════════════════════════
+   MOTION BLUR OVERLAY — speed effect
+════════════════════════════════════════════════ */
+.hallway-blur-overlay {
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse 40% 60% at 50% 50%,
+    transparent 30%,
+    rgba(7,6,14,.6) 100%
+  );
+  pointer-events: none; z-index: 8;
+  opacity: 0;
+}
+
+/* ════════════════════════════════════════════════
+   FLOOR NUMBER COUNTER — centre HUD
+════════════════════════════════════════════════ */
+.hallway-hud {
+  position: absolute;
+  bottom: 32px; left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  display: flex; align-items: center; gap: 14px;
+  opacity: 0;
+}
+.hallway-hud-floor {
+  font-family: var(--font-display);
+  font-size: 3.5rem;
+  letter-spacing: 6px;
+  color: rgba(124,58,237,.25);
+  line-height: 1;
+  transition: color .3s;
+}
+.hallway-hud-floor.active { color: var(--gold); }
+.hallway-hud-sep {
+  width: 1px; height: 32px;
+  background: rgba(124,58,237,.2);
+}
+
+/* ── HOST WALKER — gold accent ── */
+.hallway-walker-host {
+  left: calc(50% - 18px) !important;
+  filter: drop-shadow(0 0 14px rgba(245,158,11,.6)) !important;
+}
+.hw-head-host {
+  background: #e8c49a !important;
+}
+.hw-body-host {
+  background: linear-gradient(180deg,#1e2a4a,#162038) !important;
+  border-top: 2px solid rgba(245,158,11,.5) !important;
+}
+
+/* ── VISITOR WALKER — cyan accent ── */
+.hallway-walker-visitor {
+  left: calc(50% + 18px) !important;
+  filter: drop-shadow(0 0 14px rgba(6,182,212,.6)) !important;
+}
+.hw-head-visitor {
+  background: #e0c4a0 !important;
+}
+.hw-body-visitor {
+  background: linear-gradient(180deg,#1e3a2a,#162a1e) !important;
+  border-top: 2px solid rgba(6,182,212,.5) !important;
+}
+
+/* ════════════════════════════════════════════════
+   MOBILE — skip hallway, use escalator
+════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  #hallway-transition { display: none !important; }
+}
