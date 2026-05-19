@@ -236,6 +236,7 @@ function resolveToFloor(fi) {
   if (fi === 2 && typeof initProjectsFloor === 'function')      setTimeout(initProjectsFloor, 100);
   if (fi === 3 && typeof initExperienceFloor === 'function')    setTimeout(initExperienceFloor, 100);
   if (fi === 4 && typeof initAchievementsFloor === 'function')  setTimeout(initAchievementsFloor, 100);
+  if (fi === 5) setTimeout(initContactFloor, 100);
 
   // FAB visibility + GSAP entrance
   const fabProjects = document.getElementById('fabProjects');
