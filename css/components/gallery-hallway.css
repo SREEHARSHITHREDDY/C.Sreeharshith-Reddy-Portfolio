@@ -1,0 +1,499 @@
+/*
+  ═══════════════════════════════════════════════
+  GALLERY-HALLWAY.CSS
+  Floor 03 — Experience (Work | Volunteering walls)
+  Floor 04 — Achievements (Achievements | Certs walls)
+  Dark Empire theme: purple/gold/cyan framed panels
+  ═══════════════════════════════════════════════
+*/
+
+/* ════════════════════════════════════════════════
+   SHARED HALLWAY FLOOR WRAPPER
+════════════════════════════════════════════════ */
+#floor-experience,
+#floor-achievements {
+  flex-direction: column !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  height: 100vh !important;
+  scrollbar-width: none !important;
+  background: var(--bg) !important;
+  scroll-behavior: smooth !important;
+  position: relative !important;
+}
+#floor-experience::-webkit-scrollbar,
+#floor-achievements::-webkit-scrollbar { display: none; }
+
+/* ── Hide old tab/column layouts ── */
+.exp-col-headers,
+.exp-body,
+.ach-tabs,
+.ach-body { display: none !important; }
+
+/* ════════════════════════════════════════════════
+   GALLERY HALLWAY STRUCTURE
+════════════════════════════════════════════════ */
+.gallery-hallway {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  position: relative;
+}
+
+/* ── Ceiling track lights ── */
+.gh-ceiling {
+  position: fixed;
+  top: 60px; left: 0; right: 0;
+  height: 6px;
+  background: repeating-linear-gradient(
+    90deg,
+    transparent 0 100px,
+    rgba(245,158,11,.2) 100px 102px,
+    rgba(124,58,237,.1) 102px 200px,
+    transparent 200px 300px
+  );
+  z-index: 18;
+  pointer-events: none;
+}
+.gh-ceiling-glow {
+  position: fixed;
+  top: 60px; left: 0; right: 0;
+  height: 160px;
+  background: repeating-linear-gradient(
+    90deg,
+    transparent 0 100px,
+    rgba(245,158,11,.05) 100px 200px,
+    transparent 200px 300px
+  );
+  filter: blur(16px);
+  z-index: 17;
+  pointer-events: none;
+}
+
+/* ── Floor reflection ── */
+.gh-floor-ref {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  height: 80px;
+  background: linear-gradient(180deg,
+    transparent,
+    rgba(124,58,237,.04) 60%,
+    rgba(124,58,237,.08)
+  );
+  pointer-events: none;
+  z-index: 17;
+}
+
+/* ── Sticky floor header ── */
+.gh-header {
+  position: sticky;
+  top: 60px;
+  z-index: 22;
+  background: rgba(7,6,14,.98);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border-bottom: 1px solid rgba(124,58,237,.2);
+  padding: 14px 92px 14px 60px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.gh-floor-tag {
+  font-family: var(--font-mono);
+  font-size: .46rem;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: rgba(180,165,255,.5);
+}
+.gh-floor-title {
+  font-family: var(--font-display);
+  font-size: clamp(2rem,4vw,3.5rem);
+  letter-spacing: 4px;
+  line-height: 1;
+  color: var(--text);
+}
+.gh-wall-labels {
+  display: flex;
+  gap: 0;
+  margin-top: 6px;
+  border-top: 1px solid rgba(124,58,237,.12);
+  padding-top: 8px;
+}
+.gh-wall-lbl {
+  flex: 1;
+  font-family: var(--font-mono);
+  font-size: .44rem;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-right: 20px;
+}
+.gh-wall-lbl.right {
+  padding-left: 20px;
+  padding-right: 0;
+  justify-content: flex-end;
+  border-left: 1px solid rgba(124,58,237,.12);
+}
+.gh-wall-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ── Corridor body ── */
+.gh-body {
+  flex: 1;
+  position: relative;
+  padding: 0 0 80px;
+}
+
+/* Centre walkway */
+.gh-walkway {
+  position: absolute;
+  top: 0; bottom: 0;
+  left: 50%; transform: translateX(-50%);
+  width: 120px;
+  background: linear-gradient(180deg,
+    rgba(7,6,14,0) 0%,
+    rgba(124,58,237,.02) 50%,
+    rgba(7,6,14,0) 100%
+  );
+  pointer-events: none;
+}
+.gh-walkway::before {
+  content: '';
+  position: absolute; left: 50%; top: 0; bottom: 0;
+  width: 1px;
+  background: linear-gradient(180deg,
+    transparent,
+    rgba(124,58,237,.08) 20%,
+    rgba(124,58,237,.08) 80%,
+    transparent
+  );
+  transform: translateX(-50%);
+}
+
+/* ════════════════════════════════════════════════
+   GALLERY ROW — one row = pair of frames (L + R)
+════════════════════════════════════════════════ */
+.gh-row {
+  display: grid;
+  grid-template-columns: 1fr 120px 1fr;
+  min-height: 200px;
+  align-items: stretch;
+  position: relative;
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity .55s ease, transform .55s var(--ease-out-expo);
+}
+.gh-row.gh-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Divider line between rows */
+.gh-row-sep {
+  height: 1px;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(124,58,237,.08) 20%,
+    rgba(124,58,237,.12) 50%,
+    rgba(124,58,237,.08) 80%,
+    transparent 100%
+  );
+  margin: 0;
+}
+
+/* Spacer column (corridor centre) */
+.gh-spacer { /* takes 120px grid column — walkway */ }
+
+/* ════════════════════════════════════════════════
+   WALL SIDE — left or right panel
+════════════════════════════════════════════════ */
+.gh-wall-side {
+  display: flex;
+  align-items: center;
+  padding: 28px 32px;
+  position: relative;
+  overflow: hidden;
+}
+.gh-wall-side.left  { justify-content: flex-end; padding-right: 40px; }
+.gh-wall-side.right { justify-content: flex-start; padding-left: 40px; }
+
+/* Wall background texture */
+.gh-wall-side::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(124,58,237,.015) 0 1px,
+    transparent 1px 48px
+  );
+  pointer-events: none;
+}
+
+/* Spotlight from ceiling onto frame */
+.gh-wall-side::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  width: 80px; height: 100%;
+  background: linear-gradient(180deg,
+    rgba(245,158,11,.06) 0%,
+    rgba(245,158,11,.03) 40%,
+    transparent 100%
+  );
+  pointer-events: none;
+}
+.gh-wall-side.left::after  { right: 60px; }
+.gh-wall-side.right::after { left: 60px; }
+
+/* Empty slot — when one side has no content for this row */
+.gh-empty {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ════════════════════════════════════════════════
+   FRAMED PANEL — the mounted certificate/card
+════════════════════════════════════════════════ */
+.gh-frame {
+  background: rgba(12,10,26,.9);
+  border: 1px solid rgba(124,58,237,.3);
+  border-radius: 4px;
+  padding: 0;
+  position: relative;
+  max-width: 460px;
+  width: 100%;
+  overflow: hidden;
+  transition: border-color .3s, box-shadow .3s, transform .25s;
+  box-shadow:
+    0 0 0 1px rgba(124,58,237,.08),
+    4px 4px 0 rgba(0,0,0,.4),
+    0 8px 40px rgba(0,0,0,.5);
+  cursor: pointer;
+}
+.gh-frame:hover {
+  border-color: rgba(245,158,11,.45);
+  box-shadow:
+    0 0 0 1px rgba(245,158,11,.1),
+    0 0 30px rgba(245,158,11,.12),
+    4px 4px 0 rgba(0,0,0,.5),
+    0 16px 60px rgba(0,0,0,.7);
+  transform: translateY(-3px) scale(1.01);
+}
+
+/* Mounting screws — glass standoff effect */
+.gh-frame::before,
+.gh-frame::after {
+  content: '';
+  position: absolute;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #2a2050, #1a1535);
+  border: 1px solid rgba(124,58,237,.4);
+  box-shadow: 0 0 4px rgba(124,58,237,.3);
+  z-index: 4;
+}
+.gh-frame::before { top: 8px; left: 8px; }
+.gh-frame::after  { top: 8px; right: 8px; }
+
+/* Bottom screws via inner element */
+.gh-frame-screws::before,
+.gh-frame-screws::after {
+  content: '';
+  position: absolute;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #2a2050, #1a1535);
+  border: 1px solid rgba(124,58,237,.4);
+  box-shadow: 0 0 4px rgba(124,58,237,.3);
+  z-index: 4;
+  bottom: 8px;
+}
+.gh-frame-screws::before { left: 8px; }
+.gh-frame-screws::after  { right: 8px; }
+
+/* Top accent bar */
+.gh-frame-bar {
+  height: 3px;
+  width: 100%;
+}
+
+/* ── FRAME CONTENT ── */
+.gh-frame-inner {
+  padding: 16px 20px 14px;
+  position: relative;
+}
+
+.gh-frame-type {
+  font-family: var(--font-mono);
+  font-size: .4rem;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.gh-frame-type::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: currentColor;
+  opacity: .25;
+}
+
+.gh-frame-title {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  letter-spacing: 2px;
+  color: var(--text);
+  line-height: 1.2;
+  margin-bottom: 6px;
+}
+.gh-frame-sub {
+  font-family: var(--font-mono);
+  font-size: .48rem;
+  letter-spacing: 1.5px;
+  color: rgba(180,165,255,.55);
+  margin-bottom: 10px;
+  line-height: 1.6;
+}
+.gh-frame-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.gh-frame-date {
+  font-family: var(--font-mono);
+  font-size: .42rem;
+  letter-spacing: 2px;
+  color: rgba(245,158,11,.65);
+}
+.gh-frame-badge {
+  font-family: var(--font-mono);
+  font-size: .38rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 2px 9px;
+  border-radius: 20px;
+}
+.gh-frame-bullets {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(124,58,237,.1);
+}
+.gh-frame-bullets li {
+  font-family: var(--font-body);
+  font-size: .75rem;
+  color: rgba(232,228,240,.65);
+  line-height: 1.5;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+.gh-frame-bullets li::before {
+  content: '';
+  width: 4px; height: 4px;
+  border-radius: 50%;
+  background: var(--accent);
+  flex-shrink: 0;
+  margin-top: 6px;
+}
+.gh-frame-skills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 8px;
+}
+.gh-skill-chip {
+  font-family: var(--font-mono);
+  font-size: .36rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  background: rgba(245,158,11,.08);
+  border: 1px solid rgba(245,158,11,.22);
+  color: rgba(253,212,122,.7);
+  border-radius: 2px;
+}
+
+/* Cert verify link */
+.gh-verify-link {
+  font-family: var(--font-mono);
+  font-size: .42rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--cyan);
+  text-decoration: none;
+  border: 1px solid rgba(6,182,212,.3);
+  padding: 3px 10px;
+  border-radius: 2px;
+  transition: background .2s;
+}
+.gh-verify-link:hover { background: rgba(6,182,212,.1); }
+
+/* ════════════════════════════════════════════════
+   COLOUR CODING BY TYPE
+════════════════════════════════════════════════ */
+/* Work experience — gold */
+.gh-frame.gh-type-work .gh-frame-bar       { background: linear-gradient(90deg,var(--gold),var(--accent)); }
+.gh-frame.gh-type-work .gh-frame-type      { color: var(--gold); }
+.gh-frame.gh-type-work .gh-frame-badge     { background: rgba(245,158,11,.12); border: 1px solid rgba(245,158,11,.35); color: #fcd47a; }
+
+/* Volunteering/leadership — cyan */
+.gh-frame.gh-type-vol .gh-frame-bar        { background: linear-gradient(90deg,var(--cyan),var(--accent)); }
+.gh-frame.gh-type-vol .gh-frame-type       { color: var(--cyan); }
+.gh-frame.gh-type-vol .gh-frame-badge      { background: rgba(6,182,212,.1); border: 1px solid rgba(6,182,212,.35); color: #67e3f9; }
+.gh-frame.gh-type-vol:hover                { border-color: rgba(6,182,212,.45); }
+
+/* Achievement — gold */
+.gh-frame.gh-type-achievement .gh-frame-bar  { background: linear-gradient(90deg,var(--gold),#f97316); }
+.gh-frame.gh-type-achievement .gh-frame-type { color: var(--gold); }
+.gh-frame.gh-type-achievement .gh-frame-badge{ background: rgba(245,158,11,.12); border: 1px solid rgba(245,158,11,.35); color: #fcd47a; }
+
+/* Certification — accent purple */
+.gh-frame.gh-type-cert .gh-frame-bar        { background: linear-gradient(90deg,var(--accent),var(--cyan)); }
+.gh-frame.gh-type-cert .gh-frame-type       { color: var(--accent); }
+.gh-frame.gh-type-cert .gh-frame-badge      { background: rgba(124,58,237,.12); border: 1px solid rgba(124,58,237,.35); color: #c4b5fd; }
+.gh-frame.gh-type-cert:hover                { border-color: rgba(124,58,237,.5); }
+
+/* ════════════════════════════════════════════════
+   GALLERY FOOTER
+════════════════════════════════════════════════ */
+.gh-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 32px 60px 16px;
+  font-family: var(--font-mono);
+  font-size: .44rem;
+  letter-spacing: 3px;
+  color: rgba(124,58,237,.35);
+  text-transform: uppercase;
+}
+.gh-footer-line { flex: 1; height: 1px; background: rgba(124,58,237,.1); }
+
+/* ════════════════════════════════════════════════
+   MOBILE — stacked single column
+════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  .gh-row { grid-template-columns: 1fr; }
+  .gh-spacer { display: none; }
+  .gh-wall-side { justify-content: center; padding: 16px 16px 0; }
+  .gh-wall-side.left  { padding-right: 16px; }
+  .gh-wall-side.right { padding-left: 16px; }
+  .gh-walkway  { display: none; }
+  .gh-frame    { max-width: 100%; }
+  .gh-ceiling, .gh-ceiling-glow { display: none; }
+}
