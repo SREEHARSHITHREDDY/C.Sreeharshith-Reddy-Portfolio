@@ -4,6 +4,41 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
   <title>C. Sree Harshith Reddy — Portfolio</title>
+  <!-- ══ FONTS ══ -->
+
+  <!-- ── FONTS ── -->
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+
+  <!-- 1. Design tokens -->
+  <link rel="stylesheet" href="css/tokens.css"/>
+
+  <!-- 2. Systems -->
+  <link rel="stylesheet" href="css/systems/nav.css"/>
+  <link rel="stylesheet" href="css/systems/scene.css"/>
+  <link rel="stylesheet" href="css/systems/hallway.css"/>
+
+  <!-- 3. Floor base styles -->
+  <link rel="stylesheet" href="css/floors/reception.css"/>
+  <link rel="stylesheet" href="css/floors/about.css"/>
+  <link rel="stylesheet" href="css/floors/projects.css"/>
+  <link rel="stylesheet" href="css/floors/experience-ach-contact.css"/>
+
+  <!-- 4. Components (override base floor styles) -->
+  <link rel="stylesheet" href="css/components/overlays.css"/>
+  <link rel="stylesheet" href="css/components/holodisplay.css"/>
+  <link rel="stylesheet" href="css/components/dialogue.css"/>
+  <link rel="stylesheet" href="css/components/showcase.css"/>
+  <link rel="stylesheet" href="css/components/projects-hallway.css"/>
+  <link rel="stylesheet" href="css/components/gallery-hallway.css"/>
+  <link rel="stylesheet" href="css/components/contact-cinematic.css"/>
+
+  <!-- 5. Responsive — load last before fixes -->
+  <link rel="stylesheet" href="css/systems/responsive.css"/>
+
+  <!-- 6. Fixes — absolute last, overrides everything -->
+  <link rel="stylesheet" href="css/components/fixes.css"/>
+
   <meta name="description" content="C. Sree Harshith Reddy — CS undergraduate specialising in AI/ML, Co-Founder of RainC. Portfolio of projects, experience, and achievements."/>
 
   <!-- ── FONTS ── -->
@@ -14,47 +49,16 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/CustomEase.min.js"></script>
 
-  <!-- ══════════════════════════════════════════
        CSS MODULES — load order matters
   ══════════════════════════════════════════ -->
-  <!-- 1. Design tokens, resets, globals -->
-  <link rel="stylesheet" href="css/tokens.css"/>
-  <!-- 2. Overlay components (flash, name prompt, toast) -->
-  <link rel="stylesheet" href="css/components/overlays.css"/>
-  <!-- 2b. Holographic plasma display -->
-  <link rel="stylesheet" href="css/components/holodisplay.css"/>
 
-  <!-- 2c. Dialogue cloud system -->
-  <link rel="stylesheet" href="css/components/dialogue.css"/>
 
-  <!-- 2d. Showcase glass stands -->
-  <link rel="stylesheet" href="css/components/showcase.css"/>
 
-  <!-- 2e. Projects museum hallway -->
-  <link rel="stylesheet" href="css/components/projects-hallway.css"/>
 
-  <!-- 2f. Gallery hallway (Floor 03 + 04) -->
-  <link rel="stylesheet" href="css/components/gallery-hallway.css"/>
 
-  <!-- 3. Navigation + escalator system -->
-  <link rel="stylesheet" href="css/systems/nav.css"/>
-  <!-- 4. Outdoor scroll scene -->
-  <link rel="stylesheet" href="css/systems/scene.css"/>
-  <!-- 5. Reception lobby -->
-  <link rel="stylesheet" href="css/floors/reception.css"/>
-  <!-- 6. Floor 01 About -->
-  <link rel="stylesheet" href="css/floors/about.css"/>
-  <!-- 7. Floor 02 Projects carousel -->
-  <link rel="stylesheet" href="css/floors/projects.css"/>
-  <!-- 8. Floors 03/04/05 -->
-  <link rel="stylesheet" href="css/floors/experience-ach-contact.css"/>
   <!-- Hallway corridor navigation -->
-  <link rel="stylesheet" href="css/systems/hallway.css"/>
 
-  <!-- Responsive + performance CSS — load last to override -->
-  <link rel="stylesheet" href="css/systems/responsive.css"/>
-  <!-- Visual fixes — must be absolute last -->
-  <link rel="stylesheet" href="css/components/fixes.css"/>
+
 </head>
 <body>
 
