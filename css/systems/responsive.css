@@ -18,281 +18,281 @@
 ════════════════════════════════════════════════ */
 @media (max-width: 1024px) {
 
-    /* Nav */
-    .nav-links { gap: 18px; }
-    .nav-links a { font-size: .52rem; }
-    #interior-nav { padding: 0 24px; }
-  
-    /* Floor dir panel — slimmer */
-    .floor-dir-panel { width: 56px; }
-    .fdp-name { display: none; }
-  
-    /* Floor content padding */
-    .floor-content,
-    .about-panel { padding-left: 40px; padding-right: 80px; }
-  
-    /* Experience two-col */
-    .exp-body { gap: 0; }
-    .exp-col-work { padding-left: 40px; padding-right: 24px; }
-    .exp-col-vol  { padding-left: 24px; padding-right: 80px; }
-  
-    /* Contact grid */
-    .contact-grid { padding: 32px 80px 60px 40px; gap: 40px; }
-  
-    /* Achievements grid */
-    .ach-body { padding: 24px 80px 60px 40px; }
-  
-    /* Holo display */
-    .holo-bezel { width: min(520px, 88vw); }
-    .holo-name-display { font-size: clamp(1.4rem, 3.5vw, 2.5rem); }
-  
-    /* Desk area */
-    .desk-area { width: min(620px, 90vw); }
+  /* Nav */
+  .nav-links { gap: 18px; }
+  .nav-links a { font-size: .52rem; }
+  #interior-nav { padding: 0 24px; }
+
+  /* Floor dir panel — slimmer */
+  .floor-dir-panel { width: 56px; }
+  .fdp-name { display: none; }
+
+  /* Floor content padding */
+  .floor-content,
+  .about-panel { padding-left: 40px; padding-right: 80px; }
+
+  /* Experience two-col */
+  .exp-body { gap: 0; }
+  .exp-col-work { padding-left: 40px; padding-right: 24px; }
+  .exp-col-vol  { padding-left: 24px; padding-right: 80px; }
+
+  /* Contact grid */
+  .contact-grid { padding: 32px 80px 60px 40px; gap: 40px; }
+
+  /* Achievements grid */
+  .ach-body { padding: 24px 80px 60px 40px; }
+
+  /* Holo display */
+  .holo-bezel { width: min(520px, 88vw); }
+  .holo-name-display { font-size: clamp(1.4rem, 3.5vw, 2.5rem); }
+
+  /* Desk area */
+  .desk-area { width: min(620px, 90vw); }
+}
+
+/* ════════════════════════════════════════════════
+   MOBILE — md < 768px
+════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+
+  /* ── NAV ── */
+  #interior-nav { padding: 0 16px; height: 52px; }
+  .nav-logo { font-size: .7rem; letter-spacing: 2px; }
+  .nav-links { display: none; } /* replaced by FAB floor panel */
+  .nav-cta   { display: none; }
+
+  /* ── FLOOR DIR PANEL — bottom tab bar on mobile ── */
+  .floor-dir-panel {
+    width: 100%; height: 56px;
+    top: auto; bottom: 0; right: 0; left: 0;
+    flex-direction: row;
+    border-left: none; border-top: 1px solid var(--border);
+    padding: 0; gap: 0; z-index: 200;
+    overflow-x: auto; scrollbar-width: none;
   }
-  
-  /* ════════════════════════════════════════════════
-     MOBILE — md < 768px
-  ════════════════════════════════════════════════ */
-  @media (max-width: 768px) {
-  
-    /* ── NAV ── */
-    #interior-nav { padding: 0 16px; height: 52px; }
-    .nav-logo { font-size: .7rem; letter-spacing: 2px; }
-    .nav-links { display: none; } /* replaced by FAB floor panel */
-    .nav-cta   { display: none; }
-  
-    /* ── FLOOR DIR PANEL — bottom tab bar on mobile ── */
-    .floor-dir-panel {
-      width: 100%; height: 56px;
-      top: auto; bottom: 0; right: 0; left: 0;
-      flex-direction: row;
-      border-left: none; border-top: 1px solid var(--border);
-      padding: 0; gap: 0; z-index: 200;
-      overflow-x: auto; scrollbar-width: none;
-    }
-    .floor-dir-panel::-webkit-scrollbar { display: none; }
-    .fdp-lbl { display: none; }
-    .fdp-floor {
-      flex-direction: column; flex: 1; min-width: 52px;
-      padding: 6px 4px; border-left: none;
-      border-top: 2px solid transparent;
-    }
-    .fdp-floor.fdp-current { border-left: none; border-top-color: var(--gold); }
-    .fdp-divider { width: 1px; height: 32px; align-self: center; flex-shrink: 0; }
-    .fdp-num { font-size: .8rem; }
-    .fdp-name { display: block; font-size: .3rem; }
-    .fdp-dot  { width: 4px; height: 4px; margin-top: 2px; }
-  
-    /* ── FLOOR CONTENT padding — account for top nav + bottom tab bar ── */
-    .floor-content,
-    .about-floor-content { padding: 60px 20px 70px; }
-    .about-panel { padding: 20px 20px 60px; }
-    .about-tag   { padding: 8px 20px; top: 52px; }
-  
-    /* ── EXPERIENCE — stack columns ── */
-    .exp-header { padding: 60px 20px 0; }
-    .exp-col-headers { grid-template-columns: 1fr; }
-    .exp-col-hdr-work { border-right: none; padding-right: 0; padding-bottom: 8px; }
-    .exp-col-hdr-vol  { padding-left: 0; border-top: 1px solid rgba(124,58,237,.12); padding-top: 8px; }
-    .exp-body { grid-template-columns: 1fr; }
-    .exp-col-work,
-    .exp-col-vol { padding: 24px 20px 40px 40px; border-right: none; }
-    .exp-col-work::before,
-    .exp-col-vol::before  { left: 24px; }
-    .exp-col-vol  { border-top: 1px solid rgba(124,58,237,.1); }
-  
-    /* ── ACHIEVEMENTS ── */
-    .ach-header { padding: 60px 20px 0; }
-    .ach-body   { padding: 20px 20px 80px; }
-    .ach-grid   { grid-template-columns: 1fr; }
-    .cert-grid  { grid-template-columns: 1fr; }
-  
-    /* ── CONTACT ── */
-    .contact-header { padding: 60px 20px 20px; }
-    .contact-grid   { grid-template-columns: 1fr; padding: 24px 20px 80px; gap: 32px; }
-    .contact-closing { grid-column: 1; }
-    .contact-status-badges { display: none; }
-  
-    /* ── ABOUT stats ── */
-    .about-stats { flex-wrap: wrap; }
-    .stat-card   { padding: 14px 20px; }
-    .stat-divider { display: none; }
-    .about-skills-grid { grid-template-columns: 1fr; gap: 32px; }
-  
-    /* ── PROJECTS ── */
-    .proj-hud { padding: 60px 20px 0; }
-    .proj-htitle { font-size: clamp(1.8rem, 7vw, 3rem) !important; }
-    .proj-filters { gap: 5px; }
-    .pf-btn { font-size: .42rem; padding: 4px 10px; }
-  
-    .proj-card { width: 290px; }
-    #projPrevBtn { left: 10px; width: 36px; height: 36px; }
-    #projNextBtn { right: 66px; width: 36px; height: 36px; }
-  
-    /* ── RECEPTION DESK — simplified ── */
-    .desk-area { width: calc(100vw - 24px); }
-    .desk-left  { display: none; } /* hide monitor on mobile */
-    .desk-right { width: 70px; }
-    .desk-center { padding: 8px; }
-    .fb-sub { display: none; }
-    .desk-nameplate { font-size: .4rem; letter-spacing: 3px; }
-  
-    /* ── HOLO DISPLAY — compact ── */
-    .holo-mount { top: 3%; }
-    .holo-bezel { width: calc(100vw - 32px); }
-    .holo-name-display { font-size: clamp(1.2rem, 7vw, 2rem); letter-spacing: 4px; }
-    .holo-metrics { gap: 14px; }
-    .holo-metric-val { font-size: .8rem; }
-  
-    /* ── DIALOGUE CLOUD — full width on mobile ── */
-    .dialogue-cloud {
-      max-width: calc(100vw - 32px);
-      left: 16px !important; right: 16px !important;
-      bottom: 70px !important;
-    }
-    .dc-pos-bottom-left,
-    .dc-pos-bottom-right,
-    .dc-pos-center { left: 16px; right: 16px; bottom: 70px; transform: none; }
-    .dialogue-cloud::after { display: none; }
-  
-    /* ── ESCALATOR TRANSITION ── */
-    .esc-building-panel { display: none; }
-    .esc-dest-header { padding: 20px; }
-    .esc-dest-floor  { font-size: 2rem; }
-    .esc-dest-name   { font-size: 1.3rem; }
-  
-    /* ── NAME PROMPT ── */
-    .np-title { font-size: clamp(2rem, 8vw, 3.5rem); }
-    .np-input-wrap { width: 90vw; }
-    .np-input { font-size: 1.2rem; }
-  
-    /* ── ADD MODALS ── */
-    .add-modal-box { width: 96vw; max-height: 92vh; }
-    .add-row { grid-template-columns: 1fr; }
-  
-    /* ── SCROLL SCENE ── */
-    .building { transform-origin: bottom center; }
-    #helicopter { display: none; } /* too crowded on mobile */
-    .scroll-hud { top: 16px; right: 16px; }
-  
-    /* ── FABs ── */
-    .floor-add-fab { bottom: 68px; right: 16px; }
-  
-    /* ── TOAST ── */
-    #addToast { bottom: 68px; }
+  .floor-dir-panel::-webkit-scrollbar { display: none; }
+  .fdp-lbl { display: none; }
+  .fdp-floor {
+    flex-direction: column; flex: 1; min-width: 52px;
+    padding: 6px 4px; border-left: none;
+    border-top: 2px solid transparent;
   }
-  
-  /* ════════════════════════════════════════════════
-     SMALL PHONE — sm < 640px
-  ════════════════════════════════════════════════ */
-  @media (max-width: 640px) {
-  
-    .contact-tagline { font-size: clamp(1.1rem, 5vw, 1.6rem); }
-    .cf-channels     { flex-direction: column; }
-    .dc-text         { font-size: .55rem; }
-    .dc-btn          { font-size: .42rem; padding: 5px 12px; }
-    .proj-modal-inner{ width: 98vw; }
-    .proj-modal-body { padding: 16px 18px; }
-    .modal-title     { font-size: clamp(1.4rem, 6vw, 2rem); }
-  
-    /* Experience role wrap */
-    .exp-role-row { flex-direction: column; gap: 6px; }
-    .exp-badge    { align-self: flex-start; }
+  .fdp-floor.fdp-current { border-left: none; border-top-color: var(--gold); }
+  .fdp-divider { width: 1px; height: 32px; align-self: center; flex-shrink: 0; }
+  .fdp-num { font-size: .8rem; }
+  .fdp-name { display: block; font-size: .3rem; }
+  .fdp-dot  { width: 4px; height: 4px; margin-top: 2px; }
+
+  /* ── FLOOR CONTENT padding — account for top nav + bottom tab bar ── */
+  .floor-content,
+  .about-floor-content { padding: 60px 20px 70px; }
+  .about-panel { padding: 20px 20px 60px; }
+  .about-tag   { padding: 8px 20px; top: 52px; }
+
+  /* ── EXPERIENCE — stack columns ── */
+  .exp-header { padding: 60px 20px 0; }
+  .exp-col-headers { grid-template-columns: 1fr; }
+  .exp-col-hdr-work { border-right: none; padding-right: 0; padding-bottom: 8px; }
+  .exp-col-hdr-vol  { padding-left: 0; border-top: 1px solid rgba(124,58,237,.12); padding-top: 8px; }
+  .exp-body { grid-template-columns: 1fr; }
+  .exp-col-work,
+  .exp-col-vol { padding: 24px 20px 40px 40px; border-right: none; }
+  .exp-col-work::before,
+  .exp-col-vol::before  { left: 24px; }
+  .exp-col-vol  { border-top: 1px solid rgba(124,58,237,.1); }
+
+  /* ── ACHIEVEMENTS ── */
+  .ach-header { padding: 60px 20px 0; }
+  .ach-body   { padding: 20px 20px 80px; }
+  .ach-grid   { grid-template-columns: 1fr; }
+  .cert-grid  { grid-template-columns: 1fr; }
+
+  /* ── CONTACT ── */
+  .contact-header { padding: 60px 20px 20px; }
+  .contact-grid   { grid-template-columns: 1fr; padding: 24px 20px 80px; gap: 32px; }
+  .contact-closing { grid-column: 1; }
+  .contact-status-badges { display: none; }
+
+  /* ── ABOUT stats ── */
+  .about-stats { flex-wrap: wrap; }
+  .stat-card   { padding: 14px 20px; }
+  .stat-divider { display: none; }
+  .about-skills-grid { grid-template-columns: 1fr; gap: 32px; }
+
+  /* ── PROJECTS ── */
+  .proj-hud { padding: 60px 20px 0; }
+  .proj-htitle { font-size: clamp(1.8rem, 7vw, 3rem) !important; }
+  .proj-filters { gap: 5px; }
+  .pf-btn { font-size: .42rem; padding: 4px 10px; }
+
+  .proj-card { width: 290px; }
+  #projPrevBtn { left: 10px; width: 36px; height: 36px; }
+  #projNextBtn { right: 66px; width: 36px; height: 36px; }
+
+  /* ── RECEPTION DESK — simplified ── */
+  .desk-area { width: calc(100vw - 24px); }
+  .desk-left  { display: none; } /* hide monitor on mobile */
+  .desk-right { width: 70px; }
+  .desk-center { padding: 8px; }
+  .fb-sub { display: none; }
+  .desk-nameplate { font-size: .4rem; letter-spacing: 3px; }
+
+  /* ── HOLO DISPLAY — compact ── */
+  .holo-mount { top: 3%; }
+  .holo-bezel { width: calc(100vw - 32px); }
+  .holo-name-display { font-size: clamp(1.2rem, 7vw, 2rem); letter-spacing: 4px; }
+  .holo-metrics { gap: 14px; }
+  .holo-metric-val { font-size: .8rem; }
+
+  /* ── DIALOGUE CLOUD — full width on mobile ── */
+  .dialogue-cloud {
+    max-width: calc(100vw - 32px);
+    left: 16px !important; right: 16px !important;
+    bottom: 70px !important;
   }
-  
-  /* ════════════════════════════════════════════════
-     XS PHONE — xs < 480px
-  ════════════════════════════════════════════════ */
-  @media (max-width: 480px) {
-  
-    .about-title   { font-size: clamp(2.5rem, 10vw, 4rem) !important; }
-    .exp-title,
-    .ach-title     { font-size: clamp(2rem, 9vw, 3.2rem) !important; }
-    .contact-title { font-size: clamp(2.5rem, 11vw, 4.5rem) !important; }
-    .proj-htitle   { font-size: clamp(1.6rem, 8vw, 2.5rem) !important; }
-  
-    .proj-card { width: 260px; }
-    .pc-cover  { height: 140px; }
-  
-    .stat-num  { font-size: 2rem; }
-    .stat-card { padding: 12px 16px; }
-  
-    .holo-bezel { width: calc(100vw - 16px); }
-    .holo-screen { padding: 14px 14px 12px; }
-    .holo-status-row { flex-wrap: wrap; gap: 6px; }
-    .holo-status-id  { display: none; }
+  .dc-pos-bottom-left,
+  .dc-pos-bottom-right,
+  .dc-pos-center { left: 16px; right: 16px; bottom: 70px; transform: none; }
+  .dialogue-cloud::after { display: none; }
+
+  /* ── ESCALATOR TRANSITION ── */
+  .esc-building-panel { display: none; }
+  .esc-dest-header { padding: 20px; }
+  .esc-dest-floor  { font-size: 2rem; }
+  .esc-dest-name   { font-size: 1.3rem; }
+
+  /* ── NAME PROMPT ── */
+  .np-title { font-size: clamp(2rem, 8vw, 3.5rem); }
+  .np-input-wrap { width: 90vw; }
+  .np-input { font-size: 1.2rem; }
+
+  /* ── ADD MODALS ── */
+  .add-modal-box { width: 96vw; max-height: 92vh; }
+  .add-row { grid-template-columns: 1fr; }
+
+  /* ── SCROLL SCENE ── */
+  .building { transform-origin: bottom center; }
+  #helicopter { display: none; } /* too crowded on mobile */
+  .scroll-hud { top: 16px; right: 16px; }
+
+  /* ── FABs ── */
+  .floor-add-fab { bottom: 68px; right: 16px; }
+
+  /* ── TOAST ── */
+  #addToast { bottom: 68px; }
+}
+
+/* ════════════════════════════════════════════════
+   SMALL PHONE — sm < 640px
+════════════════════════════════════════════════ */
+@media (max-width: 640px) {
+
+  .contact-tagline { font-size: clamp(1.1rem, 5vw, 1.6rem); }
+  .cf-channels     { flex-direction: column; }
+  .dc-text         { font-size: .55rem; }
+  .dc-btn          { font-size: .42rem; padding: 5px 12px; }
+  .proj-modal-inner{ width: 98vw; }
+  .proj-modal-body { padding: 16px 18px; }
+  .modal-title     { font-size: clamp(1.4rem, 6vw, 2rem); }
+
+  /* Experience role wrap */
+  .exp-role-row { flex-direction: column; gap: 6px; }
+  .exp-badge    { align-self: flex-start; }
+}
+
+/* ════════════════════════════════════════════════
+   XS PHONE — xs < 480px
+════════════════════════════════════════════════ */
+@media (max-width: 480px) {
+
+  .about-title   { font-size: clamp(2.5rem, 10vw, 4rem) !important; }
+  .exp-title,
+  .ach-title     { font-size: clamp(2rem, 9vw, 3.2rem) !important; }
+  .contact-title { font-size: clamp(2.5rem, 11vw, 4.5rem) !important; }
+  .proj-htitle   { font-size: clamp(1.6rem, 8vw, 2.5rem) !important; }
+
+  .proj-card { width: 260px; }
+  .pc-cover  { height: 140px; }
+
+  .stat-num  { font-size: 2rem; }
+  .stat-card { padding: 12px 16px; }
+
+  .holo-bezel { width: calc(100vw - 16px); }
+  .holo-screen { padding: 14px 14px 12px; }
+  .holo-status-row { flex-wrap: wrap; gap: 6px; }
+  .holo-status-id  { display: none; }
+}
+
+/* ════════════════════════════════════════════════
+   REDUCED MOTION — accessibility
+════════════════════════════════════════════════ */
+@media (prefers-reduced-motion: reduce) {
+
+  /* Disable all CSS animations */
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
-  
-  /* ════════════════════════════════════════════════
-     REDUCED MOTION — accessibility
-  ════════════════════════════════════════════════ */
-  @media (prefers-reduced-motion: reduce) {
-  
-    /* Disable all CSS animations */
-    *, *::before, *::after {
-      animation-duration: 0.01ms !important;
-      animation-iteration-count: 1 !important;
-      transition-duration: 0.01ms !important;
-    }
-  
-    /* Keep GSAP fallbacks working by preserving opacity */
-    .dialogue-cloud,
-    .holo-mount,
-    #namePrompt,
-    #interior-nav { transition: opacity .3s !important; }
-  
-    /* Stop rotor / scanline loops */
-    .heli-rotor,
-    .heli-tail-rotor,
-    .helo-scan-line,
-    .esc-track-steps,
-    .esc-steps,
-    .holo-scan-line,
-    .monitor-screen::before { animation: none !important; }
+
+  /* Keep GSAP fallbacks working by preserving opacity */
+  .dialogue-cloud,
+  .holo-mount,
+  #namePrompt,
+  #interior-nav { transition: opacity .3s !important; }
+
+  /* Stop rotor / scanline loops */
+  .heli-rotor,
+  .heli-tail-rotor,
+  .helo-scan-line,
+  .esc-track-steps,
+  .esc-steps,
+  .holo-scan-line,
+  .monitor-screen::before { animation: none !important; }
+}
+
+/* ════════════════════════════════════════════════
+   HIGH CONTRAST / DARK MODE OVERRIDE
+════════════════════════════════════════════════ */
+@media (prefers-contrast: high) {
+  :root {
+    --border: rgba(124,58,237,.5);
+    --muted:  rgba(232,228,240,.75);
   }
-  
-  /* ════════════════════════════════════════════════
-     HIGH CONTRAST / DARK MODE OVERRIDE
-  ════════════════════════════════════════════════ */
-  @media (prefers-contrast: high) {
-    :root {
-      --border: rgba(124,58,237,.5);
-      --muted:  rgba(232,228,240,.75);
-    }
-    .win { border-color: rgba(124,58,237,.4) !important; }
-    .floor-btn { border-color: rgba(124,58,237,.35) !important; }
-  }
-  
-  /* ════════════════════════════════════════════════
-     TOUCH DEVICE — larger tap targets
-  ════════════════════════════════════════════════ */
-  @media (hover: none) and (pointer: coarse) {
-  
-    .floor-btn     { padding: 8px 8px 8px 0; }
-    .fdp-floor     { min-height: 44px; }
-    .dc-btn        { padding: 10px 18px; }
-    .proj-nav-btn  { width: 52px; height: 52px; }
-    .pf-btn        { padding: 8px 14px; }
-    .ach-tab       { padding: 12px 20px; }
-    .social-card   { padding: 16px; }
-    .cf-channel    { padding: 16px; }
-  
-    /* Disable hover effects that look broken on touch */
-    .floor-btn:hover    { transform: none; }
-    .social-card:hover  { transform: none; }
-    .floor-add-fab:hover{ transform: none; }
-  }
-  
-  /* ════════════════════════════════════════════════
-     PRINT — clean fallback
-  ════════════════════════════════════════════════ */
-  @media print {
-    #scene, #interior-nav, .floor-dir-panel,
-    #esc-transition, #namePrompt,
-    #dialogue-layer, #dialogue-subtitle,
-    .holo-mount, .floor-add-fab { display: none !important; }
-  
-    #interior { display: block !important; opacity: 1 !important; }
-    .floor-page { display: block !important; break-inside: avoid; }
-    body { background: #fff; color: #000; }
-  }
+  .win { border-color: rgba(124,58,237,.4) !important; }
+  .floor-btn { border-color: rgba(124,58,237,.35) !important; }
+}
+
+/* ════════════════════════════════════════════════
+   TOUCH DEVICE — larger tap targets
+════════════════════════════════════════════════ */
+@media (hover: none) and (pointer: coarse) {
+
+  .floor-btn     { padding: 8px 8px 8px 0; }
+  .fdp-floor     { min-height: 44px; }
+  .dc-btn        { padding: 10px 18px; }
+  .proj-nav-btn  { width: 52px; height: 52px; }
+  .pf-btn        { padding: 8px 14px; }
+  .ach-tab       { padding: 12px 20px; }
+  .social-card   { padding: 16px; }
+  .cf-channel    { padding: 16px; }
+
+  /* Disable hover effects that look broken on touch */
+  .floor-btn:hover    { transform: none; }
+  .social-card:hover  { transform: none; }
+  .floor-add-fab:hover{ transform: none; }
+}
+
+/* ════════════════════════════════════════════════
+   PRINT — clean fallback
+════════════════════════════════════════════════ */
+@media print {
+  #scene, #interior-nav, .floor-dir-panel,
+  #esc-transition, #namePrompt,
+  #dialogue-layer, #dialogue-subtitle,
+  .holo-mount, .floor-add-fab { display: none !important; }
+
+  #interior { display: block !important; opacity: 1 !important; }
+  .floor-page { display: block !important; break-inside: avoid; }
+  body { background: #fff; color: #000; }
+}
