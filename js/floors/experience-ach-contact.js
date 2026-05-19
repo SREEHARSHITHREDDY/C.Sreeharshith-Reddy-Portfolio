@@ -157,3 +157,45 @@ window.submitAddAch          = submitAddAch;
 window.selectChannel         = selectChannel;
 window.sendContactEmail      = sendContactEmail;
 window.resetContactForm      = resetContactForm;
+
+/* ══ FLOOR 05 — CONTACT INIT ══ */
+function initContactFloor() {
+  const floor = document.getElementById('floor-contact');
+  if (!floor) return;
+  floor.scrollTop = 0;
+
+  if (!window.gsap) return;
+
+  // Animate header elements in
+  const tag     = floor.querySelector('.contact-ftag');
+  const title   = floor.querySelector('.contact-title');
+  const status  = floor.querySelector('.contact-status');
+  const grid    = floor.querySelector('.contact-grid');
+  const closing = floor.querySelector('.contact-closing');
+
+  gsap.set([tag, title, status], { opacity:0, y:20 });
+  gsap.set(grid,    { opacity:0, y:30 });
+  gsap.set(closing, { opacity:0 });
+
+  const tl = gsap.timeline({ defaults:{ ease:'empireOut' } });
+  tl.to(tag,     { opacity:1, y:0, duration:.5 })
+    .to(title,   { opacity:1, y:0, duration:.65 }, '-=.3')
+    .to(status,  { opacity:1, y:0, duration:.45 }, '-=.35')
+    .to(grid,    { opacity:1, y:0, duration:.7  }, '-=.2')
+    .to(closing, { opacity:1,       duration:.5, delay:.3 });
+
+  // Stagger social cards
+  const cards = floor.querySelectorAll('.social-card');
+  gsap.fromTo(cards,
+    { opacity:0, x:-20 },
+    { opacity:1, x:0, duration:.45, stagger:.08, ease:'empireOut', delay:.6 }
+  );
+
+  // Status dot pulse
+  gsap.to('.contact-status-dot', {
+    boxShadow: '0 0 22px rgba(34,197,94,.95)',
+    repeat:-1, yoyo:true, duration:1.8, ease:'empireSoft'
+  });
+}
+
+window.initContactFloor = initContactFloor;
