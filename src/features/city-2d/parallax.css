@@ -1,0 +1,80 @@
+/* Colour variables are registered so gradients can ease between times of day. */
+@property --sky-top { syntax: "<color>"; inherits: true; initial-value: #05040c; }
+@property --sky-mid { syntax: "<color>"; inherits: true; initial-value: #0b0820; }
+@property --sky-bottom { syntax: "<color>"; inherits: true; initial-value: #1a1038; }
+@property --fog { syntax: "<color>"; inherits: true; initial-value: #07060e; }
+@property --cloud { syntax: "<color>"; inherits: true; initial-value: #2a2350; }
+@property --sun { syntax: "<color>"; inherits: true; initial-value: #6d5bd0; }
+@property --glow { syntax: "<number>"; inherits: true; initial-value: 1; }
+@property --stars { syntax: "<number>"; inherits: true; initial-value: 1; }
+
+.scene2d {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: linear-gradient(to bottom, var(--sky-top) 0%, var(--sky-mid) 52%, var(--sky-bottom) 100%);
+  transition: --sky-top 2.4s ease, --sky-mid 2.4s ease, --sky-bottom 2.4s ease, --fog 2.4s ease,
+    --cloud 2.4s ease, --sun 2.4s ease, --glow 2.4s ease, --stars 2.4s ease;
+}
+
+.s2d-stars i {
+  position: absolute;
+  border-radius: 50%;
+  background: #fff;
+  opacity: calc(var(--stars) * 0.9);
+  animation: s2d-twinkle 3.4s ease-in-out infinite;
+}
+
+.s2d-sun {
+  position: absolute;
+  width: 110px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle, var(--sun) 0 22%, color-mix(in srgb, var(--sun) 40%, transparent) 38%, transparent 70%);
+  transition: left 2.4s ease, top 2.4s ease, opacity 2.4s ease;
+}
+
+.s2d-clouds span {
+  position: absolute;
+  left: -35%;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--cloud);
+  filter: blur(26px);
+  opacity: 0.55;
+  animation: s2d-drift linear infinite;
+}
+
+.s2d-layer {
+  position: absolute;
+  left: -4%;
+  width: 108%;
+  bottom: 0;
+  will-change: transform;
+}
+.s2d-layer.far { height: 46%; transform: translate3d(calc(var(--px, 0) * -8px), calc(var(--py, 0) * -3px), 0); }
+.s2d-layer.mid { height: 56%; transform: translate3d(calc(var(--px, 0) * -18px), calc(var(--py, 0) * -6px), 0); }
+.s2d-layer.near { height: 68%; transform: translate3d(calc(var(--px, 0) * -34px), calc(var(--py, 0) * -10px), 0); }
+
+.s2d-layer.far rect { fill: color-mix(in srgb, var(--fog) 72%, #07060e); }
+.s2d-layer.mid rect { fill: color-mix(in srgb, var(--fog) 38%, #07060e); }
+.s2d-layer.near rect { fill: color-mix(in srgb, var(--fog) 12%, #07060e); }
+.s2d-layer .win { fill: #ffb45e; opacity: var(--glow); }
+.s2d-layer .crown { fill: #f59e0b; opacity: calc(0.45 + var(--glow) * 0.55); }
+
+.s2d-haze {
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 40%;
+  pointer-events: none;
+  background: linear-gradient(to top, color-mix(in srgb, var(--fog) 55%, transparent), transparent);
+}
+
+@keyframes s2d-twinkle { 50% { opacity: calc(var(--stars) * 0.35); } }
+@keyframes s2d-drift { to { transform: translateX(260vw); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .s2d-stars i, .s2d-clouds span { animation: none; }
+  .scene2d { transition: none; }
+}
