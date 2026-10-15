@@ -34,7 +34,7 @@ export const PHASE_LABEL: Record<Phase, string> = {
 
 const night: Palette = {
   skyTop: "#05040c", skyMid: "#0b0820", skyBottom: "#1a1038",
-  sun: "#6d5bd0", sunIntensity: 0.18,
+  sun: "#aab8ff", sunIntensity: 0.2,
   ambient: "#3b2a7a", ambientIntensity: 0.28,
   fog: "#07060e", fogDensity: 0.55,
   windowGlow: 1, stars: 1, cloud: "#2a2350",
@@ -54,15 +54,15 @@ const day: Palette = {
   windowGlow: 0, stars: 0, cloud: "#ffffff",
 };
 const sunset: Palette = {
-  skyTop: "#241a52", skyMid: "#b04f7c", skyBottom: "#ff8d3c",
-  sun: "#ffa04a", sunIntensity: 0.9,
-  ambient: "#9a6a9e", ambientIntensity: 0.34,
-  fog: "#b85e4c", fogDensity: 0.5,
-  windowGlow: 0.72, stars: 0.05, cloud: "#ff9a68",
+  skyTop: "#1d1a52", skyMid: "#a8467e", skyBottom: "#ff8a3a",
+  sun: "#ffa24c", sunIntensity: 0.85,
+  ambient: "#6c74c0", ambientIntensity: 0.42,
+  fog: "#c8684c", fogDensity: 0.5,
+  windowGlow: 0.78, stars: 0.05, cloud: "#ff9a68",
 };
 const dusk: Palette = {
-  skyTop: "#150f38", skyMid: "#4c2a82", skyBottom: "#d4507a",
-  sun: "#c8588c", sunIntensity: 0.3,
+  skyTop: "#130e36", skyMid: "#43287c", skyBottom: "#b9487a",
+  sun: "#e4b4d8", sunIntensity: 0.3,
   ambient: "#4f3590", ambientIntensity: 0.3,
   fog: "#4a2a68", fogDensity: 0.5,
   windowGlow: 0.95, stars: 0.6, cloud: "#8a4a9e",
@@ -73,22 +73,22 @@ export const PHASE_PALETTE: Record<Phase, Palette> = { sunrise, day, sunset, dus
 /** Keyframes across a 24h day. First and last entries wrap around. */
 const KEYFRAMES: { hour: number; palette: Palette }[] = [
   { hour: 0, palette: night },
-  { hour: 5, palette: night },
-  { hour: 6.25, palette: sunrise },
+  { hour: 4.8, palette: night },
+  { hour: 6, palette: sunrise },
   { hour: 8, palette: day },
   { hour: 16.5, palette: day },
-  { hour: 18, palette: sunset },
-  { hour: 19.75, palette: dusk },
+  { hour: 18.5, palette: sunset },
+  { hour: 19.9, palette: dusk },
   { hour: 21.5, palette: night },
   { hour: 24, palette: night },
 ];
 
 /** Representative hour for each phase, used by the manual picker. */
 export const PHASE_HOUR: Record<Phase, number> = {
-  sunrise: 6.25,
+  sunrise: 6,
   day: 12,
-  sunset: 18,
-  dusk: 19.75,
+  sunset: 18.5,
+  dusk: 19.9,
   night: 23,
 };
 
@@ -96,8 +96,8 @@ export function getPhase(hour: number): Phase {
   const h = ((hour % 24) + 24) % 24;
   if (h >= 5 && h < 7) return "sunrise";
   if (h >= 7 && h < 17) return "day";
-  if (h >= 17 && h < 19) return "sunset";
-  if (h >= 19 && h < 21) return "dusk";
+  if (h >= 17 && h < 19.25) return "sunset";
+  if (h >= 19.25 && h < 21) return "dusk";
   return "night";
 }
 
@@ -156,16 +156,17 @@ export function paletteForHour(hour: number): Palette {
 
 /**
  * Sun (or moon at night) position as azimuth/elevation in degrees.
- * Rises in the east at ~6h, peaks at noon, sets in the west at ~18h.
- * After sunset the same light tracks a dim "moon" across the night sky.
+ * The sun is up from 05:30 to 19:00 (rises east, peaks at midday, sets west,
+ * dipping a little below the horizon at both ends). After that a dim "moon"
+ * follows the same arc until dawn, so there is never a hard jump at one hour.
  */
 export function sunAngles(hour: number): { azimuth: number; elevation: number; isMoon: boolean } {
   const h = ((hour % 24) + 24) % 24;
-  const isDay = h >= 6 && h < 18;
-  const t = isDay ? (h - 6) / 12 : (((h - 18 + 24) % 24) / 12);
+  const isDay = h >= 5.5 && h < 19;
+  const t = isDay ? (h - 5.5) / 13.5 : (((h - 19 + 24) % 24) / 10.5);
   return {
     azimuth: 90 + t * 180, // east -> west
-    elevation: Math.sin(t * Math.PI) * 62 + 4,
+    elevation: Math.sin(t * Math.PI) * 64 - 4,
     isMoon: !isDay,
   };
 }
