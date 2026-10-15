@@ -52,7 +52,8 @@ body { overflow: hidden; -webkit-font-smoothing: antialiased; }
 }
 .time-select option { background: #12101f; }
 
-.floor-panel { position: absolute; left: 22px; bottom: 22px; z-index: 10; padding: 16px 18px; width: min(300px, calc(100vw - 44px)); }
+.floor-panel { position: absolute; left: 22px; bottom: 22px; z-index: 10; opacity: var(--j-ui, 0); padding: 16px 18px; width: min(300px, calc(100vw - 44px)); }
+.stage:not([data-entered="true"]) .floor-panel { pointer-events: none; }
 .floor-panel h2 { font: 700 0.62rem/1 var(--font-mono); letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); margin-bottom: 10px; }
 .floor-panel ol { list-style: none; display: grid; gap: 4px; }
 .floor-panel li { display: grid; grid-template-columns: 34px 1fr auto; align-items: center; gap: 8px; font-size: 0.82rem; }

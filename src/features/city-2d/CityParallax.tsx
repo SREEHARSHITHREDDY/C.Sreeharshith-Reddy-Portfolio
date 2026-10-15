@@ -1,65 +1,34 @@
 "use client";
 
-
 import { useEffect, useMemo, useRef, type CSSProperties } from "react";
 import { mulberry32 } from "@/lib/random";
-import "./parallax.css";
 import type { TimeOfDay } from "@/hooks/useTimeOfDay";
+import { HQ_CENTER, HQ_TIERS, VIEW_H, VIEW_W, buildSkyline, windowsPath } from "./skyline";
+import "./parallax.css";
 
-interface Building {
-  x: number;
-  w: number;
-  h: number;
-}
-
-function buildSkyline(seed: number, minH: number, maxH: number, minW: number, maxW: number, width = 1200): Building[] {
-  const rnd = mulberry32(seed);
-  const out: Building[] = [];
-  let x = -20;
-  while (x < width + 20) {
-    const w = minW + rnd() * (maxW - minW);
-    out.push({ x, w, h: minH + rnd() * (maxH - minH) });
-    x += w + 2 + rnd() * 6;
-  }
-  return out;
-}
-
-function windowsPath(buildings: Building[], seed: number, baseY: number, step = 9): string {
-  const rnd = mulberry32(seed);
-  let d = "";
-  for (const b of buildings) {
-    for (let wx = b.x + 5; wx < b.x + b.w - 6; wx += step) {
-      for (let wy = baseY - b.h + 8; wy < baseY - 6; wy += step + 2) {
-        if (rnd() > 0.45) d += `M${wx.toFixed(1)} ${wy.toFixed(1)}h3.2v4.2h-3.2z`;
-      }
-    }
-  }
-  return d;
-}
-
-const H = 300;
 const stars = (() => {
   const rnd = mulberry32(7);
-  return Array.from({ length: 70 }, () => ({
-    left: rnd() * 100,
-    top: rnd() * 55,
-    size: 1 + rnd() * 1.6,
-    delay: rnd() * 4,
-  }));
+  return Array.from({ length: 90 }, () => ({ left: rnd() * 100, top: rnd() * 55, size: 1 + rnd() * 1.5, delay: rnd() * 4 }));
 })();
 
-/** Layered parallax skyline. Lightweight: no WebGL, no images, pure CSS + SVG. */
+/**
+ * Layered parallax skyline. Lightweight: no WebGL, no images, pure CSS + SVG.
+ * The intro (clouds parting, skyline rising) is driven by the --journey CSS
+ * variable that features/intro publishes, so 2D tells the same story as 3D.
+ */
 export function CityParallax({ time }: { time: TimeOfDay }) {
   const root = useRef<HTMLDivElement>(null);
   const { palette: p, sun } = time;
 
-  const far = useMemo(() => buildSkyline(11, 60, 150, 26, 54), []);
-  const mid = useMemo(() => buildSkyline(23, 90, 200, 30, 62), []);
-  const near = useMemo(() => buildSkyline(37, 120, 250, 38, 76), []);
-  const midWin = useMemo(() => windowsPath(mid, 5, H), [mid]);
-  const nearWin = useMemo(() => windowsPath(near, 9, H, 11), [near]);
+  const hqZone: [number, number] = [HQ_CENTER - 62, HQ_CENTER + 62];
+  const far = useMemo(() => buildSkyline(11, 50, 140, 12, 26), []);
+  const mid = useMemo(() => buildSkyline(23, 80, 190, 14, 32), []);
+  const near = useMemo(() => buildSkyline(37, 110, 240, 20, 44, hqZone), []); // eslint-disable-line react-hooks/exhaustive-deps
+  const midWin = useMemo(() => windowsPath(mid, 5, 7), [mid]);
+  const nearWin = useMemo(() => windowsPath(near, 9, 9), [near]);
+  const hqWin = useMemo(() => windowsPath(HQ_TIERS.map((t) => ({ ...t, x: t.x + 1, w: t.w - 2 })), 3, 8), []);
 
-  // Pointer parallax without re-rendering React.
+  // pointer parallax without re-rendering React
   useEffect(() => {
     const el = root.current;
     if (!el) return;
@@ -72,8 +41,10 @@ export function CityParallax({ time }: { time: TimeOfDay }) {
     return () => window.removeEventListener("pointermove", onMove);
   }, []);
 
-  const sunX = ((sun.azimuth - 90) / 180) * 100;
-  const sunY = 78 - sun.elevation * 0.95;
+  // same side as 3D: the sun rises on the right and sets on the left, just above the far skyline
+  const arc = (sun.azimuth - 90) / 180;
+  const sunX = 85 - arc * 70;
+  const sunY = 60 - sun.elevation * 0.85;
 
   const vars = {
     "--sky-top": p.skyTop,
@@ -88,46 +59,58 @@ export function CityParallax({ time }: { time: TimeOfDay }) {
 
   return (
     <div ref={root} className="scene2d" style={vars} aria-hidden="true">
-      <div className="s2d-stars">
-        {stars.map((s, i) => (
-          <i key={i} style={{ left: `${s.left}%`, top: `${s.top}%`, width: s.size, height: s.size, animationDelay: `${s.delay}s` }} />
-        ))}
+      <div className="s2d-world">
+        <div className="s2d-stars">
+          {stars.map((s, i) => (
+            <i key={i} style={{ left: `${s.left}%`, top: `${s.top}%`, width: s.size, height: s.size, animationDelay: `${s.delay}s` }} />
+          ))}
+        </div>
+
+        <div className="s2d-sun" style={{ left: `${sunX}%`, top: `${sunY}%`, opacity: sun.isMoon ? 0.7 : 1 }} />
+
+        <div className="s2d-clouds">
+          <span style={{ top: "14%", width: 380, animationDuration: "170s" }} />
+          <span style={{ top: "27%", width: 560, animationDuration: "230s", animationDelay: "-90s" }} />
+          <span style={{ top: "9%", width: 300, animationDuration: "200s", animationDelay: "-40s" }} />
+        </div>
+
+        <svg className="s2d-layer far" viewBox={`0 0 ${VIEW_W} ${VIEW_H}`} preserveAspectRatio="xMidYMax slice">
+          {far.map((b, i) => (
+            <rect key={i} x={b.x} y={VIEW_H - b.h} width={b.w} height={b.h} />
+          ))}
+        </svg>
+        <svg className="s2d-layer mid" viewBox={`0 0 ${VIEW_W} ${VIEW_H}`} preserveAspectRatio="xMidYMax slice">
+          {mid.map((b, i) => (
+            <rect key={i} x={b.x} y={VIEW_H - b.h} width={b.w} height={b.h} />
+          ))}
+          <path className="win" d={midWin} />
+        </svg>
+        <svg className="s2d-layer near" viewBox={`0 0 ${VIEW_W} ${VIEW_H}`} preserveAspectRatio="xMidYMax slice">
+          {near.map((b, i) => (
+            <rect key={i} x={b.x} y={VIEW_H - b.h} width={b.w} height={b.h} />
+          ))}
+          <path className="win" d={nearWin} />
+          {/* HQ tower */}
+          {HQ_TIERS.map((t, i) => (
+            <rect key={i} className="hq" x={t.x} y={VIEW_H - t.h} width={t.w} height={t.h} />
+          ))}
+          <path className="win hq-win" d={hqWin} />
+          {[70, 118, 168, 214].map((y) => (
+            <rect key={y} className="crown" x={HQ_CENTER - 34} y={VIEW_H - y} width={68} height={1.6} />
+          ))}
+          <rect className="crown" x={HQ_CENTER - 1.2} y={VIEW_H - 336} width={2.4} height={40} />
+          <circle className="beacon" cx={HQ_CENTER} cy={VIEW_H - 338} r={2.6} />
+        </svg>
+
+        <div className="s2d-haze" />
       </div>
 
-      <div
-        className="s2d-sun"
-        style={{ left: `${sunX}%`, top: `${sunY}%`, opacity: sun.isMoon ? 0.55 : 1 }}
-      />
-
-      <div className="s2d-clouds">
-        <span style={{ top: "18%", width: 360, animationDuration: "160s" }} />
-        <span style={{ top: "30%", width: 520, animationDuration: "220s", animationDelay: "-90s" }} />
-        <span style={{ top: "12%", width: 280, animationDuration: "190s", animationDelay: "-40s" }} />
+      {/* clouds the intro parts as the visitor scrolls */}
+      <div className="s2d-intro">
+        <i className="bank b1" />
+        <i className="bank b2" />
+        <i className="bank b3" />
       </div>
-
-      <svg className="s2d-layer far" viewBox={`0 0 1200 ${H}`} preserveAspectRatio="xMidYMax slice">
-        {far.map((b, i) => (
-          <rect key={i} x={b.x} y={H - b.h} width={b.w} height={b.h} />
-        ))}
-      </svg>
-      <svg className="s2d-layer mid" viewBox={`0 0 1200 ${H}`} preserveAspectRatio="xMidYMax slice">
-        {mid.map((b, i) => (
-          <rect key={i} x={b.x} y={H - b.h} width={b.w} height={b.h} />
-        ))}
-        <path className="win" d={midWin} />
-      </svg>
-      <svg className="s2d-layer near" viewBox={`0 0 1200 ${H}`} preserveAspectRatio="xMidYMax slice">
-        {near.map((b, i) => (
-          <rect key={i} x={b.x} y={H - b.h} width={b.w} height={b.h} />
-        ))}
-        {/* HQ tower: tallest, gold crown */}
-        <rect x="560" y={H - 285} width="80" height="285" />
-        <rect className="crown" x="560" y={H - 285} width="80" height="4" />
-        <rect className="crown" x="596" y={H - 305} width="8" height="20" />
-        <path className="win" d={nearWin} />
-      </svg>
-
-      <div className="s2d-haze" />
     </div>
   );
 }

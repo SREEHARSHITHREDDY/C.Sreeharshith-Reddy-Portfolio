@@ -17,13 +17,16 @@
     --cloud 2.4s ease, --sun 2.4s ease, --glow 2.4s ease, --stars 2.4s ease;
 }
 
-.s2d-stars i {
+/* the whole scene eases back as the visitor descends */
+.s2d-world {
   position: absolute;
-  border-radius: 50%;
-  background: #fff;
-  opacity: calc(var(--stars) * 0.9);
-  animation: s2d-twinkle 3.4s ease-in-out infinite;
+  inset: 0;
+  transform-origin: 50% 78%;
+  transform: scale(calc(1.45 - var(--journey, 1) * 0.45));
+  will-change: transform;
 }
+
+.s2d-stars i { position: absolute; border-radius: 50%; background: #fff; opacity: calc(var(--stars) * 0.9); animation: s2d-twinkle 3.4s ease-in-out infinite; }
 
 .s2d-sun {
   position: absolute;
@@ -31,50 +34,53 @@
   aspect-ratio: 1;
   border-radius: 50%;
   transform: translate(-50%, -50%);
-  background: radial-gradient(circle, var(--sun) 0 22%, color-mix(in srgb, var(--sun) 40%, transparent) 38%, transparent 70%);
+  background: radial-gradient(circle, var(--sun) 0 22%, color-mix(in srgb, var(--sun) 45%, transparent) 40%, transparent 70%);
   transition: left 2.4s ease, top 2.4s ease, opacity 2.4s ease;
 }
 
-.s2d-clouds span {
-  position: absolute;
-  left: -35%;
-  height: 64px;
-  border-radius: 50%;
-  background: var(--cloud);
-  filter: blur(26px);
-  opacity: 0.55;
-  animation: s2d-drift linear infinite;
-}
+.s2d-clouds span { position: absolute; left: -35%; height: 64px; border-radius: 50%; background: var(--cloud); filter: blur(26px); opacity: 0.5; animation: s2d-drift linear infinite; }
 
-.s2d-layer {
-  position: absolute;
-  left: -4%;
-  width: 108%;
-  bottom: 0;
-  will-change: transform;
-}
-.s2d-layer.far { height: 46%; transform: translate3d(calc(var(--px, 0) * -8px), calc(var(--py, 0) * -3px), 0); }
-.s2d-layer.mid { height: 56%; transform: translate3d(calc(var(--px, 0) * -18px), calc(var(--py, 0) * -6px), 0); }
-.s2d-layer.near { height: 68%; transform: translate3d(calc(var(--px, 0) * -34px), calc(var(--py, 0) * -10px), 0); }
+.s2d-layer { position: absolute; left: -4%; width: 108%; bottom: 0; will-change: transform; }
+.s2d-layer.far { height: 46%; transform: translate3d(calc(var(--px, 0) * -8px), calc(var(--py, 0) * -3px + (1 - var(--journey, 1)) * 40%), 0); }
+.s2d-layer.mid { height: 58%; transform: translate3d(calc(var(--px, 0) * -18px), calc(var(--py, 0) * -6px + (1 - var(--journey, 1)) * 52%), 0); }
+.s2d-layer.near { height: 72%; transform: translate3d(calc(var(--px, 0) * -34px), calc(var(--py, 0) * -10px + (1 - var(--journey, 1)) * 64%), 0); }
 
 .s2d-layer.far rect { fill: color-mix(in srgb, var(--fog) 72%, #07060e); }
 .s2d-layer.mid rect { fill: color-mix(in srgb, var(--fog) 38%, #07060e); }
 .s2d-layer.near rect { fill: color-mix(in srgb, var(--fog) 12%, #07060e); }
+.s2d-layer.near rect.hq { fill: color-mix(in srgb, var(--fog) 6%, #0b0a16); }
 .s2d-layer .win { fill: #ffb45e; opacity: var(--glow); }
-.s2d-layer .crown { fill: #f59e0b; opacity: calc(0.45 + var(--glow) * 0.55); }
+.s2d-layer .hq-win { fill: #ffd89a; }
+.s2d-layer .crown { fill: #f59e0b; opacity: calc(0.5 + var(--glow) * 0.5); }
+.s2d-layer .beacon { fill: #ff3b30; animation: s2d-blink 2s ease-in-out infinite; }
 
-.s2d-haze {
+.s2d-haze { position: absolute; inset: auto 0 0 0; height: 40%; pointer-events: none; background: linear-gradient(to top, color-mix(in srgb, var(--fog) 55%, transparent), transparent); }
+
+/* intro: banks of cloud cover the sky, then slide up and away as the skyline rises */
+.s2d-intro { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+.s2d-intro .bank {
   position: absolute;
-  inset: auto 0 0 0;
-  height: 40%;
-  pointer-events: none;
-  background: linear-gradient(to top, color-mix(in srgb, var(--fog) 55%, transparent), transparent);
+  left: -20%;
+  width: 140%;
+  height: 52%;
+  filter: blur(34px);
+  background:
+    radial-gradient(ellipse 22% 38% at 18% 55%, var(--cloud) 0 60%, transparent 100%),
+    radial-gradient(ellipse 26% 44% at 46% 48%, var(--cloud) 0 60%, transparent 100%),
+    radial-gradient(ellipse 24% 40% at 74% 56%, var(--cloud) 0 60%, transparent 100%),
+    radial-gradient(ellipse 20% 36% at 94% 50%, var(--cloud) 0 60%, transparent 100%);
+  opacity: calc(1 - var(--journey, 1) * 1.2);
+  will-change: transform, opacity;
 }
+.s2d-intro .b1 { top: 44%; transform: translate3d(calc(var(--journey, 1) * -22%), calc(var(--journey, 1) * -150%), 0) scale(calc(1 + var(--journey, 1) * 1.1)); }
+.s2d-intro .b2 { top: 58%; transform: translate3d(calc(var(--journey, 1) * 18%), calc(var(--journey, 1) * -170%), 0) scale(calc(1 + var(--journey, 1) * 1.3)); filter: blur(28px); }
+.s2d-intro .b3 { top: 28%; transform: translate3d(calc(var(--journey, 1) * -10%), calc(var(--journey, 1) * -110%), 0) scale(calc(1 + var(--journey, 1) * 0.9)); filter: blur(42px); }
 
 @keyframes s2d-twinkle { 50% { opacity: calc(var(--stars) * 0.35); } }
 @keyframes s2d-drift { to { transform: translateX(260vw); } }
+@keyframes s2d-blink { 50% { opacity: 0.25; } }
 
 @media (prefers-reduced-motion: reduce) {
-  .s2d-stars i, .s2d-clouds span { animation: none; }
+  .s2d-stars i, .s2d-clouds span, .s2d-layer .beacon { animation: none; }
   .scene2d { transition: none; }
 }
