@@ -1,13 +1,6 @@
-export type ContentStatus = "placeholder" | "received" | "built";
+export type ProjectCategory = "enterprise" | "research" | "innovation" | "product";
 
-export type FloorTemplate =
-  | "lobby"
-  | "about"
-  | "gallery"
-  | "timeline"
-  | "cards"
-  | "grid"
-  | "cabin";
+export type FloorTemplate = "lobby" | "about" | "gallery" | "timeline" | "cards" | "grid" | "cabin";
 
 export interface Floor {
   id: string;
@@ -16,10 +9,12 @@ export interface Floor {
   name: string;
   blurb: string;
   template: FloorTemplate;
-  status: ContentStatus;
 }
 
-export type ProjectCategory = "enterprise" | "research" | "innovation" | "product";
+export interface Person {
+  name: string;
+  role: string;
+}
 
 export interface Project {
   id: string;
@@ -27,7 +22,49 @@ export interface Project {
   tagline: string;
   category: ProjectCategory;
   year: number;
-  /** GitHub "owner/repo" once provided; drives live data on the project building. */
+  about: string;
+  features: string[];
+  impact: string;
+  implementation: string;
+  stack: string[];
+  team: Person[];
+  mentor: Person | null;
+  /** GitHub "owner/repo". Drives live data on the building. Null until set. */
   repo: string | null;
-  status: ContentStatus;
+  /** Accent hue for the building's glow (hex). */
+  accent: string;
+}
+
+export interface Skill { name: string; level: number }
+export interface TechGroup { label: string; items: string[] }
+export interface Stat { value: number; suffix: string; label: string }
+
+export interface Role {
+  id: string;
+  title: string;
+  org: string;
+  kind: "work" | "leadership" | "volunteering";
+  period: string;
+  location?: string;
+  points: string[];
+  tags?: string[];
+}
+
+export interface Achievement {
+  id: string;
+  title: string;
+  issuer: string;
+  date: string;
+  kind: "achievement" | "internship";
+  description: string;
+}
+
+export interface Certification {
+  id: string;
+  title: string;
+  issuer: string;
+  date: string;
+  skills: string[];
+  credentialId: string | null;
+  verifyUrl: string | null;
 }

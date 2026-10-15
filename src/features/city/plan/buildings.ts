@@ -1,10 +1,19 @@
 import { mulberry32 } from "@/lib/random";
-import { BLOCK, DOWNTOWN, GRID, PITCH, RIVER } from "../constants";
+import { BLOCK, CABIN, DOWNTOWN, GRID, PITCH, RIVER } from "../constants";
+import { projects } from "@/data";
+import { LANDMARK_SHAPES, LANDMARK_SLOTS, LINKEDIN_ACCENT, LINKEDIN_SLOT, landBlock } from "./landmarks";
 import { inRiverCorridor, riverX } from "./river";
-import { STYLE, type BuildingPlan, type Beacon, type ScreenSpec, type Tier } from "./types";
+import { STYLE, type BuildingPlan, type Beacon, type Landmark, type ScreenSpec, type Tier } from "./types";
 
 type Rnd = () => number;
 const range = (r: Rnd, a: number, b: number) => a + r() * (b - a);
+
+/** hex -> linear-ish RGB for the shader (slightly boosted so it reads as neon). */
+function hexToRgb(hex: string): [number, number, number] {
+  const n = parseInt(hex.slice(1), 16);
+  const f = (v: number) => Math.pow(v / 255, 2.2) * 1.6;
+  return [f((n >> 16) & 255), f((n >> 8) & 255), f(n & 255)];
+}
 
 const FACADE: Record<number, (r: Rnd) => [number, number, number]> = {
   [STYLE.GLASS]: (r) => [range(r, 0.5, 0.62), range(r, 0.6, 0.72), range(r, 0.7, 0.85)],
@@ -35,6 +44,9 @@ export function planBuildings(): BuildingPlan {
   const beacons: Beacon[] = [];
   const screens: ScreenSpec[] = [];
   const hq = hqBlock();
+  const landmarks: Landmark[] = [];
+  const landmarkBlocks = LANDMARK_SLOTS.map((slot) => landBlock(slot.side, slot.gz));
+  const isLandmarkBlock = (gx: number, gz: number) => landmarkBlocks.some((b) => b.gx === gx && b.gz === gz);
 
   const tint = (style: number) => FACADE[style](rnd);
 
@@ -107,6 +119,7 @@ export function planBuildings(): BuildingPlan {
       const cz = gz * PITCH;
       if (inRiverCorridor(cx, cz, BLOCK / 2 - 8)) continue;
       if (gx === hq.gx && gz === hq.gz) continue;
+      if (isLandmarkBlock(gx, gz)) continue;
 
       const dd = Math.hypot((cx - riverX(DOWNTOWN.z)) * 0.85, cz - DOWNTOWN.z);
       const core = Math.exp(-(dd * dd) / (2 * DOWNTOWN.spread ** 2));
@@ -146,6 +159,32 @@ export function planBuildings(): BuildingPlan {
     }
   }
 
+  // ---- landmark towers: seven projects and LinkedIn ------------------------
+  const projectSlots = LANDMARK_SLOTS.map((_, i) => i).filter((i) => i !== LINKEDIN_SLOT);
+  landmarkBlocks.forEach((b, i) => {
+    const shape = LANDMARK_SHAPES[i % LANDMARK_SHAPES.length];
+    const isLinkedIn = i === LINKEDIN_SLOT;
+    const projectIndex = projectSlots.indexOf(i);
+    const hex = isLinkedIn ? LINKEDIN_ACCENT : projects[projectIndex].accent;
+    const accent = hexToRgb(hex);
+    const full = BLOCK - 14;
+    const style = i % 2 === 0 ? STYLE.GLASS : STYLE.FINS;
+    let y = 0;
+    shape.steps.forEach(([wf, hf], k) => {
+      const h = shape.height * hf;
+      const t = addTier(b.x, y, b.z, full * wf, h, full * wf, k === 0 && wf === 1 ? STYLE.CONCRETE : style);
+      t.accent = accent;
+      y += h;
+    });
+    addTier(b.x, y, b.z, 1.1, 22, 1.1, STYLE.FINS).accent = accent;
+    beacons.push({ x: b.x, y: y + 22.6, z: b.z, size: 1.5 });
+    landmarks.push({
+      id: isLinkedIn ? "linkedin" : projects[projectIndex].id,
+      kind: isLinkedIn ? "linkedin" : "project",
+      x: b.x, z: b.z, w: full, d: full, height: y + 22, accent: hex,
+    });
+  });
+
   // ---- HQ tower -----------------------------------------------------------
   const { x: hx, z: hz } = hq;
   const push = (y: number, w: number, h: number, d: number, style: number) => {
@@ -157,9 +196,11 @@ export function planBuildings(): BuildingPlan {
   y = push(y, 40, 130, 40, STYLE.HQ);
   y = push(y, 31, 80, 31, STYLE.HQ);
   y = push(y, 22, 46, 22, STYLE.HQ);
-  y = push(y, 12, 24, 12, STYLE.HQ);
+  const cabinY = y;
+  y = push(y, CABIN.shellW, CABIN.shellH, CABIN.shellD, STYLE.HQ); // penthouse shell: the CEO cabin lives inside
+  y = push(y, 12, 14, 12, STYLE.HQ);
   y = push(y, 2.2, 56, 2.2, STYLE.FINS);
   beacons.push({ x: hx, y: y + 1, z: hz, size: 2.2 });
 
-  return { tiers, beacons, screens, hq: { x: hx, z: hz, height: y } };
+  return { tiers, beacons, screens, landmarks, hq: { x: hx, z: hz, height: y, cabinY } };
 }

@@ -18,6 +18,11 @@ export function Buildings({ tiers }: { tiers: Tier[] }) {
     g.translate(0, 0.5, 0);
     g.setAttribute("aSeed", new THREE.InstancedBufferAttribute(Float32Array.from(tiers, (t) => t.seed), 1));
     g.setAttribute("aStyle", new THREE.InstancedBufferAttribute(Float32Array.from(tiers, (t) => t.style), 1));
+    const accent = new Float32Array(tiers.length * 3);
+    tiers.forEach((t, i) => {
+      if (t.accent) accent.set(t.accent, i * 3);
+    });
+    g.setAttribute("aAccent", new THREE.InstancedBufferAttribute(accent, 3));
     return g;
   }, [tiers]);
 

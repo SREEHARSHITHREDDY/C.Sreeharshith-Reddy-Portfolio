@@ -17,6 +17,16 @@
     --cloud 2.4s ease, --sun 2.4s ease, --glow 2.4s ease, --stars 2.4s ease;
 }
 
+/* inside the HQ the skyline sinks as the elevator rises (--alt runs 0 at the lobby to 1 at the top) */
+.scene2d { --alt: 0; }
+.s2d-world { transition: transform 1.2s cubic-bezier(0.22, 1, 0.36, 1); }
+.scene2d[data-hq="true"] .s2d-layer { transition: transform 1.4s cubic-bezier(0.22, 1, 0.36, 1); }
+.scene2d[data-hq="true"] .s2d-layer.far { transform: translate3d(0, calc(var(--alt) * 22%), 0); }
+.scene2d[data-hq="true"] .s2d-layer.mid { transform: translate3d(0, calc(var(--alt) * 42%), 0); }
+.scene2d[data-hq="true"] .s2d-layer.near { transform: translate3d(0, calc(var(--alt) * 70%), 0); }
+.cabin2d { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 3; animation: c2-in 0.9s ease both; }
+@keyframes c2-in { from { opacity: 0; } }
+
 /* the whole scene eases back as the visitor descends */
 .s2d-world {
   position: absolute;

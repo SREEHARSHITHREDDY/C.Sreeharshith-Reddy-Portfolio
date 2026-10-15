@@ -21,8 +21,8 @@ export function createBuildingMaterial() {
       .replace(
         "#include <common>",
         /* glsl */ `#include <common>
-        attribute float aSeed; attribute float aStyle;
-        varying vec3 vWPos; varying vec3 vWNor; varying float vSeed; varying float vStyle;`,
+        attribute float aSeed; attribute float aStyle; attribute vec3 aAccent;
+        varying vec3 vWPos; varying vec3 vWNor; varying float vSeed; varying float vStyle; varying vec3 vAccent;`,
       )
       .replace(
         "#include <begin_vertex>",
@@ -30,7 +30,7 @@ export function createBuildingMaterial() {
         vec4 iw = modelMatrix * instanceMatrix * vec4(transformed, 1.0);
         vWPos = iw.xyz;
         vWNor = normalize(mat3(modelMatrix) * mat3(instanceMatrix) * objectNormal);
-        vSeed = aSeed; vStyle = aStyle;`,
+        vSeed = aSeed; vStyle = aStyle; vAccent = aAccent;`,
       );
 
     shader.fragmentShader = shader.fragmentShader
@@ -38,7 +38,7 @@ export function createBuildingMaterial() {
         "#include <common>",
         /* glsl */ `#include <common>
         uniform float uGlow;
-        varying vec3 vWPos; varying vec3 vWNor; varying float vSeed; varying float vStyle;
+        varying vec3 vWPos; varying vec3 vWNor; varying float vSeed; varying float vStyle; varying vec3 vAccent;
         ${GLSL_HASH}`,
       )
       .replace(
@@ -69,9 +69,11 @@ export function createBuildingMaterial() {
 
         float rnd = h21(cid + vec2(vSeed * 13.7, facadeId * 7.1));
         float floorOn = step(0.2, h21(vec2(cid.y, vSeed * 91.3)));
-        float lit = step(1.0 - lf * 0.7 * uGlow * floorOn, rnd) * winMask;
+        float isLandmark = step(0.001, vAccent.r + vAccent.g + vAccent.b);
+        float lit = step(1.0 - lf * 0.7 * max(uGlow, isLandmark * 0.5) * floorOn, rnd) * winMask;
         float hue = h21(cid + vec2(vSeed * 3.1 + 5.0, facadeId));
         vec3 litCol = hue < 0.7 ? vec3(1.0, 0.64, 0.30) : (hue < 0.9 ? vec3(0.78, 0.9, 1.0) : vec3(0.55, 0.45, 1.0));
+        litCol = mix(litCol, vAccent * 0.9 + 0.12, isLandmark * step(0.35, hue + 0.2 * rnd));
 
         vec3 glassCol = vStyle < 3.5 && vStyle > 0.5 ? vec3(0.34, 0.42, 0.52) : vec3(0.58, 0.68, 0.8);
         glassCol *= 0.8 + 0.4 * h21(cid + vec2(2.0, vSeed));
@@ -80,6 +82,10 @@ export function createBuildingMaterial() {
         float ao = mix(0.45, 1.0, smoothstep(0.0, 24.0, vWPos.y));
         diffuseColor.rgb *= ao;
         if (roof) diffuseColor.rgb = mix(diffuseColor.rgb, vec3(0.055, 0.055, 0.06), 0.75);
+
+        // landmark towers: glowing light bands every ~26 m, so they read as the clickable ones
+        float accentBand = isLandmark * (roof ? 0.0 : step(0.93, fract(vWPos.y / 26.0)));
+        diffuseColor.rgb = mix(diffuseColor.rgb, vAccent, accentBand);
 
         float bandMask = 0.0;
         if (vStyle > 3.5 && !roof) {
@@ -102,7 +108,9 @@ export function createBuildingMaterial() {
         "#include <emissivemap_fragment>",
         /* glsl */ `#include <emissivemap_fragment>
         totalEmissiveRadiance += litCol * lit * 1.5;
-        totalEmissiveRadiance += vec3(1.0, 0.7, 0.25) * bandMask * (0.6 + 1.8 * uGlow);`,
+        totalEmissiveRadiance += vec3(1.0, 0.7, 0.25) * bandMask * (0.6 + 1.8 * uGlow);
+        totalEmissiveRadiance += vAccent * accentBand * (1.4 + 2.2 * uGlow);
+        totalEmissiveRadiance += vAccent * isLandmark * 0.05;`,
       );
   };
 

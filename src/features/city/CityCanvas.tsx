@@ -5,7 +5,8 @@ import { useMemo } from "react";
 import * as THREE from "three";
 import type { TimeOfDay } from "@/hooks/useTimeOfDay";
 import { CLOUD_LAYERS } from "@/lib/journey";
-import { CameraRig } from "./camera/CameraRig";
+import { NavCameraRig } from "./camera/NavCameraRig";
+import { CabinRoom } from "./cabin/CabinRoom";
 import { heroShot } from "./camera/path";
 import { PostFX } from "./effects/PostFX";
 import { Atmosphere } from "./environment/Atmosphere";
@@ -20,6 +21,7 @@ import { Buildings } from "./world/Buildings";
 import { CloudDeck } from "./world/CloudDeck";
 import { Ground } from "./world/Ground";
 import { Lamps } from "./world/Lamps";
+import { Landmarks } from "./world/Landmarks";
 import { MirroredCity } from "./world/MirroredCity";
 import { River } from "./world/River";
 import { Screens } from "./world/Screens";
@@ -59,9 +61,11 @@ export default function CityCanvas({ time, lowPower, reducedMotion = false }: Pr
         <Lamps lamps={plan.lamps} />
         <Screens screens={plan.screens} />
         <Beacons beacons={plan.beacons} />
+        <CabinRoom hq={plan.hq} />
+        <Landmarks plan={plan} />
         <CloudDeck layers={CLOUD_LAYERS} />
 
-        <CameraRig hq={plan.hq} drift={!reducedMotion} />
+        <NavCameraRig plan={plan} drift={!reducedMotion} />
         <PostFX lowPower={lowPower} />
       </SkyRigProvider>
     </Canvas>

@@ -28,3 +28,6 @@ export const RIVER = {
 export const RIVER_FADE = { zStart: BOUNDS.zMin + 100, zEnd: BOUNDS.zMin - 800 };
 
 export const DOWNTOWN = { z: -340, spread: 215 };
+
+/** The CEO cabin: a room inside the HQ penthouse. Exterior shell size (the room is inset by the wall thickness). */
+export const CABIN = { shellW: 20, shellD: 18, shellH: 7.5, wall: 0.3 };

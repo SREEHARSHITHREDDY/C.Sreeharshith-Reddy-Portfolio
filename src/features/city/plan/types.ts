@@ -12,6 +12,22 @@ export interface Tier {
   seed: number;
   /** Linear RGB facade tint. */
   color: [number, number, number];
+  /** Neon accent for landmark towers (linear RGB). Absent for ordinary buildings. */
+  accent?: [number, number, number];
+}
+
+/** A clickable tower: one per project, one for LinkedIn. */
+export interface Landmark {
+  id: string;
+  kind: "project" | "linkedin";
+  x: number;
+  z: number;
+  /** Footprint of the widest tier and total height. */
+  w: number;
+  d: number;
+  height: number;
+  /** Hex accent, for labels. */
+  accent: string;
 }
 
 export interface Beacon {
@@ -36,7 +52,8 @@ export interface BuildingPlan {
   tiers: Tier[];
   beacons: Beacon[];
   screens: ScreenSpec[];
-  hq: { x: number; z: number; height: number };
+  hq: { x: number; z: number; height: number; cabinY: number };
+  landmarks: Landmark[];
 }
 
 export interface RoadRun {

@@ -3,6 +3,10 @@
 import { useEffect, useMemo, useRef, type CSSProperties } from "react";
 import { mulberry32 } from "@/lib/random";
 import type { TimeOfDay } from "@/hooks/useTimeOfDay";
+import { floorIndex } from "@/features/city/camera/poses";
+import { floors } from "@/data";
+import { useNav } from "@/store/nav";
+import { Cabin2D } from "./Cabin2D";
 import { HQ_CENTER, HQ_TIERS, VIEW_H, VIEW_W, buildSkyline, windowsPath } from "./skyline";
 import "./parallax.css";
 
@@ -19,6 +23,9 @@ const stars = (() => {
 export function CityParallax({ time }: { time: TimeOfDay }) {
   const root = useRef<HTMLDivElement>(null);
   const { palette: p, sun } = time;
+  const view = useNav((st) => st.view);
+  const inHq = view.kind === "hq";
+  const alt = inHq ? floorIndex(view.floor) / (floors.length - 1) : 0;
 
   const hqZone: [number, number] = [HQ_CENTER - 62, HQ_CENTER + 62];
   const far = useMemo(() => buildSkyline(11, 50, 140, 12, 26), []);
@@ -55,10 +62,11 @@ export function CityParallax({ time }: { time: TimeOfDay }) {
     "--cloud": p.cloud,
     "--glow": p.windowGlow,
     "--stars": p.stars,
+    "--alt": alt,
   } as CSSProperties;
 
   return (
-    <div ref={root} className="scene2d" style={vars} aria-hidden="true">
+    <div ref={root} className="scene2d" data-hq={inHq} style={vars} aria-hidden="true">
       <div className="s2d-world">
         <div className="s2d-stars">
           {stars.map((s, i) => (
@@ -104,6 +112,8 @@ export function CityParallax({ time }: { time: TimeOfDay }) {
 
         <div className="s2d-haze" />
       </div>
+
+      {inHq && view.floor === "cabin" && <Cabin2D />}
 
       {/* clouds the intro parts as the visitor scrolls */}
       <div className="s2d-intro">
