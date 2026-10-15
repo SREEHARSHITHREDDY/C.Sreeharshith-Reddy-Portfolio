@@ -20,6 +20,8 @@ export interface SkyRig {
   ambient: THREE.Color;
   fog: THREE.Color;
   cloud: THREE.Color;
+  /** Colour of the far horizon in the direction the camera faces. Shared by sky and distance fog. */
+  horizon: THREE.Color;
   sunIntensity: number;
   ambientIntensity: number;
   fogDensity: number;
@@ -37,6 +39,7 @@ function build(p: Palette, dir: THREE.Vector3): SkyRig {
     ambient: new THREE.Color(p.ambient),
     fog: new THREE.Color(p.fog),
     cloud: new THREE.Color(p.cloud),
+    horizon: new THREE.Color(p.skyBottom),
     sunIntensity: p.sunIntensity,
     ambientIntensity: p.ambientIntensity,
     fogDensity: p.fogDensity,
@@ -93,6 +96,7 @@ export function applySkyUniforms(mat: THREE.ShaderMaterial, rig: SkyRig, time: n
   u.uSunColor.value.copy(rig.sun);
   u.uSunDir.value.copy(rig.sunDir);
   u.uCloud.value.copy(rig.cloud);
+  u.uHorizon.value.copy(rig.horizon);
   u.uSunI.value = rig.sunIntensity;
   u.uStars.value = rig.stars;
   u.uTime.value = time;

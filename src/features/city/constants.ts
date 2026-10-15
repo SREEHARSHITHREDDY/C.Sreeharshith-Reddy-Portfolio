@@ -24,4 +24,7 @@ export const RIVER = {
   offset: 18,
 };
 
+/** Past the last block the river relaxes into a long straight reach, so the far distance stays calm. */
+export const RIVER_FADE = { zStart: BOUNDS.zMin + 100, zEnd: BOUNDS.zMin - 800 };
+
 export const DOWNTOWN = { z: -340, spread: 215 };

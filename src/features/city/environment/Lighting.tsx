@@ -18,9 +18,9 @@ export function Lighting() {
       sun.current.position.copy(rig.sunDir).multiplyScalar(500);
     }
     if (hemi.current) {
-      hemi.current.color.copy(rig.skyMid);
-      hemi.current.groundColor.copy(rig.fog).multiplyScalar(0.35);
-      hemi.current.intensity = 0.12 + rig.ambientIntensity * 0.75;
+      hemi.current.color.copy(rig.skyTop).lerp(rig.ambient, 0.6);
+      hemi.current.groundColor.copy(rig.ambient).multiplyScalar(0.18);
+      hemi.current.intensity = 0.06 + rig.ambientIntensity * 0.5;
     }
   });
 

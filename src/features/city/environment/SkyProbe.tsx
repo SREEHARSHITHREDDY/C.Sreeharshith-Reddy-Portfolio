@@ -49,7 +49,7 @@ export function SkyProbe({ resolution = 128 }: { resolution?: number }) {
     st.target?.dispose();
     st.target = next;
     scene.environment = next.texture;
-    scene.environmentIntensity = 1;
+    scene.environmentIntensity = 0.55;
   });
 
   return null;

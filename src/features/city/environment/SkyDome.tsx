@@ -19,7 +19,7 @@ export function SkyDome() {
 
   return (
     <mesh ref={mesh} material={material} renderOrder={-10} frustumCulled={false}>
-      <sphereGeometry args={[2400, 48, 24]} />
+      <sphereGeometry args={[3600, 48, 24]} />
     </mesh>
   );
 }

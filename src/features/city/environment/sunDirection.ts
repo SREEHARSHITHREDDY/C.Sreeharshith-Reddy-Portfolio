@@ -9,8 +9,8 @@ import * as THREE from "three";
 export function sunDirection(azimuth: number, elevation: number, out = new THREE.Vector3()) {
   const theta = THREE.MathUtils.degToRad(azimuth - 90); // 0 -> PI across the arc
   const el = THREE.MathUtils.degToRad(elevation);
-  const hx = Math.cos(theta) * 0.55;
-  const hz = -(0.84 + 0.16 * Math.sin(theta));
+  const hx = Math.cos(theta) * 0.3;
+  const hz = -(0.95 + 0.05 * Math.sin(theta));
   const len = Math.hypot(hx, hz);
   const c = Math.cos(el);
   return out.set((hx / len) * c, Math.sin(el), (hz / len) * c).normalize();

@@ -1,6 +1,6 @@
 "use client";
 
-import { Bloom, EffectComposer, ToneMapping, Vignette } from "@react-three/postprocessing";
+import { BrightnessContrast, Bloom, EffectComposer, HueSaturation, ToneMapping, Vignette } from "@react-three/postprocessing";
 import { ToneMappingMode } from "postprocessing";
 import { useFrame } from "@react-three/fiber";
 import { useRef } from "react";
@@ -20,6 +20,8 @@ export function PostFX({ lowPower }: { lowPower: boolean }) {
     <EffectComposer multisampling={lowPower ? 0 : 4}>
       <Bloom ref={bloom as never} mipmapBlur luminanceThreshold={0.95} luminanceSmoothing={0.2} intensity={0.8} radius={0.75} />
       <ToneMapping mode={ToneMappingMode.ACES_FILMIC} />
+      <HueSaturation saturation={-0.1} />
+      <BrightnessContrast brightness={-0.04} contrast={0.16} />
       <Vignette offset={0.28} darkness={0.5} />
     </EffectComposer>
   );

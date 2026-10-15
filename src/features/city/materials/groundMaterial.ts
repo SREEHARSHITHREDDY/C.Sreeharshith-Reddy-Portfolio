@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { BOUNDS, PITCH, RIVER, ROAD_W } from "../constants";
+import { BOUNDS, PITCH, RIVER, RIVER_FADE, ROAD_W } from "../constants";
 
 export interface GroundUniforms {
   uGlow: { value: number };
@@ -28,7 +28,11 @@ export function createGroundMaterial() {
         const float PITCH = ${PITCH.toFixed(1)};
         const float ROADW = ${ROAD_W.toFixed(1)};
         const float HALFW = ${RIVER.halfWidth.toFixed(1)};
-        float riverCentre(float z) { return uRiver.x + uRiver.y * sin(z / uRiver.z * 6.2831853 + uRiver.w); }`,
+        float riverCentre(float z) {
+          float t = clamp((${RIVER_FADE.zStart.toFixed(1)} - z) / ${(RIVER_FADE.zStart - RIVER_FADE.zEnd).toFixed(1)}, 0.0, 1.0);
+          float m = 1.0 - t * t * (3.0 - 2.0 * t);
+          return uRiver.x + uRiver.y * m * sin(z / uRiver.z * 6.2831853 + uRiver.w);
+        }`,
       )
       .replace(
         "#include <color_fragment>",
@@ -62,7 +66,7 @@ export function createGroundMaterial() {
         float dxr = abs(p.x - riverCentre(p.y)) - HALFW;
         float prom = (1.0 - smoothstep(0.0, 5.0, dxr)) * step(0.0, dxr);
         base = mix(base, pave * 0.9, prom * 0.9);
-        base *= mix(1.0, 0.0, 1.0 - step(0.0, dxr)); // under the water: dark, the water mesh covers it
+        if (dxr < 0.0) discard; // open water: the river mesh and mirrored skyline show through
         diffuseColor.rgb *= base * 1.0;`,
       )
       .replace(

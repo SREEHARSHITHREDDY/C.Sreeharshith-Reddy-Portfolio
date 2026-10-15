@@ -16,7 +16,7 @@ export function Ground() {
 
   return (
     <mesh rotation={[-Math.PI / 2, 0, 0]} material={material} frustumCulled={false}>
-      <planeGeometry args={[6000, 6000]} />
+      <planeGeometry args={[16000, 16000]} />
     </mesh>
   );
 }

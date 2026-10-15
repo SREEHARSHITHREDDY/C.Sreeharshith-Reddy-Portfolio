@@ -11,7 +11,7 @@ const vert = /* glsl */ `
 
 const frag = /* glsl */ `
   uniform vec3 uTop; uniform vec3 uMid; uniform vec3 uBottom;
-  uniform vec3 uSunColor; uniform vec3 uSunDir; uniform vec3 uCloud;
+  uniform vec3 uSunColor; uniform vec3 uSunDir; uniform vec3 uCloud; uniform vec3 uHorizon;
   uniform float uSunI; uniform float uStars; uniform float uTime;
   varying vec3 vDir;
   ${GLSL_NOISE}
@@ -21,18 +21,25 @@ const frag = /* glsl */ `
     float h = max(d.y, 0.0);
     vec3 col = mix(uBottom, uMid, smoothstep(0.0, 0.22, h));
     col = mix(col, uTop, smoothstep(0.18, 0.85, h));
-    if (d.y < 0.0) col = mix(uBottom, uBottom * 0.35, smoothstep(0.0, -0.25, d.y));
 
     float sd = max(dot(d, normalize(uSunDir)), 0.0);
     // warm bloom of light hugging the horizon around the sun
     col += uSunColor * pow(sd, 5.0) * 0.4 * uSunI * smoothstep(0.55, 0.0, h);
     col += uSunColor * pow(sd, 18.0) * 0.35 * uSunI;
 
+    // the lowest sliver of sky is exactly the distance-fog colour, so ground and sky meet without a seam
+    col = mix(uHorizon, col, smoothstep(0.0, 0.05, d.y));
+
     // stars
-    vec3 sp = floor(d * 240.0);
-    float sh = h31(sp);
-    float tw = 0.65 + 0.35 * sin(uTime * 2.0 + sh * 60.0);
-    col += vec3(1.0, 0.96, 0.9) * step(0.9968, sh) * tw * uStars * smoothstep(0.03, 0.3, d.y);
+    // stars: one jittered point per cell, tiny and round
+    vec3 sv = d * 300.0;
+    vec3 sid = floor(sv);
+    float sh = h31(sid);
+    vec3 jit = vec3(h31(sid + 3.1), h31(sid + 7.7), h31(sid + 11.3)) - 0.5;
+    float sdist = length(sv - (sid + 0.5 + jit * 0.5));
+    float tw = 0.6 + 0.4 * sin(uTime * 2.0 + sh * 60.0);
+    float starMask = step(0.992, sh) * smoothstep(0.2, 0.0, sdist) * mix(0.55, 1.0, step(0.9985, sh));
+    col += vec3(1.0, 0.96, 0.9) * starMask * 1.6 * tw * uStars * smoothstep(0.03, 0.3, d.y);
 
     // clouds: projected onto a plane, lit from the sun side
     if (d.y > 0.0) {
@@ -67,6 +74,7 @@ export function createSkyMaterial() {
       uSunColor: { value: new THREE.Color() },
       uSunDir: { value: new THREE.Vector3(0, 1, 0) },
       uCloud: { value: new THREE.Color() },
+      uHorizon: { value: new THREE.Color() },
       uSunI: { value: 1 },
       uStars: { value: 0 },
       uTime: { value: 0 },
