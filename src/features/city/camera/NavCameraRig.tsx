@@ -25,6 +25,7 @@ export function NavCameraRig({ plan, drift = true }: { plan: CityPlan; drift?: b
       look: new THREE.Vector3(),
       fov: 50,
       ready: false,
+      floor: null as string | null,
     }),
     [],
   );
@@ -57,6 +58,16 @@ export function NavCameraRig({ plan, drift = true }: { plan: CityPlan; drift?: b
       state.fov = wantFov;
       state.ready = true;
     }
+
+    // Elevator ride: between floors the doors are shut, so jump straight to the new floor
+    // instead of flying through the tower's outside walls and other floors.
+    const floorNow = view.kind === "hq" ? view.floor : null;
+    if (floorNow && state.floor && floorNow !== state.floor) {
+      state.pos.copy(wantPos);
+      state.look.copy(wantLook);
+      state.fov = wantFov;
+    }
+    state.floor = floorNow;
 
     // one damped camera: it glides to whichever pose is wanted (landmark, HQ floor, or the live journey shot)
     const vk = 1 - Math.exp(-dt * (nav ? (view.kind === "hq" ? 1.9 : 2.2) : 2.6));
