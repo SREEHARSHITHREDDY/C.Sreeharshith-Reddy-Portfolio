@@ -1,20 +1,11 @@
 import { floors } from "@/data";
+import { galleryFor } from "@/features/hq/galleryData";
 import { useNav } from "@/store/nav";
+import { CASE_Z, HALLS, WALK_Z, exhibitX, hallCentreZ } from "../interiors/layout";
 import type { Landmark } from "../plan";
 import type { Shot } from "./path";
 
 type Hq = { x: number; z: number; height: number; cabinY: number };
-
-/** Eye heights (metres above ground) for each HQ floor, inside the tower's tiers. */
-const FLOOR_Y: Record<string, number> = {
-  lobby: 7,
-  about: 62,
-  projects: 106,
-  experience: 150,
-  leadership: 194,
-  achievements: 232,
-  certifications: 262,
-};
 
 export const floorIndex = (id: string) => Math.max(0, floors.findIndex((f) => f.id === id));
 
@@ -29,15 +20,28 @@ export function landmarkShot(l: Landmark): Shot {
   };
 }
 
-/** Camera inside the HQ at a given floor, looking out over the city (north). */
+/** Camera inside the HQ at a given floor: lobby, lounge or gallery corridor (standing at the current exhibit). */
 export function hqFloorShot(hq: Hq, floorId: string, t: number): Shot {
   if (floorId === "cabin") return cabinShot(hq, t);
-  const y = FLOOR_Y[floorId] ?? 7;
-  const sway = Math.sin(t * 0.12) * 6;
+  const spec = HALLS[floorId];
+  if (!spec) return { position: [hq.x, 7, hq.z + 8], target: [hq.x - 150, 4, hq.z - 190], fov: 62 };
+  const zc = hq.z + hallCentreZ(spec);
+  const eye = spec.y + 1.65;
+  const sway = Math.sin(t * 0.3) * 0.08;
+
+  if (spec.kind === "lobby") {
+    return { position: [hq.x - 3 + sway, eye, zc + 9], target: [hq.x + 3.5, spec.y + 1.6, zc - 6.5], fov: 62 };
+  }
+  if (spec.kind === "lounge") {
+    return { position: [hq.x - 15 + sway, eye, zc + 4.6], target: [hq.x + 1, spec.y + 1.2, zc - 3], fov: 66 };
+  }
+  const items = galleryFor(floorId).length || 1;
+  const i = Math.min(useNav.getState().exhibit, items - 1);
+  const x = hq.x + exhibitX(i, items, spec.L);
   return {
-    position: [hq.x, y, hq.z + 8],
-    // look north-west across the river: the open side of the skyline, with the project towers in view
-    target: [hq.x - 150 + sway, y - 6 - y * 0.03, hq.z - 190],
+    // stand back a little and look just right of the case, so it sits in the open left of the screen
+    position: [x - 0.8 + sway, eye, zc + WALK_Z],
+    target: [x + 1.7, spec.y + 1.45, zc + CASE_Z],
     fov: 62,
   };
 }

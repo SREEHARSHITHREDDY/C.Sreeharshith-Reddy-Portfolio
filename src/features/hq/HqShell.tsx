@@ -21,7 +21,6 @@ export function HqShell() {
     <AnimatePresence>
       {inHq && floor && (
         <motion.div key="hq" className="hq-shell" data-floor={floor.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.5 }}>
-          {floor.id !== "cabin" && <div className="hq-window" aria-hidden="true" />}
           <ElevatorDoors floorKey={floor.id} level={floor.level} />
 
           <nav className="elevator" aria-label="Elevator">

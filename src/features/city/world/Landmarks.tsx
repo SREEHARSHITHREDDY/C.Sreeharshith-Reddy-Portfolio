@@ -34,7 +34,7 @@ export function Landmarks({ plan }: { plan: CityPlan }) {
   const items = useMemo(
     () => [
       ...plan.landmarks.map((l) => ({ id: l.id, x: l.x, z: l.z, w: l.w, d: l.d, h: l.height, accent: l.accent, label: titles[l.id], kind: l.kind })),
-      { id: HQ_ID, x: plan.hq.x, z: plan.hq.z, w: 44, d: 44, h: plan.hq.height, accent: "#f59e0b", label: "Headquarters", kind: "hq" as const },
+      { id: HQ_ID, x: plan.hq.x, z: plan.hq.z, w: 56, d: 56, h: plan.hq.height, accent: "#f59e0b", label: "Headquarters", kind: "hq" as const },
     ],
     [plan],
   );

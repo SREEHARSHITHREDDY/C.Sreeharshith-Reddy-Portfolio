@@ -31,3 +31,6 @@ export const DOWNTOWN = { z: -340, spread: 215 };
 
 /** The CEO cabin: a room inside the HQ penthouse. Exterior shell size (the room is inset by the wall thickness). */
 export const CABIN = { shellW: 20, shellD: 18, shellH: 7.5, wall: 0.3 };
+
+/** HQ massing, bottom to top: [width = depth, height]. The interior floors are laid out inside these tiers. */
+export const HQ_TIERS = { base: [56, 24], shaft1: [44, 130], shaft2: [36, 80], shaft3: [28, 46] } as const;

@@ -7,6 +7,7 @@ import type { TimeOfDay } from "@/hooks/useTimeOfDay";
 import { CLOUD_LAYERS } from "@/lib/journey";
 import { NavCameraRig } from "./camera/NavCameraRig";
 import { CabinRoom } from "./cabin/CabinRoom";
+import { Interiors } from "./interiors/Interiors";
 import { heroShot } from "./camera/path";
 import { PostFX } from "./effects/PostFX";
 import { Atmosphere } from "./environment/Atmosphere";
@@ -62,6 +63,7 @@ export default function CityCanvas({ time, lowPower, reducedMotion = false }: Pr
         <Screens screens={plan.screens} />
         <Beacons beacons={plan.beacons} />
         <CabinRoom hq={plan.hq} />
+        <Interiors hq={plan.hq} />
         <Landmarks plan={plan} />
         <CloudDeck layers={CLOUD_LAYERS} />
 

@@ -12,6 +12,9 @@ interface NavState {
   view: View;
   hover: string | null;
   /** Where the visitor stands in the CEO cabin. */
+  /** Which exhibit the visitor is standing at on a gallery floor. */
+  exhibit: number;
+  setExhibit: (i: number) => void;
   cabinSpot: "desk" | "window";
   setCabinSpot: (s: "desk" | "window") => void;
   goCity: () => void;
@@ -26,12 +29,15 @@ interface NavState {
 export const useNav = create<NavState>((set) => ({
   view: { kind: "city" },
   hover: null,
+  exhibit: 0,
+  setExhibit: (exhibit) => set({ exhibit: Math.max(0, exhibit) }),
   cabinSpot: "desk",
   setCabinSpot: (cabinSpot) => set({ cabinSpot }),
   goCity: () => set({ view: { kind: "city" } }),
   openProject: (id) => set({ view: { kind: "project", id } }),
   openLinkedIn: () => set({ view: { kind: "linkedin" } }),
-  openHq: (floor = "lobby") => set({ view: { kind: "hq", floor }, cabinSpot: "desk" }),
+  openHq: (floor = "lobby") =>
+    set((st) => ({ view: { kind: "hq", floor }, cabinSpot: "desk", exhibit: st.view.kind === "hq" && st.view.floor === floor ? st.exhibit : 0 })),
   setHover: (hover) => set({ hover }),
 }));
 

@@ -55,3 +55,9 @@ docs/reference/         visual references
 
 - The founder in the cabin is a stylised stand-in (`src/features/city/cabin/Avatar.tsx`). Swap it for a model or a photo plane when ready.
 - Esc leaves the current building or floor.
+
+## HQ interiors
+
+- **Lobby**: a receptionist greets each visitor and asks for their name. The name is shown as "Welcome, {name}" on the desk board, in the receptionist's speech bubble, on the floor card and in the page header. It is stored only in the visitor's browser (`localStorage`, key `empire-guest`) and is never sent anywhere. "Change name" resets it.
+- **Museum galleries** (Projects, Experience, Leadership, Achievements, Certifications): each floor is a walkable corridor with a glass case on a pedestal for every item. Use the ← / → buttons or arrow keys to walk along it. Project cases hold a model of that project's tower; certificate and award cases hold framed cards and trophies. Content comes from `src/data/*` via `src/features/hq/galleryData.ts`.
+- Room layouts live in `src/features/city/interiors/layout.ts`.

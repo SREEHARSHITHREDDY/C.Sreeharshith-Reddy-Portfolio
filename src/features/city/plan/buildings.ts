@@ -1,5 +1,5 @@
 import { mulberry32 } from "@/lib/random";
-import { BLOCK, CABIN, DOWNTOWN, GRID, PITCH, RIVER } from "../constants";
+import { BLOCK, CABIN, DOWNTOWN, GRID, HQ_TIERS as T, PITCH, RIVER } from "../constants";
 import { projects } from "@/data";
 import { LANDMARK_SHAPES, LANDMARK_SLOTS, LINKEDIN_ACCENT, LINKEDIN_SLOT, landBlock } from "./landmarks";
 import { inRiverCorridor, riverX } from "./river";
@@ -192,10 +192,10 @@ export function planBuildings(): BuildingPlan {
     t.color = FACADE[style](rnd);
     return y + h;
   };
-  let y = push(0, 56, 24, 56, STYLE.CONCRETE);
-  y = push(y, 40, 130, 40, STYLE.HQ);
-  y = push(y, 31, 80, 31, STYLE.HQ);
-  y = push(y, 22, 46, 22, STYLE.HQ);
+  let y = push(0, T.base[0], T.base[1], T.base[0], STYLE.CONCRETE);
+  y = push(y, T.shaft1[0], T.shaft1[1], T.shaft1[0], STYLE.HQ);
+  y = push(y, T.shaft2[0], T.shaft2[1], T.shaft2[0], STYLE.HQ);
+  y = push(y, T.shaft3[0], T.shaft3[1], T.shaft3[0], STYLE.HQ);
   const cabinY = y;
   y = push(y, CABIN.shellW, CABIN.shellH, CABIN.shellD, STYLE.HQ); // penthouse shell: the CEO cabin lives inside
   y = push(y, 12, 14, 12, STYLE.HQ);
