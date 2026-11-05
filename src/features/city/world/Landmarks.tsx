@@ -43,7 +43,7 @@ export function Landmarks({ plan }: { plan: CityPlan }) {
 
   return (
     <group visible={!inHq}>
-      {items.map((it) => (
+      {items.map((it, idx) => (
         <group key={it.id}>
           <mesh
             position={[it.x, it.h / 2, it.z]}
@@ -66,7 +66,7 @@ export function Landmarks({ plan }: { plan: CityPlan }) {
 
           <HoverGlow x={it.x} z={it.z} w={it.w} d={it.d} h={it.h} color={it.accent} on={active && hover === it.id} />
 
-          <Html position={[it.x, it.h + 16, it.z]} center zIndexRange={[9, 0]} style={{ pointerEvents: active && showTags ? "auto" : "none", opacity: showTags ? 1 : 0, transition: "opacity 0.4s" }}>
+          <Html position={[it.x, it.h + 16 + (idx % 3) * 22, it.z]} center zIndexRange={[9, 0]} style={{ pointerEvents: active && showTags ? "auto" : "none", opacity: showTags ? 1 : 0, transition: "opacity 0.4s" }}>
             <button
               type="button"
               className={`tag${hover === it.id ? " is-hover" : ""}${it.kind === "hq" ? " tag-hq" : ""}`}
