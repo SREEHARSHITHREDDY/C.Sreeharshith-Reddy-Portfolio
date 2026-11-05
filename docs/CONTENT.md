@@ -2,7 +2,7 @@
 
 Everything on the site is data. Send any of this and it goes straight into place.
 
-**Per project** (`src/data/projects.ts`): GitHub repo (`owner/name`), live demo link (optional), screenshots (optional), any corrections to the description, features, team or mentor.
+**Per project**: use `docs/PROJECT_TEMPLATE.md` (brief, features, team, mentor, timeline, GitHub repo, demo link).
 
 **Certifications** (`src/data/certifications.ts`): title, issuer, date, skills, credential ID, verify link. Add PDFs/images if you want them shown.
 

@@ -16,6 +16,8 @@ export interface Person {
   role: string;
 }
 
+export interface Milestone { date: string; label: string }
+
 export interface Project {
   id: string;
   title: string;
@@ -31,6 +33,12 @@ export interface Project {
   mentor: Person | null;
   /** GitHub "owner/repo". Drives live data on the building. Null until set. */
   repo: string | null;
+  /** "completed" or "in progress". Shown as a badge. */
+  status?: "completed" | "in-progress";
+  /** Live demo or deployed site. */
+  demoUrl?: string;
+  /** When it ran, plus key milestones, oldest first. */
+  timeline?: { start: string; end?: string; milestones?: Milestone[] };
   /** Accent hue for the building's glow (hex). */
   accent: string;
 }

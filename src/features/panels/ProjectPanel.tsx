@@ -22,6 +22,23 @@ export function ProjectPanel({ id }: { id: string }) {
       <p className="panel-tag">{project.tagline}</p>
       <p className="panel-body">{project.about}</p>
 
+      {project.timeline && (
+        <>
+          <h3 className="panel-h">Timeline</h3>
+          <p className="panel-note">
+            {project.timeline.start} – {project.timeline.end ?? "Present"}
+            {project.status ? ` · ${project.status === "completed" ? "Completed" : "In progress"}` : ""}
+          </p>
+          {project.timeline.milestones && (
+            <ol className="timeline mini">
+              {project.timeline.milestones.map((m) => (
+                <li key={m.label}><span className="dot" /><p className="tl-meta">{m.date}</p><p className="panel-body">{m.label}</p></li>
+              ))}
+            </ol>
+          )}
+        </>
+      )}
+
       <h3 className="panel-h">Key features</h3>
       <ul className="panel-list">{project.features.map((f) => <li key={f}>{f}</li>)}</ul>
 
@@ -68,6 +85,9 @@ export function ProjectPanel({ id }: { id: string }) {
         </p>
       )}
 
+      {project.demoUrl && (
+        <a className="btn-ghost" href={project.demoUrl} target="_blank" rel="noopener noreferrer">Live demo ↗</a>
+      )}
       <a className="btn-primary" href={repoUrl} target="_blank" rel="noopener noreferrer">
         {project.repo ? "Open repository ↗" : "Browse GitHub ↗"}
       </a>
