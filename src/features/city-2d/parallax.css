@@ -94,3 +94,20 @@
   .s2d-stars i, .s2d-clouds span, .s2d-layer .beacon { animation: none; }
   .scene2d { transition: none; }
 }
+
+/* clickable landmark towers and their name pop-ups in the 2D skyline */
+.s2d-layer.near rect.lm-body { fill: color-mix(in srgb, var(--fog) 8%, #0d0b1a); stroke: color-mix(in srgb, var(--lm) 45%, transparent); stroke-width: 0.8; }
+.s2d-layer .lm-cap { fill: var(--lm); filter: drop-shadow(0 0 3px var(--lm)); }
+.s2d-layer .lm-band { fill: var(--lm); opacity: 0.8; }
+.s2d-tags { opacity: 0; transition: opacity 0.5s ease; pointer-events: none; }
+.s2d-tags.is-on { opacity: clamp(0, calc((var(--journey, 1) - 0.85) * 7), 1); }
+.s2d-tag { cursor: pointer; pointer-events: none; transition: transform 0.2s ease; }
+.stage[data-entered="true"] .s2d-tags.is-on .s2d-tag { pointer-events: auto; }
+.s2d-tag rect { fill: rgba(10, 8, 22, 0.8); stroke: var(--tag); stroke-width: 0.7; }
+.s2d-tag circle { fill: var(--tag); }
+.s2d-tag path { fill: var(--tag); }
+.s2d-tag line { stroke: var(--tag); stroke-width: 0.6; stroke-dasharray: 1.5 1.5; opacity: 0.7; }
+.s2d-tag text { fill: #fff; font: 600 7.4px/1 var(--font-mono); letter-spacing: 0.04em; text-transform: uppercase; dominant-baseline: middle; }
+.s2d-tag.is-hover rect, .s2d-tag:hover rect { fill: color-mix(in srgb, var(--tag) 38%, rgba(10, 8, 22, 0.9)); }
+
+.s2d-layer.near { overflow: visible; }

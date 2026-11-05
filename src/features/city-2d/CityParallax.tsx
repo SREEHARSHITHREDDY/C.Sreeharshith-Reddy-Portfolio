@@ -4,10 +4,11 @@ import { useEffect, useMemo, useRef, type CSSProperties } from "react";
 import { mulberry32 } from "@/lib/random";
 import type { TimeOfDay } from "@/hooks/useTimeOfDay";
 import { floorIndex } from "@/features/city/camera/poses";
-import { floors } from "@/data";
-import { useNav } from "@/store/nav";
+import { floors, projects } from "@/data";
+import { LANDMARK_SHAPES } from "@/features/city/plan/landmarks";
+import { openLandmark, useNav } from "@/store/nav";
 import { Cabin2D } from "./Cabin2D";
-import { HQ_CENTER, HQ_TIERS, VIEW_H, VIEW_W, buildSkyline, windowsPath } from "./skyline";
+import { HQ_CENTER, HQ_TIERS, LANDMARK_W, LANDMARK_X, VIEW_H, VIEW_W, buildSkyline, windowsPath, type Building } from "./skyline";
 import "./parallax.css";
 
 const stars = (() => {
@@ -30,7 +31,28 @@ export function CityParallax({ time }: { time: TimeOfDay }) {
   const hqZone: [number, number] = [HQ_CENTER - 62, HQ_CENTER + 62];
   const far = useMemo(() => buildSkyline(11, 50, 140, 12, 26), []);
   const mid = useMemo(() => buildSkyline(23, 80, 190, 14, 32), []);
-  const near = useMemo(() => buildSkyline(37, 110, 240, 20, 44, hqZone), []); // eslint-disable-line react-hooks/exhaustive-deps
+  const near = useMemo(
+    () => buildSkyline(37, 110, 240, 20, 44, [hqZone, ...LANDMARK_X.map((x): [number, number] => [x - LANDMARK_W / 2 - 4, x + LANDMARK_W / 2 + 4])]),
+    [], // eslint-disable-line react-hooks/exhaustive-deps
+  );
+  // the clickable towers: seven projects then LinkedIn, drawn as stepped silhouettes with a name pop-up above
+  const towers = useMemo(() => {
+    const list = [...projects.map((pr) => ({ id: pr.id, label: pr.title, accent: pr.accent })), { id: "linkedin", label: "LinkedIn", accent: "#2f8cf0" }];
+    return list.slice(0, LANDMARK_X.length).map((it, i) => {
+      const shape = LANDMARK_SHAPES[i % LANDMARK_SHAPES.length];
+      const total = Math.min(shape.height * 0.95, 215);
+      let acc = 0;
+      const tiers: Building[] = shape.steps.map(([wf, hf]) => {
+        acc += hf;
+        const w = LANDMARK_W * wf;
+        return { x: LANDMARK_X[i] - w / 2, w, h: total * acc };
+      });
+      return { ...it, cx: LANDMARK_X[i], top: total, tiers, win: windowsPath(tiers, 31 + i, 6) };
+    });
+  }, []);
+  const hover = useNav((st) => st.hover);
+  const setHover = useNav((st) => st.setHover);
+  const openHq = useNav((st) => st.openHq);
   const midWin = useMemo(() => windowsPath(mid, 5, 7), [mid]);
   const nearWin = useMemo(() => windowsPath(near, 9, 9), [near]);
   const hqWin = useMemo(() => windowsPath(HQ_TIERS.map((t) => ({ ...t, x: t.x + 1, w: t.w - 2 })), 3, 8), []);
@@ -98,6 +120,16 @@ export function CityParallax({ time }: { time: TimeOfDay }) {
             <rect key={i} x={b.x} y={VIEW_H - b.h} width={b.w} height={b.h} />
           ))}
           <path className="win" d={nearWin} />
+          {towers.map((t) => (
+            <g key={t.id} className="lm" style={{ ["--lm" as string]: t.accent }}>
+              {t.tiers.map((r, i) => (
+                <rect key={i} className="lm-body" x={r.x} y={VIEW_H - r.h} width={r.w} height={r.h} />
+              ))}
+              <path className="win" d={t.win} />
+              <rect className="lm-cap" x={t.tiers[t.tiers.length - 1].x} y={VIEW_H - t.top} width={t.tiers[t.tiers.length - 1].w} height={2.4} />
+              <rect className="lm-band" x={t.tiers[0].x} y={VIEW_H - t.tiers[0].h * 0.55} width={t.tiers[0].w} height={1.8} />
+            </g>
+          ))}
           {/* HQ tower */}
           {HQ_TIERS.map((t, i) => (
             <rect key={i} className="hq" x={t.x} y={VIEW_H - t.h} width={t.w} height={t.h} />
@@ -108,6 +140,33 @@ export function CityParallax({ time }: { time: TimeOfDay }) {
           ))}
           <rect className="crown" x={HQ_CENTER - 1.2} y={VIEW_H - 336} width={2.4} height={40} />
           <circle className="beacon" cx={HQ_CENTER} cy={VIEW_H - 338} r={2.6} />
+
+          {/* name pop-ups above every building (city view only), staggered so neighbours never overlap */}
+          <g className={`s2d-tags${view.kind === "city" ? " is-on" : ""}`}>
+            {[
+              { id: "hq", label: "HQ · Enter", accent: "#f59e0b", cx: HQ_CENTER, y: VIEW_H - 338 - 22, go: () => openHq() },
+              ...towers.map((t, i) => ({ id: t.id, label: t.label, accent: t.accent, cx: t.cx, y: VIEW_H - 236 - (i % 4) * 21, drop: VIEW_H - t.top - (VIEW_H - 236 - (i % 4) * 21), go: () => openLandmark(t.id) })),
+            ].map((t) => {
+              const w = t.label.length * 5.1 + 20;
+              return (
+                <g
+                  key={t.id}
+                  className={`s2d-tag${hover === t.id ? " is-hover" : ""}`}
+                  style={{ ["--tag" as string]: t.accent }}
+                  transform={`translate(${t.cx} ${t.y})`}
+                  onClick={t.go}
+                  onPointerEnter={() => setHover(t.id)}
+                  onPointerLeave={() => setHover(null)}
+                >
+                  <rect x={-w / 2} y={-8} width={w} height={16} rx={8} />
+                  <circle cx={-w / 2 + 8} cy={0} r={2.2} />
+                  <text x={-w / 2 + 14} y={0.5}>{t.label}</text>
+                  <path d={`M-3 8 L0 12 L3 8 Z`} />
+                  <line x1={0} y1={12} x2={0} y2={"drop" in t ? t.drop : 20} />
+                </g>
+              );
+            })}
+          </g>
         </svg>
 
         <div className="s2d-haze" />

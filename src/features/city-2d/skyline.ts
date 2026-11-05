@@ -17,15 +17,16 @@ export function buildSkyline(
   maxH: number,
   minW: number,
   maxW: number,
-  exclude?: [number, number],
+  exclude?: [number, number] | [number, number][],
 ): Building[] {
   const rnd = mulberry32(seed);
   const out: Building[] = [];
+  const zones: [number, number][] = !exclude ? [] : Array.isArray(exclude[0]) ? (exclude as [number, number][]) : [exclude as [number, number]];
   let x = -20;
   while (x < VIEW_W + 20) {
     const w = minW + rnd() * (maxW - minW);
     const b = { x, w, h: minH + rnd() * (maxH - minH) };
-    if (!exclude || b.x + b.w < exclude[0] || b.x > exclude[1]) out.push(b);
+    if (zones.every(([a, z]) => b.x + b.w < a || b.x > z)) out.push(b);
     x += w + 1.5 + rnd() * 5;
   }
   return out;
@@ -53,3 +54,7 @@ export const HQ_TIERS = [
   { x: HQ_CENTER - 15, w: 30, h: 282 },
   { x: HQ_CENTER - 7, w: 14, h: 298 },
 ] as const;
+
+/** Centres of the eight landmark slots (projects, then LinkedIn) either side of the HQ. */
+export const LANDMARK_X = [505, 568, 631, 694, 906, 969, 1032, 1095] as const;
+export const LANDMARK_W = 34;
