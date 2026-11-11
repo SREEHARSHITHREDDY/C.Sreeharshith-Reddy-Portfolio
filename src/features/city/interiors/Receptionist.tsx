@@ -1,6 +1,7 @@
 "use client";
 
-import { Html, RoundedBox } from "@react-three/drei";
+import { RoundedBox } from "@react-three/drei";
+import { Html3D } from "@/features/city/Html3D";
 import { useFrame } from "@react-three/fiber";
 import { useMemo, useRef } from "react";
 import * as THREE from "three";
@@ -40,7 +41,7 @@ export function Receptionist({ m, position }: { m: HallMaterials; position: [num
         <mesh material={m.skin} position={[0, -0.54, 0]}><sphereGeometry args={[0.055, 12, 10]} /></mesh>
       </group>
 
-      <Html position={[0, 2.25, 0]} center distanceFactor={9} zIndexRange={[16, 0]} style={{ pointerEvents: "none" }}>
+      <Html3D position={[0, 2.25, 0]} distanceFactor={9} zIndexRange={[16, 0]} style={{ pointerEvents: "none" }}>
         <div className="speech">
           {name ? (
             <>
@@ -54,7 +55,7 @@ export function Receptionist({ m, position }: { m: HallMaterials; position: [num
             </>
           )}
         </div>
-      </Html>
+      </Html3D>
     </group>
   );
 }

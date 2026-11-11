@@ -1,6 +1,6 @@
 "use client";
 
-import { Html } from "@react-three/drei";
+import { Html3D } from "@/features/city/Html3D";
 import { useFrame } from "@react-three/fiber";
 import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
@@ -66,7 +66,7 @@ export function Landmarks({ plan }: { plan: CityPlan }) {
 
           <HoverGlow x={it.x} z={it.z} w={it.w} d={it.d} h={it.h} color={it.accent} on={active && hover === it.id} />
 
-          <Html position={[it.x, it.h + 16 + (idx % 3) * 22, it.z]} center zIndexRange={[9, 0]} style={{ pointerEvents: active && showTags ? "auto" : "none", opacity: showTags ? 1 : 0, transition: "opacity 0.4s" }}>
+          <Html3D position={[it.x, it.h + 16 + (idx % 3) * 22, it.z]} zIndexRange={[9, 0]} style={{ pointerEvents: active && showTags ? "auto" : "none", opacity: showTags ? 1 : 0, transition: "opacity 0.4s" }}>
             <button
               type="button"
               className={`tag${hover === it.id ? " is-hover" : ""}${it.kind === "hq" ? " tag-hq" : ""}`}
@@ -79,7 +79,7 @@ export function Landmarks({ plan }: { plan: CityPlan }) {
               <i />
               {it.label}
             </button>
-          </Html>
+          </Html3D>
         </group>
       ))}
     </group>

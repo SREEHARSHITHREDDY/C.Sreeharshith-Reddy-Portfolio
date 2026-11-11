@@ -1,6 +1,6 @@
 "use client";
 
-import { Html } from "@react-three/drei";
+import { Html3D } from "@/features/city/Html3D";
 import { RoundedBox } from "@react-three/drei";
 import { site } from "@/data";
 import type { CabinMaterials } from "./materials";
@@ -26,12 +26,12 @@ export function Avatar({ m, position }: { m: CabinMaterials; position: [number, 
       {/* legs under the desk */}
       <RoundedBox material={m.suit} args={[0.5, 0.18, 0.62]} radius={0.07} position={[0, 0.75, 0.2]} />
 
-      <Html position={[0, 2.15, 0.1]} center distanceFactor={7} zIndexRange={[16, 0]} style={{ pointerEvents: "none" }}>
+      <Html3D position={[0, 2.15, 0.1]} distanceFactor={7} zIndexRange={[16, 0]} style={{ pointerEvents: "none" }}>
         <div className="avatar-tag">
           <b>{site.name}</b>
           <span>{site.title}</span>
         </div>
-      </Html>
+      </Html3D>
     </group>
   );
 }
