@@ -51,6 +51,12 @@ export function GalleryPanel({ floor }: { floor: Floor }) {
         <p className="tl-meta">{e.sub}</p>
         <p className="panel-body">{e.body}</p>
         {e.bullets && <ul className="panel-list">{e.bullets.map((b) => <li key={b}>{b}</li>)}</ul>}
+        {e.extra?.map((x) => (
+          <div key={x.label}>
+            <h3 className="panel-h">{x.label}</h3>
+            <p className="panel-body">{x.text}</p>
+          </div>
+        ))}
         {e.chips && <div className="chips">{e.chips.map((c) => <span key={c} className="chip">{c}</span>)}</div>}
         <div className="exhibit-actions">
           {e.projectId && <button type="button" className="btn-primary" onClick={() => openProject(e.projectId!)}>Visit building →</button>}

@@ -15,6 +15,8 @@ export interface GalleryEntry {
   exhibit: ExhibitKind;
   /** Link out (verify, repo). */
   link?: { label: string; href: string };
+  /** Extra labelled paragraphs under the bullets (result, mentor). */
+  extra?: { label: string; text: string }[];
   /** In-app action: open this project's building. */
   projectId?: string;
 }
@@ -26,11 +28,15 @@ const roleEntry = (r: Role, accent: string, eyebrow: string): GalleryEntry => ({
   title: r.title,
   sub: r.org,
   accent,
-  body: `${r.org}${r.location ? ` · ${r.location}` : ""}`,
+  body: r.summary ?? `${r.org}${r.location ? ` · ${r.location}` : ""}`,
   meta: r.period,
   bullets: r.points,
   chips: r.tags,
-  exhibit: { type: "card", card: { eyebrow, title: r.title, lines: [r.org], footer: r.period, accent: "#f59e0b", theme: "navy" } },
+  extra: [
+    ...(r.result ? [{ label: "Result", text: r.result }] : []),
+    ...(r.mentor ? [{ label: r.mentor.role, text: r.mentor.name }] : []),
+  ],
+  exhibit: { type: "card", card: { eyebrow: r.employment ?? eyebrow, title: r.title, lines: [r.org, ...(r.location ? [r.location] : [])], footer: r.period, accent: "#f59e0b", theme: "navy" } },
 });
 
 /** What stands in each case on a gallery floor. The same entries feed the 3D cases and the info card. */

@@ -58,6 +58,12 @@ export interface Role {
   location?: string;
   points: string[];
   tags?: string[];
+  /** One-line summary shown above the bullets. */
+  summary?: string;
+  /** Employment type shown on the card, e.g. "Internship". */
+  employment?: string;
+  result?: string;
+  mentor?: Person;
 }
 
 export interface Achievement {

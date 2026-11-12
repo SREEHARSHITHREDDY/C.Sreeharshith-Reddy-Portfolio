@@ -2,14 +2,34 @@ import type { Role } from "./types";
 
 export const work: Role[] = [
   {
-    id: "rainc", title: "Co-Founder", org: "RainC", kind: "work", period: "Oct 2024 – Jul 2025", location: "Remote",
+    id: "nebulytix", title: "AI Intern", org: "Nebulytix Technologies Pvt. Ltd.", kind: "work", employment: "Internship",
+    period: "Apr 2026 – Jul 2026", location: "Hyderabad",
+    summary: "Built and shipped core AI features for JobSync AI, an agentic HR platform, including a RAG-based resume-to-job matching engine, an intelligent job scouting agent and a Telegram bot, and authored the product documentation for its three-product suite.",
     points: [
-      "Led AI-focused learning initiatives to mentor students in emerging technologies and innovation",
-      "Designed structured mentorship programs for early-stage skill development",
-      "Collaborated on international innovation exposure programs (India–Japan initiatives)",
-      "Enabled access to curated learning resources from leading technology platforms",
+      "Replaced static job matching with a RAG pipeline (pgvector, sentence-transformers all-MiniLM-L6-v2, 384-dimension embeddings), so resumes are matched to jobs by meaning rather than keywords.",
+      "Built an intelligent job scouting agent with query expansion using intern and fresher synonyms, step-by-step location widening and URL de-duplication, fixing empty results on fresher searches.",
+      "Fixed three critical Telegram bot failures (startup crash from a missing constant, callback crash from blind type conversion, initialisation failure outside the run context) and designed its commands, inline keyboards, callback routing and background execution.",
+      "Built a section-aware resume parser that calculates experience from the Experience section only, with overlap-safe date merging, and returns highest role, longest-tenure role and an experience breakdown.",
+      "Designed and built a six-page web dashboard (Three.js, GSAP, Chart.js, VanillaTilt.js) connected to REST APIs, with live statistics and a scouted-versus-applied activity chart, and fixed key-casing and path mismatches between front end and back end.",
+      "Documented the full Agentic AI HR OS: enumerated 289 functionalities, wrote PRD, BRD and solution design content for all three products, and authored a builder's manual (database schema, 87 API routes, agent modules, five LLM prompts) detailed enough for a team with no prior context to rebuild the system.",
     ],
-    tags: ["AI Concepts", "Leadership", "Mentorship", "Entrepreneurship"],
+    result: "Delivered a working semantic matching pipeline, scouting agent, Telegram bot, resume parser and dashboard, plus a complete documentation base for the three-product HR OS. Internship completed with a completion letter from the company, and the work was presented to the college Training & Placement department.",
+    mentor: { name: "V. Sunil Kumar Reddy", role: "Mentor" },
+    tags: ["Python", "Flask", "PostgreSQL", "pgvector", "sentence-transformers", "RAG", "Telegram Bot API", "REST APIs", "JavaScript", "Three.js", "GSAP", "Chart.js", "pgAdmin 4", "Cline", "Claude"],
+  },
+  {
+    id: "rainc", title: "Co-Founder", org: "RAIN-C", kind: "work", employment: "Founder",
+    period: "Oct 2024 – Jul 2025", location: "Hybrid · Hyderabad, Telangana",
+    summary: "Co-founded RAIN-C, an initiative focused on building an ecosystem that nurtures entrepreneurship, skill development, and innovation among primary and secondary school students.",
+    points: [
+      "Co-founded and contributed to building an ecosystem that encourages entrepreneurship and innovation among school students.",
+      "Planned and developed initiatives to introduce entrepreneurial thinking at the school level.",
+      "Engaged with schools to explore opportunities for student development and innovation.",
+      "Promoted skill development and early exposure to entrepreneurship among primary and secondary school students.",
+      "Contributed to grassroots innovation initiatives and ecosystem development.",
+      "Worked on building opportunities that connect young learners with entrepreneurial and innovation-oriented experiences.",
+    ],
+    result: "Contributed to establishing an initiative aimed at nurturing entrepreneurial mindsets, practical skills, and grassroots innovation among young students.",
   },
 ];
 
