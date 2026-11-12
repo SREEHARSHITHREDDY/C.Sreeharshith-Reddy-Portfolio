@@ -2,7 +2,7 @@
 
 import { projects, site } from "@/data";
 import { useGithub } from "@/hooks/useGithub";
-import { initials, timeAgo } from "@/lib/format";
+import { initials, projectEyebrow, timeAgo, timelineLabel } from "@/lib/format";
 import { useNav } from "@/store/nav";
 import { Panel } from "./Panel";
 
@@ -17,19 +17,18 @@ export function ProjectPanel({ id }: { id: string }) {
 
   return (
     <Panel accent={project.accent} onClose={goCity} label={project.title}>
-      <p className="eyebrow">{project.category} · {project.year}</p>
+      <p className="eyebrow">{projectEyebrow(project)}</p>
       <h2 className="panel-title">{project.title}</h2>
       <p className="panel-tag">{project.tagline}</p>
       <p className="panel-body">{project.about}</p>
 
-      {project.timeline && (
+      {(project.timeline || project.status) && (
         <>
           <h3 className="panel-h">Timeline</h3>
           <p className="panel-note">
-            {project.timeline.start} – {project.timeline.end ?? "Present"}
-            {project.status ? ` · ${project.status === "completed" ? "Completed" : "In progress"}` : ""}
+            {[timelineLabel(project.timeline), project.status ? (project.status === "completed" ? "Completed" : "In progress") : null].filter(Boolean).join(" · ")}
           </p>
-          {project.timeline.milestones && (
+          {project.timeline?.milestones && (
             <ol className="timeline mini">
               {project.timeline.milestones.map((m) => (
                 <li key={m.label}><span className="dot" /><p className="tl-meta">{m.date}</p><p className="panel-body">{m.label}</p></li>
@@ -47,7 +46,7 @@ export function ProjectPanel({ id }: { id: string }) {
 
       <h3 className="panel-h">How it was built</h3>
       <p className="panel-body">{project.implementation}</p>
-      <div className="chips">{project.stack.map((s) => <span key={s} className="chip">{s}</span>)}</div>
+      {project.stack.length > 0 && <div className="chips">{project.stack.map((s) => <span key={s} className="chip">{s}</span>)}</div>}
 
       <h3 className="panel-h">Team</h3>
       <ul className="people">
@@ -81,7 +80,7 @@ export function ProjectPanel({ id }: { id: string }) {
         <p className="panel-note">Reading the repository…</p>
       ) : (
         <p className="panel-note">
-          {project.repo ? "GitHub is not reachable right now." : "This building will show live commits as soon as its repository is linked."}
+          {project.repo ? "GitHub is not reachable right now." : project.repoPrivate ? "The source code for this project is in a private repository." : "This building will show live commits as soon as its repository is linked."}
         </p>
       )}
 
@@ -89,7 +88,7 @@ export function ProjectPanel({ id }: { id: string }) {
         <a className="btn-ghost" href={project.demoUrl} target="_blank" rel="noopener noreferrer">Live demo ↗</a>
       )}
       <a className="btn-primary" href={repoUrl} target="_blank" rel="noopener noreferrer">
-        {project.repo ? "Open repository ↗" : "Browse GitHub ↗"}
+        {project.repo ? "Open repository ↗" : "Browse GitHub profile ↗"}
       </a>
     </Panel>
   );

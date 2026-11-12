@@ -56,5 +56,5 @@ export const HQ_TIERS = [
 ] as const;
 
 /** Centres of the eight landmark slots (projects, then LinkedIn) either side of the HQ. */
-export const LANDMARK_X = [505, 568, 631, 694, 906, 969, 1032, 1095] as const;
-export const LANDMARK_W = 34;
+export const LANDMARK_X = [474, 530, 586, 642, 698, 902, 958, 1014, 1070, 1126] as const;
+export const LANDMARK_W = 30;

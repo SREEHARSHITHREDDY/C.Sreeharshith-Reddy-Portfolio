@@ -1,3 +1,4 @@
+import { projectEyebrow, timelineLabel } from "@/lib/format";
 import { achievements, certifications, leadership, projects, work, type Role } from "@/data";
 import type { ExhibitKind } from "@/features/city/interiors/Exhibit";
 import { LANDMARK_SLOTS, LINKEDIN_SLOT } from "@/features/city/plan/landmarks";
@@ -39,12 +40,12 @@ export function galleryFor(floorId: string): GalleryEntry[] {
       return projects.map((p, i) => ({
         id: p.id,
         title: p.title,
-        sub: `${p.category} · ${p.year}`,
+        sub: projectEyebrow(p),
         accent: p.accent,
         body: p.about,
         bullets: p.features,
         chips: p.stack,
-        meta: p.timeline ? `${p.timeline.start} – ${p.timeline.end ?? "Present"}` : String(p.year),
+        meta: timelineLabel(p.timeline) ?? (p.year ? String(p.year) : p.status === "completed" ? "Completed" : "In progress"),
         exhibit: { type: "project", shapeIndex: projectSlot[i], accent: p.accent },
         projectId: p.id,
         link: p.repo ? { label: "Open repository", href: `https://github.com/${p.repo}` } : undefined,

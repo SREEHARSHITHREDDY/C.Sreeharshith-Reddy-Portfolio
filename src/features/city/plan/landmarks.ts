@@ -4,8 +4,8 @@ import { inRiverCorridor, riverX } from "./river";
 export type Side = "L" | "R";
 
 /**
- * Where the landmark towers stand: river side and block row (gz). The first
- * seven carry the projects, the LinkedIn tower is the one at LINKEDIN_SLOT.
+ * Where the landmark towers stand: river side and block row (gz). The slots
+ * other than LINKEDIN_SLOT carry the projects, in order, the LinkedIn tower is the one at LINKEDIN_SLOT.
  * Chosen so all of them are visible from the arrival shot, spread on both banks.
  */
 export const LANDMARK_SLOTS: { side: Side; gz: number }[] = [
@@ -16,6 +16,8 @@ export const LANDMARK_SLOTS: { side: Side; gz: number }[] = [
   { side: "L", gz: -3 },
   { side: "R", gz: -3 },
   { side: "L", gz: -4 },
+  { side: "R", gz: -4 },
+  { side: "L", gz: -5 },
   { side: "R", gz: -6 },
 ];
 export const LINKEDIN_SLOT = 2;
@@ -30,6 +32,8 @@ export const LANDMARK_SHAPES: { height: number; steps: [number, number][] }[] = 
   { height: 185, steps: [[0.9, 0.45], [0.66, 0.35], [0.38, 0.2]] },
   { height: 140, steps: [[1, 0.7], [0.55, 0.3]] },
   { height: 200, steps: [[0.76, 0.6], [0.48, 0.4]] },
+  { height: 170, steps: [[0.9, 0.6], [0.55, 0.25], [0.3, 0.15]] },
+  { height: 195, steps: [[0.65, 0.5], [0.85, 0.2], [0.45, 0.3]] },
 ];
 
 /** Grid block on the given bank of the river at row gz. */

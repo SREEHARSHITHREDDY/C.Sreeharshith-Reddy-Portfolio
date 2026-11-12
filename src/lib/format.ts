@@ -20,3 +20,13 @@ export const initials = (name: string) =>
     .join("")
     .slice(0, 3)
     .toUpperCase();
+
+/** "March 2025 – Ongoing", tolerating a missing start or end. */
+export function timelineLabel(t?: { start?: string; end?: string }): string | null {
+  if (!t || (!t.start && !t.end)) return null;
+  if (!t.start) return t.end!;
+  return `${t.start} – ${t.end ?? "Present"}`;
+}
+
+/** "product · 2025", skipping whatever is not on record. */
+export const projectEyebrow = (p: { category: string; year?: number }) => (p.year ? `${p.category} · ${p.year}` : p.category);

@@ -23,7 +23,7 @@ export interface Project {
   title: string;
   tagline: string;
   category: ProjectCategory;
-  year: number;
+  year?: number;
   about: string;
   features: string[];
   impact: string;
@@ -33,12 +33,14 @@ export interface Project {
   mentor: Person | null;
   /** GitHub "owner/repo". Drives live data on the building. Null until set. */
   repo: string | null;
+  /** True when the repository exists but is private (no live data). */
+  repoPrivate?: boolean;
   /** "completed" or "in progress". Shown as a badge. */
   status?: "completed" | "in-progress";
   /** Live demo or deployed site. */
   demoUrl?: string;
   /** When it ran, plus key milestones, oldest first. */
-  timeline?: { start: string; end?: string; milestones?: Milestone[] };
+  timeline?: { start?: string; end?: string; milestones?: Milestone[] };
   /** Accent hue for the building's glow (hex). */
   accent: string;
 }

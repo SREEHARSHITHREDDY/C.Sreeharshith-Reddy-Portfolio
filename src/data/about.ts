@@ -7,7 +7,7 @@ export const bio: string[] = [
 ];
 
 export const stats: Stat[] = [
-  { value: 7, suffix: "+", label: "Projects built" },
+  { value: 9, suffix: "+", label: "Projects built" },
   { value: 2, suffix: "+", label: "Years experience" },
   { value: 5, suffix: "+", label: "Technologies" },
   { value: 1, suffix: "", label: "Co-Founder" },
